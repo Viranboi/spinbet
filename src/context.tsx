@@ -1,10 +1,15 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from "react";
-import { UnityContext } from "react-unity-webgl";
-import { useLocation } from "react-router";
-import { io } from "socket.io-client";
 import { toast } from "react-toastify";
-import { config } from "./config";
+import {
+  computeCrashPoint,
+  findCrashTime,
+  generateFakePlayers,
+  generateInitialHistory,
+  newServerSeed,
+  newClientSeed,
+} from "./gameEngine";
+import type { FakePlayer } from "./gameEngine";
 
 export interface BettedUserType {
   name: string;
@@ -98,7 +103,6 @@ interface ContextDataType {
   sdeState: boolean;
   ssingle: boolean;
   sdefaultBetAmount: number;
-  myUnityContext: UnityContext;
 }
 
 interface ContextType extends GameBetLimit, UserStatusType, GameStatusType {
@@ -110,7 +114,6 @@ interface ContextType extends GameBetLimit, UserStatusType, GameStatusType {
   previousHand: BettedUserType[];
   history: number[];
   rechargeState: boolean;
-  myUnityContext: UnityContext;
   currentTarget: number;
   setCurrentTarget(attrs: Partial<number>);
   update(attrs: Partial<ContextDataType>);
@@ -118,21 +121,14 @@ interface ContextType extends GameBetLimit, UserStatusType, GameStatusType {
   updateUserBetState(attrs: Partial<UserStatusType>);
 }
 
-const unityContext = new UnityContext({
-  loaderUrl: "unity/AirCrash.loader.js",
-  dataUrl: "unity/AirCrash.data.unityweb",
-  frameworkUrl: "unity/AirCrash.framework.js.unityweb",
-  codeUrl: "unity/AirCrash.wasm.unityweb",
-});
-
-const init_state = {
+const init_state: ContextDataType = {
   myBets: [],
   width: 1500,
   userInfo: {
-    balance: 0,
+    balance: 5000,
     userType: false,
     img: "",
-    userName: "",
+    userName: "Player",
     f: {
       auto: false,
       betted: false,
@@ -168,16 +164,14 @@ const init_state = {
   sdeState: false,
   ssingle: false,
   sdefaultBetAmount: 20,
-  myUnityContext: unityContext,
-} as ContextDataType;
+};
 
 const Context = React.createContext<ContextType>(null!);
 
-const socket = io(config.wss);
+let cashOutHandler: ((at: number, index: "f" | "s") => void) | null = null;
 
 export const callCashOut = (at: number, index: "f" | "s") => {
-  let data = { type: index, endTarget: at };
-  socket.emit("cashOut", data);
+  cashOutHandler?.(at, index);
 };
 
 let fIncreaseAmount = 0;
@@ -185,20 +179,9 @@ let fDecreaseAmount = 0;
 let sIncreaseAmount = 0;
 let sDecreaseAmount = 0;
 
-let newState;
-let newBetState;
-
 export const Provider = ({ children }: any) => {
-  const token = new URLSearchParams(useLocation().search).get("cert");
-  const [state, setState] = React.useState<ContextDataType>(init_state);
-
-  newState = state;
-  const [unity, setUnity] = React.useState({
-    unityState: false,
-    unityLoading: false,
-    currentProgress: 0,
-  });
-  const [gameState, setGameState] = React.useState({
+  const [state, setState] = React.useState<ContextDataType>({ ...init_state });
+  const [gameState, setGameState] = React.useState<GameStatusType>({
     currentNum: 0,
     currentSecondNum: 0,
     GameState: "",
@@ -206,295 +189,276 @@ export const Provider = ({ children }: any) => {
   });
 
   const [bettedUsers, setBettedUsers] = React.useState<BettedUserType[]>([]);
-  const update = (attrs: Partial<ContextDataType>) => {
-    setState({ ...state, ...attrs });
-  };
   const [previousHand, setPreviousHand] = React.useState<BettedUserType[]>([]);
-  const [history, setHistory] = React.useState<number[]>([]);
+  const [history, setHistory] = React.useState<number[]>(
+    generateInitialHistory()
+  );
   const [userBetState, setUserBetState] = React.useState<UserStatusType>({
     fbetState: false,
     fbetted: false,
     sbetState: false,
     sbetted: false,
   });
-  newBetState = userBetState;
   const [rechargeState, setRechargeState] = React.useState(false);
   const [currentTarget, setCurrentTarget] = React.useState(0);
-  const updateUserBetState = (attrs: Partial<UserStatusType>) => {
-    setUserBetState({ ...userBetState, ...attrs });
+  const [betLimit] = React.useState<GameBetLimit>({ maxBet: 10000, minBet: 1 });
+
+  const stateRef = React.useRef(state);
+  const betStateRef = React.useRef(userBetState);
+  const gameActiveRef = React.useRef(true);
+
+  stateRef.current = state;
+  betStateRef.current = userBetState;
+
+  const update = (attrs: Partial<ContextDataType>) => {
+    setState((prev) => ({ ...prev, ...attrs }));
   };
 
-  const [betLimit, setBetLimit] = React.useState<GameBetLimit>({
-    maxBet: 1000,
-    minBet: 1,
-  });
-  React.useEffect(function () {
-    unityContext.on("GameController", function (message) {
-      if (message === "Ready") {
-        setUnity({
-          currentProgress: 100,
-          unityLoading: true,
-          unityState: true,
-        });
-      }
-    });
-    unityContext.on("progress", (progression) => {
-      const currentProgress = progression * 100;
-      if (progression === 1) {
-        setUnity({ currentProgress, unityLoading: true, unityState: true });
-      } else {
-        setUnity({ currentProgress, unityLoading: false, unityState: false });
-      }
-    });
-    return () => unityContext.removeAllEventListeners();
+  const updateUserBetState = (attrs: Partial<UserStatusType>) => {
+    setUserBetState((prev) => ({ ...prev, ...attrs }));
+  };
+
+  const getMyBets = () => {};
+
+  useEffect(() => {
+    cashOutHandler = (at: number, index: "f" | "s") => {
+      const s = { ...stateRef.current };
+      const b = { ...betStateRef.current };
+      const bet = { ...s.userInfo[index] };
+
+      if (bet.cashouted) return;
+
+      const payout = bet.betAmount * at;
+      s.userInfo = { ...s.userInfo, [index]: bet };
+      s.userInfo.balance += payout;
+      bet.cashouted = true;
+      bet.cashAmount = payout;
+      bet.betted = false;
+      s.userInfo = { ...s.userInfo, [index]: bet };
+      b[`${index}betted`] = false;
+      b[`${index}betState`] = false;
+
+      setState(s);
+      setUserBetState(b);
+    };
+    return () => {
+      cashOutHandler = null;
+    };
   }, []);
 
-  React.useEffect(() => {
-    socket.on("connect", () => {
-      socket.emit("enterRoom", { token });
-    });
+  useEffect(() => {
+    gameActiveRef.current = true;
 
-    socket.on("bettedUserInfo", (bettedUsers: BettedUserType[]) => {
-      setBettedUsers(bettedUsers);
-    });
+    const startRound = async () => {
+      let serverSeed = newServerSeed();
+      let clientSeed = newClientSeed();
+      let nonce = 0;
+      let localHistory = [...history];
 
-    socket.on("connect", () => {
-      console.log(socket.connected);
-    });
+      while (gameActiveRef.current) {
+        const crashPoint = await computeCrashPoint(serverSeed, clientSeed, nonce);
+        nonce++;
 
-    socket.on("myBetState", (user: UserType) => {
-      const attrs = userBetState;
-      attrs.fbetState = false;
-      attrs.fbetted = user.f.betted;
-      attrs.sbetState = false;
-      attrs.sbetted = user.s.betted;
-      setUserBetState(attrs);
-    });
-
-    socket.on("myInfo", (user: UserType) => {
-      let attrs = state;
-      attrs.userInfo.balance = user.balance;
-      attrs.userInfo.userType = user.userType;
-      attrs.userInfo.userName = user.userName;
-      update(attrs);
-    });
-
-    socket.on("history", (history: any) => {
-      setHistory(history);
-    });
-
-    socket.on("gameState", (gameState: GameStatusType) => {
-      setGameState(gameState);
-    });
-
-    socket.on("previousHand", (previousHand: BettedUserType[]) => {
-      setPreviousHand(previousHand);
-    });
-
-    socket.on("finishGame", (user: UserType) => {
-      let attrs = newState;
-      let fauto = attrs.userInfo.f.auto;
-      let sauto = attrs.userInfo.s.auto;
-      let fbetAmount = attrs.userInfo.f.betAmount;
-      let sbetAmount = attrs.userInfo.s.betAmount;
-      let betStatus = newBetState;
-      attrs.userInfo = user;
-      attrs.userInfo.f.betAmount = fbetAmount;
-      attrs.userInfo.s.betAmount = sbetAmount;
-      attrs.userInfo.f.auto = fauto;
-      attrs.userInfo.s.auto = sauto;
-      if (!user.f.betted) {
-        betStatus.fbetted = false;
-        if (attrs.userInfo.f.auto) {
-          if (user.f.cashouted) {
-            fIncreaseAmount += user.f.cashAmount;
-            if (attrs.finState && attrs.fincrease - fIncreaseAmount <= 0) {
-              attrs.userInfo.f.auto = false;
-              betStatus.fbetState = false;
-              fIncreaseAmount = 0;
-            } else if (
-              attrs.fsingle &&
-              attrs.fsingleAmount <= user.f.cashAmount
-            ) {
-              attrs.userInfo.f.auto = false;
-              betStatus.fbetState = false;
-            } else {
-              attrs.userInfo.f.auto = true;
-              betStatus.fbetState = true;
+        setPreviousHand((prev) => {
+          const s = stateRef.current;
+          const users: BettedUserType[] = [];
+          for (const idx of ["f", "s"] as const) {
+            const bet = s.userInfo[idx];
+            if (bet.betted) {
+              users.push({
+                name: "You",
+                betAmount: bet.betAmount,
+                cashOut: 0,
+                cashouted: false,
+                target: 0,
+                img: "",
+              });
             }
-          } else {
-            fDecreaseAmount += user.f.betAmount;
-            if (attrs.fdeState && attrs.fdecrease - fDecreaseAmount <= 0) {
-              attrs.userInfo.f.auto = false;
-              betStatus.fbetState = false;
+          }
+          return users;
+        });
+
+        const fakeUsers = generateFakePlayers(crashPoint);
+        setBettedUsers(fakeUsers as BettedUserType[]);
+
+        setGameState({
+          GameState: "BET",
+          currentNum: 0,
+          currentSecondNum: 0,
+          time: 0,
+        });
+
+        await delay(5000);
+        if (!gameActiveRef.current) break;
+
+        setGameState({
+          GameState: "PLAYING",
+          currentNum: crashPoint,
+          currentSecondNum: 0,
+          time: 0,
+        });
+
+        const crashDuration = findCrashTime(crashPoint) * 1000;
+        await delay(crashDuration);
+        if (!gameActiveRef.current) break;
+
+        setGameState({
+          GameState: "GAMEEND",
+          currentNum: crashPoint,
+          currentSecondNum: 0,
+          time: 0,
+        });
+
+        localHistory.unshift(crashPoint);
+        if (localHistory.length > 123) localHistory.pop();
+        setHistory([...localHistory]);
+
+        processGameEnd();
+
+        await delay(3000);
+        if (!gameActiveRef.current) break;
+      }
+    };
+
+    startRound();
+
+    return () => {
+      gameActiveRef.current = false;
+    };
+  }, []);
+
+  const processGameEnd = () => {
+    const s = { ...stateRef.current };
+    const b = { ...betStateRef.current };
+    const myBets = [...s.myBets];
+
+    for (const index of ["f", "s"] as const) {
+      const bet = { ...s.userInfo[index] };
+
+      if (bet.betted) {
+        if (bet.cashouted) {
+          myBets.unshift({
+            _id: myBets.length + 1,
+            name: "You",
+            betAmount: bet.betAmount,
+            cashoutAt: Math.round((bet.cashAmount / bet.betAmount) * 100) / 100,
+            cashouted: true,
+            date: Date.now(),
+          });
+        } else {
+          myBets.unshift({
+            _id: myBets.length + 1,
+            name: "You",
+            betAmount: bet.betAmount,
+            cashoutAt: 0,
+            cashouted: false,
+            date: Date.now(),
+          });
+        }
+      }
+
+      bet.betted = false;
+      bet.cashouted = false;
+      bet.cashAmount = 0;
+      s.userInfo = { ...s.userInfo, [index]: bet };
+      b[`${index}betted`] = false;
+
+      const auto = bet.auto;
+      if (auto) {
+        if (bet.cashouted) {
+        } else {
+          if (index === "f") {
+            fDecreaseAmount += bet.betAmount;
+            if (s.fdeState && s.fdecrease - fDecreaseAmount <= 0) {
+              s.userInfo.f.auto = false;
+              b.fbetState = false;
               fDecreaseAmount = 0;
             } else {
-              attrs.userInfo.f.auto = true;
-              betStatus.fbetState = true;
-            }
-          }
-        }
-      }
-      if (!user.s.betted) {
-        betStatus.sbetted = false;
-        if (user.s.auto) {
-          if (user.s.cashouted) {
-            sIncreaseAmount += user.s.cashAmount;
-            if (attrs.sinState && attrs.sincrease - sIncreaseAmount <= 0) {
-              attrs.userInfo.s.auto = false;
-              betStatus.sbetState = false;
-              sIncreaseAmount = 0;
-            } else if (
-              attrs.ssingle &&
-              attrs.ssingleAmount <= user.s.cashAmount
-            ) {
-              attrs.userInfo.s.auto = false;
-              betStatus.sbetState = false;
-            } else {
-              attrs.userInfo.s.auto = true;
-              betStatus.sbetState = true;
+              s.userInfo.f.auto = true;
+              b.fbetState = true;
             }
           } else {
-            sDecreaseAmount += user.s.betAmount;
-            if (attrs.sdeState && attrs.sdecrease - sDecreaseAmount <= 0) {
-              attrs.userInfo.s.auto = false;
-              betStatus.sbetState = false;
+            sDecreaseAmount += bet.betAmount;
+            if (s.sdeState && s.sdecrease - sDecreaseAmount <= 0) {
+              s.userInfo.s.auto = false;
+              b.sbetState = false;
               sDecreaseAmount = 0;
             } else {
-              attrs.userInfo.s.auto = true;
-              betStatus.sbetState = true;
+              s.userInfo.s.auto = true;
+              b.sbetState = true;
             }
           }
         }
       }
-      update(attrs);
-      setUserBetState(betStatus);
-    });
+    }
 
-    socket.on("getBetLimits", (betAmounts: { max: number; min: number }) => {
-      setBetLimit({ maxBet: betAmounts.max, minBet: betAmounts.min });
-    });
-
-    socket.on("recharge", () => {
-      setRechargeState(true);
-    });
-
-    socket.on("error", (data) => {
-      setUserBetState({
-        ...userBetState,
-        [`${data.index}betted`]: false,
-      });
-      toast.error(data.message);
-    });
-
-    socket.on("success", (data) => {
-      toast.success(data);
-    });
-    return () => {
-      socket.off("connect");
-      socket.off("disconnect");
-      socket.off("myBetState");
-      socket.off("myInfo");
-      socket.off("history");
-      socket.off("gameState");
-      socket.off("previousHand");
-      socket.off("finishGame");
-      socket.off("getBetLimits");
-      socket.off("recharge");
-      socket.off("error");
-      socket.off("success");
-    };
-  }, [socket]);
+    if (myBets.length > 100) myBets.length = 100;
+    s.myBets = myBets;
+    setState(s);
+    setUserBetState(b);
+  };
 
   React.useEffect(() => {
-    let attrs = state;
-    let betStatus = userBetState;
+    let s = stateRef.current;
+    let betStatus = betStateRef.current;
+
     if (gameState.GameState === "BET") {
       if (betStatus.fbetState) {
-        if (state.userInfo.f.auto) {
-          if (state.fautoCound > 0) attrs.fautoCound -= 1;
-          else {
-            attrs.userInfo.f.auto = false;
+        if (s.userInfo.f.auto) {
+          if (s.fautoCound > 0) {
+            s.fautoCound -= 1;
+          } else {
+            s.userInfo.f.auto = false;
             betStatus.fbetState = false;
+            setState({ ...s });
+            setUserBetState({ ...betStatus });
             return;
           }
         }
-        let data = {
-          betAmount: state.userInfo.f.betAmount,
-          target: state.userInfo.f.target,
-          type: "f",
-          auto: state.userInfo.f.auto,
-        };
-        if (attrs.userInfo.balance - state.userInfo.f.betAmount < 0) {
+        if (s.userInfo.balance - s.userInfo.f.betAmount < 0) {
           toast.error("Your balance is not enough");
           betStatus.fbetState = false;
           betStatus.fbetted = false;
+          setState({ ...s });
+          setUserBetState({ ...betStatus });
           return;
         }
-        attrs.userInfo.balance -= state.userInfo.f.betAmount;
-        socket.emit("playBet", data);
+        s.userInfo.balance -= s.userInfo.f.betAmount;
+        s.userInfo.f.betted = true;
         betStatus.fbetState = false;
         betStatus.fbetted = true;
-        // update(attrs);
-        setUserBetState(betStatus);
+        setState({ ...s });
+        setUserBetState({ ...betStatus });
       }
       if (betStatus.sbetState) {
-        if (state.userInfo.s.auto) {
-          if (state.sautoCound > 0) attrs.sautoCound -= 1;
-          else {
-            attrs.userInfo.s.auto = false;
+        if (s.userInfo.s.auto) {
+          if (s.sautoCound > 0) {
+            s.sautoCound -= 1;
+          } else {
+            s.userInfo.s.auto = false;
             betStatus.sbetState = false;
+            setState({ ...s });
+            setUserBetState({ ...betStatus });
             return;
           }
         }
-        let data = {
-          betAmount: state.userInfo.s.betAmount,
-          target: state.userInfo.s.target,
-          type: "s",
-          auto: state.userInfo.s.auto,
-        };
-        if (attrs.userInfo.balance - state.userInfo.s.betAmount < 0) {
+        if (s.userInfo.balance - s.userInfo.s.betAmount < 0) {
           toast.error("Your balance is not enough");
           betStatus.sbetState = false;
           betStatus.sbetted = false;
+          setState({ ...s });
+          setUserBetState({ ...betStatus });
           return;
         }
-        attrs.userInfo.balance -= state.userInfo.s.betAmount;
-        socket.emit("playBet", data);
+        s.userInfo.balance -= s.userInfo.s.betAmount;
+        s.userInfo.s.betted = true;
         betStatus.sbetState = false;
         betStatus.sbetted = true;
-        // update(attrs);
-        setUserBetState(betStatus);
+        setState({ ...s });
+        setUserBetState({ ...betStatus });
       }
     }
   }, [gameState.GameState, userBetState.fbetState, userBetState.sbetState]);
-
-  const getMyBets = async () => {
-    try {
-      const response = await fetch(`${config.api}/my-info`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name: state.userInfo.userName }),
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data.status) {
-          update({ myBets: data.data as GameHistory[] });
-        }
-      } else {
-        console.error("Error:", response.statusText);
-      }
-    } catch (error) {
-      console.log("getMyBets", error);
-    }
-  };
-
-  useEffect(() => {
-    if (gameState.GameState === "BET") getMyBets();
-  }, [gameState.GameState]);
 
   return (
     <Context.Provider
@@ -502,11 +466,12 @@ export const Provider = ({ children }: any) => {
         state: state,
         ...betLimit,
         ...userBetState,
-        ...unity,
+        unityState: true,
+        unityLoading: true,
+        currentProgress: 100,
         ...gameState,
         currentTarget,
         rechargeState,
-        myUnityContext: unityContext,
         bettedUsers: [...bettedUsers],
         previousHand: [...previousHand],
         history: [...history],
@@ -520,5 +485,9 @@ export const Provider = ({ children }: any) => {
     </Context.Provider>
   );
 };
+
+function delay(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
 
 export default Context;

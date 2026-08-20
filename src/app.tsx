@@ -2,11 +2,8 @@ import React from "react";
 import Header from "./components/header";
 import BetsUsers from "./components/bet-users";
 import Main from "./components/Main";
-// import { useCrashContext } from "./components/Main/context";
-import propeller from "./assets/images/propeller.png";
 
 import Context from "./context";
-// import "./App.scss";
 
 function App() {
   const { unityLoading, currentProgress, rechargeState } =
@@ -16,9 +13,6 @@ function App() {
       {!unityLoading && (
         <div className="myloading">
           <div className="loading-container">
-            <div className="rotation">
-              <img alt="propeller" src={propeller}></img>
-            </div>
             <div className="waiting">
               <div
                 style={{ width: `${currentProgress * 1.111 + 0.01}%` }}
@@ -34,9 +28,6 @@ function App() {
             <div className="recharge-body-font">
               Insufficient balance amount
             </div>
-            <a href="https://induswin.com/#/pages/recharge/recharge">
-              Induswin.com
-            </a>
           </div>
         </div>
       )}

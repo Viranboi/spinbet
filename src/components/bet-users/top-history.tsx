@@ -1,34 +1,37 @@
 import React, { useEffect } from "react";
 import MoonLoader from "react-spinners/MoonLoader";
 import "./bets.scss";
-import { config } from "../../config";
+
+const fakeTopData = [
+  { betAmount: 5000, cashoutAt: 12.45, cashouted: true },
+  { betAmount: 1000, cashoutAt: 8.23, cashouted: true },
+  { betAmount: 2000, cashoutAt: 6.78, cashouted: true },
+  { betAmount: 500, cashoutAt: 15.34, cashouted: true },
+  { betAmount: 3000, cashoutAt: 4.56, cashouted: true },
+  { betAmount: 800, cashoutAt: 22.11, cashouted: true },
+  { betAmount: 1500, cashoutAt: 7.89, cashouted: true },
+  { betAmount: 200, cashoutAt: 18.67, cashouted: true },
+  { betAmount: 4000, cashoutAt: 3.21, cashouted: true },
+  { betAmount: 750, cashoutAt: 9.45, cashouted: true },
+];
 
 const TopHistory = () => {
   const [type, setType] = React.useState(0);
-  const [history, setHistory] = React.useState([]);
+  const [history, setHistory] = React.useState<any[]>([]);
   const [loadingEffect, setLoadingEffect] = React.useState(false);
 
-  const callDate = async (date: string) => {
-    try {
-      setLoadingEffect(true);
-      const response = await fetch(`${config.api}/get-${date}-history`);
-      if (response.ok) {
-        const data = await response.json();
-        setHistory(data.data);
-        setTimeout(() => {
-          setLoadingEffect(false);
-        }, 500);
-      } else {
-        console.log(`HTTP error! status: ${response.status}`);
-      }
-    } catch (error: any) {
-      console.log("callDate", error);
-    }
+  const loadData = () => {
+    setLoadingEffect(true);
+    setTimeout(() => {
+      setHistory(fakeTopData);
+      setLoadingEffect(false);
+    }, 500);
   };
+
   useEffect(() => {
-    // Request of Day data
-    callDate("day");
+    loadData();
   }, []);
+
   return (
     <>
       <div className="navigation-switcher-wrapper">
@@ -40,7 +43,7 @@ const TopHistory = () => {
           <button
             onClick={() => {
               setType(0);
-              callDate("day");
+              loadData();
             }}
             className={`tab`}
           >
@@ -49,7 +52,7 @@ const TopHistory = () => {
           <button
             onClick={() => {
               setType(1);
-              callDate("month");
+              loadData();
             }}
             className={`tab`}
           >
@@ -58,7 +61,7 @@ const TopHistory = () => {
           <button
             onClick={() => {
               setType(2);
-              callDate("year");
+              loadData();
             }}
             className={`tab`}
           >
@@ -70,11 +73,7 @@ const TopHistory = () => {
         <div className="top-items-list scroll-y h-100">
           {loadingEffect ? (
             <div className="flex items-center justify-center top-14">
-              <MoonLoader
-                color="red"
-                size={35}
-                data-testid="loader"
-              />
+              <MoonLoader color="red" size={35} data-testid="loader" />
             </div>
           ) : (
             <>
