@@ -5,13 +5,13 @@ $y2: #FFF000;        // CTA yellow
 $yd: #e6c400;        // pressed yellow
 $r: #f4242f;         // brand red
 $g: #10a52e;         // success green
-$pg: #000000;        // page background (pitch dark)
-$hdr: #000000;       // header / nav / footer (pitch blacker)
-$box: #18181C;       // cards & rows
-$box2: #141417;      // deeper panel
-$inp: #1A1A1F;       // inputs
-$bord: #222228;      // primary border
-$bord2: #2A2A30;     // lighter border
+$pg: #141414;        // page background (dark grey)
+$hdr: #1a1a1a;       // header / nav / footer (darker grey)
+$box: #1e1e1e;       // cards & rows
+$box2: #191919;      // deeper panel
+$inp: #222222;       // inputs
+$bord: #333333;      // primary border
+$bord2: #404040;     // lighter border
 $t1: #ffffff;
 $t2: #999999;
 $t3: #8e9297;
@@ -833,7 +833,7 @@ $t4: #6b7076;
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      background: #111;
+      background: #191919;
       border-bottom: 1px solid $bord;
       padding: 8px 10px;
 
@@ -1024,7 +1024,7 @@ $t4: #6b7076;
       display: flex;
       align-items: center;
       gap: 8px;
-      background: #111;
+      background: #191919;
       border-bottom: 1px solid $bord;
       padding: 9px 12px;
 
@@ -1503,8 +1503,8 @@ $t4: #6b7076;
 
 /* =========================== FOOTER =========================== */
 .wn-footer {
-  background: #000000;
-  border-top: 1px solid #1a1a1a;
+  background: #1a1a1a;
+  border-top: 1px solid #333;
   margin-top: 20px;
 
   .wn-footer-in {
@@ -1735,8 +1735,8 @@ $t4: #6b7076;
     z-index: 150;
     display: flex;
     align-items: stretch;
-    background: #000000;
-    border-top: 1px solid #1a1a1a;
+    background: #1a1a1a;
+    border-top: 1px solid #333;
     padding: 5px 2px calc(5px + env(safe-area-inset-bottom));
 
     .qw-tab {
@@ -1814,7 +1814,7 @@ $t4: #6b7076;
 /* Reference skin refinements. Kept scoped to the sportsbook home page so the
    Aviator canvas and its existing controls retain their original styling. */
 .wn-app {
-  background: #000000;
+  background: #242424;
   font-family: "Arial Narrow", Roboto, Arial, sans-serif;
   letter-spacing: 0;
 }
@@ -1822,8 +1822,8 @@ $t4: #6b7076;
 .wn-header {
   height: 60px;
   padding: 0 12px;
-  background: #000000;
-  border-bottom-color: #1a1a1a;
+  background: #1a1a1a;
+  border-bottom-color: #333;
 
   .wn-logo img {
     height: 40px;
@@ -1851,7 +1851,7 @@ $t4: #6b7076;
 
     &.login {
       background: transparent;
-      border-color: #555;
+      border-color: #666;
       padding: 9px 18px;
       border-radius: 4px;
     }
@@ -1869,8 +1869,8 @@ $t4: #6b7076;
   .wn-avatar {
     width: 38px;
     height: 38px;
-    border-color: #888;
-    background: #000000;
+    border-color: #999;
+    background: #1a1a1a;
     border-width: 1.5px;
 
     svg { width: 24px; height: 24px; color: #fff; }
@@ -1881,7 +1881,7 @@ $t4: #6b7076;
       top: -1px;
       right: -1px;
       background: #3e9cff;
-      border-color: #000000;
+      border-color: #1a1a1a;
       border-width: 2px;
     }
   }
@@ -1890,7 +1890,7 @@ $t4: #6b7076;
     flex-direction: row;
     align-items: stretch;
     gap: 0;
-    border-left: 1px solid #333;
+    border-left: 1px solid #444;
 
     .wn-bal-metric {
       display: flex;
@@ -1899,7 +1899,7 @@ $t4: #6b7076;
       gap: 2px;
       min-width: 58px;
       padding: 0 10px;
-      border-right: 1px solid #333;
+      border-right: 1px solid #444;
 
       &:last-child { border-right: none; }
     }
@@ -1907,7 +1907,7 @@ $t4: #6b7076;
     .wn-bal-row { display: contents; }
 
     .lbl {
-      color: #aaa;
+      color: #bbb;
       font-size: 10px;
       font-weight: 500;
       line-height: 1;
@@ -1924,15 +1924,15 @@ $t4: #6b7076;
 
 .wn-nav {
   top: 60px;
-  background: #000000;
-  border-bottom: 1px solid #1a1a1a;
+  background: #1a1a1a;
+  border-bottom: 1px solid #333;
 
   .wn-nav-scroll { max-width: none; }
 
   .wn-nav-item {
     min-width: 82px;
     padding: 9px 12px 10px;
-    color: #999;
+    color: #aaa;
     font-weight: 500;
 
     .wn-nav-ico {
@@ -1967,7 +1967,7 @@ $t4: #6b7076;
     }
   }
 
-  .wn-nav-utils { border-left-color: #1a1a1a; }
+  .wn-nav-utils { border-left-color: #333; }
 
   .wn-nav-utils .wn-nav-item {
     min-width: 100px;
@@ -1977,7 +1977,7 @@ $t4: #6b7076;
     .wn-nav-ico.plain {
       width: 38px;
       height: 38px;
-      color: #ccc;
+      color: #ddd;
 
       svg { width: 28px; height: 28px; stroke-width: 1.35; }
     }
@@ -2032,18 +2032,18 @@ $t4: #6b7076;
 .wn-betslip,
 .wn-side-banner {
   border-radius: 3px;
-  border-color: #222;
+  border-color: #3a3a3a;
 }
 
 .wn-tree {
   padding: 0;
-  background: #1a1a1a;
+  background: #1e1e1e;
 
   .wn-tree-search {
     margin: 0 0 2px;
     border-radius: 3px;
-    background: #141414;
-    border-color: #444;
+    background: #191919;
+    border-color: #4a4a4a;
     padding: 9px 10px;
   }
 
@@ -2054,19 +2054,19 @@ $t4: #6b7076;
 
   .wn-acc-control {
     padding: 10px 9px;
-    border-bottom-color: #333;
-    background: #1a1a1a;
+    border-bottom-color: #3a3a3a;
+    background: #1e1e1e;
     font-weight: 400;
 
-    &:hover { background: #222; }
+    &:hover { background: #282828; }
     .wn-acc-state .title { font-weight: 400; }
   }
 }
 
 .wn-slider {
   border-radius: 0;
-  border-color: #1a1a1a;
-  background: #000000;
+  border-color: #2a2a2a;
+  background: #111;
 }
 
 .wn-fav-leagues {
@@ -2075,7 +2075,7 @@ $t4: #6b7076;
   .wn-league-chip button {
     padding: 7px 12px 7px 8px;
     border-radius: 18px;
-    background: #0a0a0a;
+    background: #191919;
     border-color: #555;
     font-weight: 500;
 
@@ -2088,21 +2088,21 @@ $t4: #6b7076;
 
   .wn-featured-card {
     border-radius: 3px;
-    background: #1a1a1a;
-    border-color: #2a2a2a;
+    background: #1e1e1e;
+    border-color: #3a3a3a;
 
     .fg-header {
       padding: 8px 9px;
-      background: #111;
-      border-bottom-color: #2a2a2a;
+      background: #191919;
+      border-bottom-color: #3a3a3a;
     }
 
     .fg-body { padding: 10px 9px; }
 
     .fg-odd {
       border-radius: 2px;
-      background: #222;
-      border-color: #333;
+      background: #2a2a2a;
+      border-color: #3a3a3a;
       padding: 6px 8px;
     }
   }
@@ -2117,37 +2117,133 @@ $t4: #6b7076;
 
   .wn-league-block {
     border-radius: 3px;
-    background: #1a1a1a;
-    border-color: #2a2a2a;
+    background: #1e1e1e;
+    border-color: #3a3a3a;
   }
 
   .wn-event .we-odd {
     border-radius: 2px;
-    background: #222;
-    border-color: #333;
+    background: #2a2a2a;
+    border-color: #3a3a3a;
   }
 }
 
 .wn-betslip {
-  background: #111;
+  background: #191919;
 
-  .wn-bs-head button { border-radius: 0; background: #222; }
-  .wn-bs-body { background: #1a1a1a; }
+  .wn-bs-head button { border-radius: 0; background: #2a2a2a; }
+  .wn-bs-body { background: #1e1e1e; }
   .wn-load-bet input,
-  .wn-stake input { border-radius: 3px; background: #1a1a1a; border-color: #555; }
+  .wn-stake input { border-radius: 3px; background: #1e1e1e; border-color: #555; }
   .wn-load-bet button,
   .wn-place { border-radius: 3px; background: #fff000; }
 }
 
+.wn-footer {
+  background: #1a1a1a;
+  border-top: 1px solid #333;
+}
+
+/* ========================= MOBILE LAYOUT ========================= */
 @media (max-width: 1023px) {
-  .wn-header { height: 54px; }
-  .wn-nav { top: 54px; }
-  .wn-header .wn-logo img { height: 32px; }
-  .wn-main { padding: 10px 8px 24px; }
+  .wn-header {
+    height: 52px;
+    padding: 0 8px;
+    gap: 6px;
+  }
+
+  .wn-header .wn-logo img { height: 30px; }
+  .wn-header .wn-header-right { gap: 8px; }
+
+  .wn-header .wn-lang span,
+  .wn-header .wn-lang svg:last-child { display: none; }
 
   .wn-header .wn-balance {
-    .wn-bal-metric { min-width: 45px; padding: 0 6px; }
+    .wn-bal-metric { min-width: 42px; padding: 0 5px; }
     .lbl { font-size: 8px; }
-    strong { font-size: 11px; }
+    strong { font-size: 10px; }
+  }
+
+  .wn-header .wn-btn.accent {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
+
+  .wn-header .wn-avatar {
+    width: 34px;
+    height: 34px;
+  }
+
+  .wn-nav { top: 52px; }
+
+  .wn-main { padding: 8px 6px 80px; }
+
+  .wn-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .wn-col-left,
+  .wn-col-right { display: none; }
+
+  .wn-slider .wn-slider-track { height: clamp(150px, 42vw, 220px); }
+}
+
+/* ========================= MOBILE TABBAR ========================= */
+@media (max-width: 1023px) {
+  .qw-tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 150;
+    display: flex;
+    align-items: stretch;
+    background: #1a1a1a;
+    border-top: 1px solid #333;
+    padding: 4px 0 calc(4px + env(safe-area-inset-bottom));
+    height: 54px;
+
+    .qw-tab {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      background: none;
+      border: none;
+      color: #888;
+      font-size: 9.5px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 4px 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+
+      &.active { color: #fff000; }
+      &:active { transform: scale(0.94); }
+
+      .qw-badge {
+        position: absolute;
+        top: 0;
+        right: calc(50% - 20px);
+        background: #f4242f;
+        color: #fff;
+        font-size: 8px;
+        font-style: normal;
+        font-weight: 900;
+        min-width: 14px;
+        height: 14px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 3px;
+      }
+
+      &.slip { color: #fff000; }
+    }
   }
 }

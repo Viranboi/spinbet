@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Home as HomeIcon, Radio, LayoutGrid, Receipt, Ticket,
+  Menu as MenuIcon, Search, User,
   Mail, PhoneCall, MessageCircle, Send, Facebook, Instagram, Twitter, ChevronDown,
 } from "lucide-react";
 import Header from "../components/qwin/Header";
@@ -142,15 +143,15 @@ export default function HomePage() {
       )}
 
       <nav className="qw-tabbar">
-        <Link to="/" className="qw-tab active"><HomeIcon size={20} /><span>Home</span></Link>
-        <button className="qw-tab" type="button"><Radio size={20} /><span>Live</span></button>
-        <Link to="/casino" className="qw-tab"><LayoutGrid size={20} /><span>Casino</span></Link>
-        <button className="qw-tab" type="button"><Receipt size={20} /><span>Bets (0)</span></button>
+        <button className="qw-tab" type="button" onClick={() => setDrawerOpen(true)}><MenuIcon size={20} /><span>Menu</span></button>
+        <button className="qw-tab" type="button"><Search size={20} /><span>Search</span></button>
         <button className="qw-tab slip" onClick={() => setSheetOpen(true)}>
-          <Ticket size={20} />
-          <span>Betslip</span>
+          <Receipt size={20} />
+          <span>BetSlip</span>
           {selections.length > 0 && <i className="qw-badge">{selections.length}</i>}
         </button>
+        <button className="qw-tab" type="button"><Radio size={20} /><span>Live</span></button>
+        <button className="qw-tab" type="button"><User size={20} /><span>My Bets</span></button>
       </nav>
     </div>
   );
