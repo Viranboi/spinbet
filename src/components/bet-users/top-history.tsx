@@ -3,27 +3,38 @@ import MoonLoader from "react-spinners/MoonLoader";
 import "./bets.scss";
 
 const fakeTopData = [
-  { betAmount: 5000, cashoutAt: 12.45, cashouted: true },
-  { betAmount: 1000, cashoutAt: 8.23, cashouted: true },
-  { betAmount: 2000, cashoutAt: 6.78, cashouted: true },
-  { betAmount: 500, cashoutAt: 15.34, cashouted: true },
-  { betAmount: 3000, cashoutAt: 4.56, cashouted: true },
-  { betAmount: 800, cashoutAt: 22.11, cashouted: true },
-  { betAmount: 1500, cashoutAt: 7.89, cashouted: true },
-  { betAmount: 200, cashoutAt: 18.67, cashouted: true },
-  { betAmount: 4000, cashoutAt: 3.21, cashouted: true },
-  { betAmount: 750, cashoutAt: 9.45, cashouted: true },
+  { name: "Kamal M.", betAmount: 90000, cashoutAt: 4.12 },
+  { name: "Jean D.", betAmount: 88500, cashoutAt: 3.4 },
+  { name: "David K.", betAmount: 82000, cashoutAt: 6.5 },
+  { name: "Musa J.", betAmount: 79000, cashoutAt: 2.31 },
+  { name: "Samuel B.", betAmount: 75000, cashoutAt: 3.9 },
+  { name: "Eric R.", betAmount: 72000, cashoutAt: 5.12 },
+  { name: "Patrick L.", betAmount: 69000, cashoutAt: 2.45 },
+  { name: "Ali N.", betAmount: 67000, cashoutAt: 2.31 },
+  { name: "Benjamin T.", betAmount: 65000, cashoutAt: 3.87 },
+  { name: "Joseph G.", betAmount: 63000, cashoutAt: 2.56 },
+  { name: "Emmanuel A.", betAmount: 61000, cashoutAt: 4.11 },
+  { name: "Daniel S.", betAmount: 60001, cashoutAt: 2.68 },
 ];
 
-const TopHistory = () => {
+interface TopHistoryProps {
+  openFairModal?: (round: any) => void;
+}
+
+const TopHistory = ({ openFairModal }: TopHistoryProps) => {
+  // roundHistory available for provably fair data
   const [type, setType] = React.useState(0);
-  const [history, setHistory] = React.useState<any[]>([]);
+  const [topData, setTopData] = React.useState<any[]>([]);
   const [loadingEffect, setLoadingEffect] = React.useState(false);
 
-  const loadData = () => {
+  const loadData = (variant = 0) => {
     setLoadingEffect(true);
     setTimeout(() => {
-      setHistory(fakeTopData);
+      const rotated = [
+        ...fakeTopData.slice(variant % fakeTopData.length),
+        ...fakeTopData.slice(0, variant % fakeTopData.length),
+      ];
+      setTopData(rotated);
       setLoadingEffect(false);
     }, 500);
   };
@@ -43,7 +54,7 @@ const TopHistory = () => {
           <button
             onClick={() => {
               setType(0);
-              loadData();
+              loadData(0);
             }}
             className={`tab`}
           >
@@ -52,7 +63,7 @@ const TopHistory = () => {
           <button
             onClick={() => {
               setType(1);
-              loadData();
+              loadData(4);
             }}
             className={`tab`}
           >
@@ -61,7 +72,7 @@ const TopHistory = () => {
           <button
             onClick={() => {
               setType(2);
-              loadData();
+              loadData(8);
             }}
             className={`tab`}
           >
@@ -77,7 +88,7 @@ const TopHistory = () => {
             </div>
           ) : (
             <>
-              {history.map((item: any, index: number) => (
+              {topData.map((item: any, index: number) => (
                 <div key={index} className="bet-item">
                   <div className="main">
                     <div className="icon">
@@ -86,16 +97,16 @@ const TopHistory = () => {
                         alt="avatar"
                         src="/avatars/av-5.png"
                       ></img>
-                      <div className="username">d***3</div>
+                      <div className="username">{item.name}</div>
                     </div>
                     <div className="score">
                       <div className="flex">
                         <div className="">
-                          <span>Bet, INR:&nbsp;</span>
+                            <span>Bet BIF:&nbsp;</span>
                           <span></span>
                         </div>
                         <span className="amount">
-                          {item.betAmount.toFixed(2)}
+                           {item.betAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                         </span>
                       </div>
                       <div className="flex">
@@ -108,12 +119,31 @@ const TopHistory = () => {
                       </div>
                       <div className="flex">
                         <div className="">
-                          <span>Win, INR: &nbsp;</span>
+                            <span>Win BIF: &nbsp;</span>
                         </div>
                         <span className="amount">
-                          {(item.cashoutAt * item.betAmount).toFixed(2)}
+                           {(item.cashoutAt * item.betAmount).toLocaleString(
+                            "en-US",
+                            { minimumFractionDigits: 2, maximumFractionDigits: 2 }
+                          )}
                         </span>
                       </div>
+                    </div>
+                    <div className="tools">
+                      <div
+                        className="fairness-i"
+                        style={{ cursor: "pointer", opacity: 0.6 }}
+                        title="Verify fairness"
+                        onClick={() => openFairModal?.({
+                          roundId: `R${Date.now() - index * 60000}-${index}`,
+                          crashPoint: item.cashoutAt,
+                          serverSeed: "Hidden until round ends",
+                          clientSeed: "player_seed_" + index,
+                          nonce: index,
+                          hash: "SHA256(hidden)",
+                          timestamp: Date.now() - index * 60000,
+                        })}
+                      ></div>
                     </div>
                   </div>
                 </div>

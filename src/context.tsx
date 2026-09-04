@@ -1,15 +1,39 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from "react";
+import { UnityContext } from "react-unity-webgl";
 import { toast } from "react-toastify";
-import {
-  computeCrashPoint,
-  findCrashTime,
-  generateFakePlayers,
-  generateInitialHistory,
-  newServerSeed,
-  newClientSeed,
-} from "./gameEngine";
-import type { FakePlayer } from "./gameEngine";
+import { generateFakePlayers, generateWatcherCount } from "./gameEngine";
+import { crashTimeFor, fetchRoundState } from "./upcomingOdds";
+import { ensureWallet } from "./p2p/wallet";
+
+export interface ResponsibleGamingState {
+  sessionMinutes: number;
+  lossLimit: number;
+  depositLimit: number;
+  sessionLimit: number;
+  coolOffUntil: number | null;
+  selfExcluded: boolean;
+}
+
+const defaultResponsibleGaming: ResponsibleGamingState = {
+  sessionMinutes: 0,
+  lossLimit: 0,
+  depositLimit: 0,
+  sessionLimit: 0,
+  coolOffUntil: null,
+  selfExcluded: false,
+};
+
+function initialBalance(): number {
+  try {
+    const saved = localStorage.getItem("letsbet_current_user");
+    if (!saved) return 0;
+    const user = JSON.parse(saved);
+    return user?.uid ? ensureWallet(user.uid) : 0;
+  } catch {
+    return 0;
+  }
+}
 
 export interface BettedUserType {
   name: string;
@@ -19,6 +43,17 @@ export interface BettedUserType {
   target: number;
   img: string;
   bot?: boolean;
+  roundId?: string;
+}
+
+export interface ProvablyFairRound {
+  serverSeed: string;
+  clientSeed: string;
+  nonce: number;
+  crashPoint: number;
+  hash: string;
+  timestamp: number;
+  roundId: string;
 }
 
 export interface UserType {
@@ -58,6 +93,7 @@ interface GameStatusType {
   currentSecondNum: number;
   GameState: string;
   time: number;
+  speed: number;
 }
 
 interface GameBetLimit {
@@ -103,6 +139,7 @@ interface ContextDataType {
   sdeState: boolean;
   ssingle: boolean;
   sdefaultBetAmount: number;
+  myUnityContext: UnityContext;
 }
 
 interface ContextType extends GameBetLimit, UserStatusType, GameStatusType {
@@ -114,18 +151,35 @@ interface ContextType extends GameBetLimit, UserStatusType, GameStatusType {
   previousHand: BettedUserType[];
   history: number[];
   rechargeState: boolean;
+  myUnityContext: UnityContext;
   currentTarget: number;
+  watcherCount: number;
+  totalBets: number;
+  totalCashout: number;
+  currentRoundId: string;
+  isDemoMode: boolean;
+  responsibleGaming: ResponsibleGamingState;
+  roundHistory: ProvablyFairRound[];
   setCurrentTarget(attrs: Partial<number>);
   update(attrs: Partial<ContextDataType>);
   getMyBets();
   updateUserBetState(attrs: Partial<UserStatusType>);
+  setDemoMode(val: boolean);
+  updateResponsibleGaming(attrs: Partial<ResponsibleGamingState>);
 }
+
+const unityContext = new UnityContext({
+  loaderUrl: "unity/AirCrash.loader.js",
+  dataUrl: "unity/AirCrash.data.unityweb",
+  frameworkUrl: "unity/AirCrash.framework.js.unityweb",
+  codeUrl: "unity/AirCrash.wasm.unityweb",
+});
 
 const init_state: ContextDataType = {
   myBets: [],
   width: 1500,
   userInfo: {
-    balance: 5000,
+    balance: initialBalance(),
     userType: false,
     img: "",
     userName: "Player",
@@ -134,7 +188,7 @@ const init_state: ContextDataType = {
       betted: false,
       cashouted: false,
       cashAmount: 0,
-      betAmount: 20,
+      betAmount: 500,
       target: 2,
     },
     s: {
@@ -142,7 +196,7 @@ const init_state: ContextDataType = {
       betted: false,
       cashouted: false,
       cashAmount: 0,
-      betAmount: 20,
+      betAmount: 500,
       target: 2,
     },
   },
@@ -164,6 +218,7 @@ const init_state: ContextDataType = {
   sdeState: false,
   ssingle: false,
   sdefaultBetAmount: 20,
+  myUnityContext: unityContext,
 };
 
 const Context = React.createContext<ContextType>(null!);
@@ -174,9 +229,7 @@ export const callCashOut = (at: number, index: "f" | "s") => {
   cashOutHandler?.(at, index);
 };
 
-let fIncreaseAmount = 0;
 let fDecreaseAmount = 0;
-let sIncreaseAmount = 0;
 let sDecreaseAmount = 0;
 
 export const Provider = ({ children }: any) => {
@@ -186,29 +239,65 @@ export const Provider = ({ children }: any) => {
     currentSecondNum: 0,
     GameState: "",
     time: 0,
+    speed: 1,
+  });
+
+  const [unity, setUnity] = React.useState({
+    unityState: false,
+    unityLoading: false,
+    currentProgress: 0,
   });
 
   const [bettedUsers, setBettedUsers] = React.useState<BettedUserType[]>([]);
   const [previousHand, setPreviousHand] = React.useState<BettedUserType[]>([]);
-  const [history, setHistory] = React.useState<number[]>(
-    generateInitialHistory()
-  );
+  const [history, setHistory] = React.useState<number[]>([]);
   const [userBetState, setUserBetState] = React.useState<UserStatusType>({
     fbetState: false,
     fbetted: false,
     sbetState: false,
     sbetted: false,
   });
-  const [rechargeState, setRechargeState] = React.useState(false);
+  const [rechargeState] = React.useState(false);
   const [currentTarget, setCurrentTarget] = React.useState(0);
-  const [betLimit] = React.useState<GameBetLimit>({ maxBet: 10000, minBet: 1 });
+  const [betLimit] = React.useState<GameBetLimit>({ maxBet: 90000, minBet: 100 });
+  const [watcherCount, setWatcherCount] = React.useState(0);
+  const [totalBets, setTotalBets] = React.useState(0);
+  const [totalCashout, setTotalCashout] = React.useState(0);
+  const [currentRoundId, setCurrentRoundId] = React.useState("");
+  const [isDemoMode, setIsDemoMode] = React.useState(false);
+  const [responsibleGaming, setResponsibleGaming] = React.useState<ResponsibleGamingState>(() => {
+    try {
+      const saved = localStorage.getItem("aviator_responsible_gaming");
+      return saved ? { ...defaultResponsibleGaming, ...JSON.parse(saved) } : defaultResponsibleGaming;
+    } catch { return defaultResponsibleGaming; }
+  });
+  const [roundHistory, setRoundHistory] = React.useState<ProvablyFairRound[]>([]);
 
   const stateRef = React.useRef(state);
   const betStateRef = React.useRef(userBetState);
   const gameActiveRef = React.useRef(true);
+  const sessionStartRef = React.useRef(Date.now());
 
   stateRef.current = state;
   betStateRef.current = userBetState;
+
+  const setDemoMode = (val: boolean) => {
+    setIsDemoMode(val);
+    if (val) {
+      const s = { ...stateRef.current };
+      s.userInfo.balance = 100000;
+      s.userInfo.userName = "Demo Player";
+      setState(s);
+    }
+  };
+
+  const updateResponsibleGaming = (attrs: Partial<ResponsibleGamingState>) => {
+    setResponsibleGaming((prev) => {
+      const updated = { ...prev, ...attrs };
+      localStorage.setItem("aviator_responsible_gaming", JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   const update = (attrs: Partial<ContextDataType>) => {
     setState((prev) => ({ ...prev, ...attrs }));
@@ -219,6 +308,27 @@ export const Provider = ({ children }: any) => {
   };
 
   const getMyBets = () => {};
+
+  React.useEffect(function () {
+    unityContext.on("GameController", function (message) {
+      if (message === "Ready") {
+        setUnity({
+          currentProgress: 100,
+          unityLoading: true,
+          unityState: true,
+        });
+      }
+    });
+    unityContext.on("progress", (progression) => {
+      const currentProgress = progression * 100;
+      if (progression === 1) {
+        setUnity({ currentProgress, unityLoading: true, unityState: true });
+      } else {
+        setUnity({ currentProgress, unityLoading: false, unityState: false });
+      }
+    });
+    return () => unityContext.removeAllEventListeners();
+  }, []);
 
   useEffect(() => {
     cashOutHandler = (at: number, index: "f" | "s") => {
@@ -248,16 +358,37 @@ export const Provider = ({ children }: any) => {
 
   useEffect(() => {
     gameActiveRef.current = true;
+    let cancelled = false;
+
+    const waitUntilLocal = async (ts: number): Promise<boolean> => {
+      for (;;) {
+        const remain = ts - Date.now();
+        if (remain <= 0) return true;
+        if (!gameActiveRef.current || cancelled) return false;
+        await delay(Math.min(remain, 200));
+      }
+    };
 
     const startRound = async () => {
-      let serverSeed = newServerSeed();
-      let clientSeed = newClientSeed();
-      let nonce = 0;
-      let localHistory = [...history];
+      while (gameActiveRef.current && !cancelled) {
+        const st = await fetchRoundState();
+        if (cancelled || !gameActiveRef.current) break;
 
-      while (gameActiveRef.current) {
-        const crashPoint = await computeCrashPoint(serverSeed, clientSeed, nonce);
-        nonce++;
+        if (st.history && st.history.length) setHistory(st.history);
+
+        if (st.msIntoPhase >= st.betMs) {
+          const nextBoundaryLocal = Date.now() + (st.roundMs - st.msIntoPhase);
+          if (!(await waitUntilLocal(nextBoundaryLocal))) break;
+          continue;
+        }
+
+        const crashPoint = st.current;
+        const betEndLocal = Date.now() + (st.betMs - st.msIntoPhase);
+        const roundEndLocal = betEndLocal + st.playMs + st.endMs;
+        const roundId = `R${Date.now()}-${Math.floor(Math.random() * 9999)}`;
+
+        setCurrentRoundId(roundId);
+        setWatcherCount(generateWatcherCount());
 
         setPreviousHand((prev) => {
           const s = stateRef.current;
@@ -272,6 +403,7 @@ export const Provider = ({ children }: any) => {
                 cashouted: false,
                 target: 0,
                 img: "",
+                roundId,
               });
             }
           }
@@ -279,50 +411,79 @@ export const Provider = ({ children }: any) => {
         });
 
         const fakeUsers = generateFakePlayers(crashPoint);
-        setBettedUsers(fakeUsers as BettedUserType[]);
+        const usersWithRound = fakeUsers.map((u) => ({ ...u, roundId }));
+        setBettedUsers(usersWithRound as BettedUserType[]);
+
+        const roundTotalBets = usersWithRound.reduce((sum, u) => sum + u.betAmount, 0);
+        setTotalBets(roundTotalBets);
+        setTotalCashout(0);
+
+        // Record round for provably fair
+        setRoundHistory((prev) => {
+          const newRound: ProvablyFairRound = {
+            serverSeed: st.serverSeed || "unknown",
+            clientSeed: st.clientSeed || "unknown",
+            nonce: st.nonce || 0,
+            crashPoint,
+            hash: st.hash || "",
+            timestamp: Date.now(),
+            roundId,
+          };
+          const updated = [newRound, ...prev];
+          if (updated.length > 100) updated.length = 100;
+          return updated;
+        });
 
         setGameState({
           GameState: "BET",
           currentNum: 0,
           currentSecondNum: 0,
-          time: 0,
+          time: Math.max(0, st.msIntoPhase),
+          speed: 1,
         });
 
-        await delay(5000);
-        if (!gameActiveRef.current) break;
+        if (!(await waitUntilLocal(betEndLocal))) break;
+
+        // Calculate speed - consistent and smooth
+        const crashSec = crashTimeFor(crashPoint);
+        const targetDuration = Math.max(4, Math.min(crashSec * 1.3, 8));
+        const speed = crashSec / targetDuration;
 
         setGameState({
           GameState: "PLAYING",
           currentNum: crashPoint,
           currentSecondNum: 0,
           time: 0,
+          speed,
         });
 
-        const crashDuration = findCrashTime(crashPoint) * 1000;
-        await delay(crashDuration);
-        if (!gameActiveRef.current) break;
+        await delay(Math.min(targetDuration * 1000, st.playMs));
+        if (!gameActiveRef.current || cancelled) break;
 
         setGameState({
           GameState: "GAMEEND",
           currentNum: crashPoint,
           currentSecondNum: 0,
           time: 0,
+          speed: 1,
         });
 
-        localHistory.unshift(crashPoint);
-        if (localHistory.length > 123) localHistory.pop();
-        setHistory([...localHistory]);
+        // Set final total cashout
+        const finalCashout = usersWithRound
+          .filter((u) => u.cashouted)
+          .reduce((sum, u) => sum + u.cashOut, 0);
+        setTotalCashout(finalCashout);
 
         processGameEnd();
 
-        await delay(3000);
-        if (!gameActiveRef.current) break;
+        if (!(await waitUntilLocal(roundEndLocal))) break;
       }
     };
 
     startRound();
 
     return () => {
+      cancelled = true;
       gameActiveRef.current = false;
     };
   }, []);
@@ -402,6 +563,25 @@ export const Provider = ({ children }: any) => {
     let s = stateRef.current;
     let betStatus = betStateRef.current;
 
+    // Check responsible gaming limits
+    const rg = responsibleGaming;
+    if (rg.selfExcluded) {
+      toast.error("Your account is self-excluded. Please contact support.");
+      return;
+    }
+    if (rg.coolOffUntil && Date.now() < rg.coolOffUntil) {
+      const mins = Math.ceil((rg.coolOffUntil - Date.now()) / 60000);
+      toast.error(`Cool-off period active. ${mins} minutes remaining.`);
+      return;
+    }
+    if (rg.sessionLimit > 0) {
+      const elapsed = (Date.now() - sessionStartRef.current) / 60000;
+      if (elapsed >= rg.sessionLimit) {
+        toast.error("Session time limit reached. Please take a break.");
+        return;
+      }
+    }
+
     if (gameState.GameState === "BET") {
       if (betStatus.fbetState) {
         if (s.userInfo.f.auto) {
@@ -466,19 +646,27 @@ export const Provider = ({ children }: any) => {
         state: state,
         ...betLimit,
         ...userBetState,
-        unityState: true,
-        unityLoading: true,
-        currentProgress: 100,
+        ...unity,
         ...gameState,
         currentTarget,
         rechargeState,
+        myUnityContext: unityContext,
         bettedUsers: [...bettedUsers],
         previousHand: [...previousHand],
         history: [...history],
+        watcherCount,
+        totalBets,
+        totalCashout,
+        currentRoundId,
+        isDemoMode,
+        responsibleGaming,
+        roundHistory,
         setCurrentTarget,
         update,
         getMyBets,
         updateUserBetState,
+        setDemoMode,
+        updateResponsibleGaming,
       }}
     >
       {children}

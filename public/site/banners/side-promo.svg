@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 456 180">
+  <defs>
+    <radialGradient id="sglow" cx="80%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#39ff14" stop-opacity=".32"/>
+      <stop offset="100%" stop-color="#39ff14" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="456" height="180" rx="12" fill="#040604"/>
+  <rect width="456" height="180" rx="12" fill="url(#sglow)"/>
+  <circle cx="380" cy="90" r="56" fill="none" stroke="#39ff14" stroke-width="2" opacity=".5"/>
+  <text x="28" y="52" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="15" fill="#39ff14" letter-spacing="3">FRIENDS PLAY FREE</text>
+  <text x="26" y="96" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="34" fill="#ffffff">REFER &amp; EARN</text>
+  <text x="28" y="126" font-family="Arial,sans-serif" font-weight="600" font-size="17" fill="#b9ffcf">$50 for every friend who deposits</text>
+  <rect x="28" y="140" rx="15" width="118" height="27" fill="#39ff14"/>
+  <text x="87" y="158" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="12.5" fill="#04270a">INVITE NOW</text>
+</svg>

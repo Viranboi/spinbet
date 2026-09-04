@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 230">
+  <defs>
+    <radialGradient id="glow" cx="84%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#00e5c0" stop-opacity=".36"/>
+      <stop offset="100%" stop-color="#00e5c0" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#4dffe0"/><stop offset="100%" stop-color="#00b893"/>
+    </linearGradient>
+  </defs>
+  <rect width="1103" height="230" fill="#020706"/>
+  <rect width="1103" height="230" fill="url(#glow)"/>
+  <g transform="translate(980,115)">
+    <circle r="66" fill="#04302a" stroke="#4dffe0" stroke-width="2.5"/>
+    <text y="16" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="44" fill="#4dffe0">2:0</text>
+  </g>
+  <text x="64" y="66" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="21" fill="#4dffe0" letter-spacing="4">EARLY PAYOUT</text>
+  <text x="60" y="130" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="56" fill="#ffffff">2 GOALS AHEAD? PAID.</text>
+  <text x="64" y="170" font-family="Arial,sans-serif" font-weight="600" font-size="22" fill="#b8fff1">Your team goes two up — we settle your bet early</text>
+  <rect x="64" y="186" rx="19" width="176" height="38" fill="url(#bar)"/>
+  <text x="152" y="211" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="16" fill="#00332a">LEARN MORE</text>
+</svg>

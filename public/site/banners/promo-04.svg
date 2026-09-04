@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 230">
+  <defs>
+    <radialGradient id="glow" cx="85%" cy="55%" r="70%">
+      <stop offset="0%" stop-color="#ff7a18" stop-opacity=".4"/>
+      <stop offset="100%" stop-color="#ff7a18" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffb347"/><stop offset="100%" stop-color="#ff7a18"/>
+    </linearGradient>
+  </defs>
+  <rect width="1103" height="230" fill="#080402"/>
+  <rect width="1103" height="230" fill="url(#glow)"/>
+  <g transform="translate(985,115)" fill="#ff9a3d">
+    <polygon points="0,-84 20,-26 81,-26 33,10 52,68 0,32 -52,68 -33,10 -81,-26 -20,-26" opacity=".85"/>
+  </g>
+  <text x="64" y="66" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="21" fill="#ff9a3d" letter-spacing="4">MULTI BET</text>
+  <text x="60" y="130" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="56" fill="#ffffff">ACCUMULATOR BOOST</text>
+  <text x="64" y="170" font-family="Arial,sans-serif" font-weight="600" font-size="22" fill="#ffd9b8">Win up to 250% extra on your multis</text>
+  <rect x="64" y="186" rx="19" width="170" height="38" fill="url(#bar)"/>
+  <text x="149" y="211" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="16" fill="#331500">BUILD NOW</text>
+</svg>

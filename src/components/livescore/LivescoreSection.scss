@@ -1,0 +1,223 @@
+.livescore-section {
+  padding: 0 0 40px;
+
+  .livescore-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .livescore-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .livescore-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+
+    .live-pulse {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #ff3333;
+      animation: lsPulse 1.5s infinite;
+      box-shadow: 0 0 8px rgba(255, 51, 51, 0.5);
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 24px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .live-count {
+      font-size: 12px;
+      font-weight: 700;
+      color: #ff3333;
+      background: rgba(255, 51, 51, 0.12);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+  }
+
+  .livescore-filters {
+    display: flex;
+    gap: 6px;
+
+    .ls-filter {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 16px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.04);
+      color: #8a8d93;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      .ls-live-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: #ff3333;
+      }
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.08);
+        color: #fff;
+      }
+
+      &.active {
+        background: rgba(211, 47, 47, 0.15);
+        border-color: rgba(211, 47, 47, 0.3);
+        color: #fff;
+      }
+    }
+  }
+
+  .matches-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 12px;
+  }
+
+  .match-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 14px;
+    transition: all 0.2s;
+
+    &.live {
+      border-color: rgba(255, 51, 51, 0.2);
+      background: rgba(255, 51, 51, 0.04);
+    }
+
+    &:hover {
+      border-color: rgba(255, 255, 255, 0.12);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .match-league {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      font-size: 11px;
+      color: #6b6e73;
+
+      .match-status {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 700;
+
+        .s-dot {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: #ff3333;
+          animation: lsPulse 1.5s infinite;
+        }
+
+        &.live { color: #ff3333; }
+        &.ht { color: #ffaa00; }
+        &.upcoming { color: #6b6e73; }
+      }
+    }
+
+    .match-teams {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+
+      .match-team {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+
+        .team-name {
+          color: #ccc;
+          font-size: 14px;
+          font-weight: 600;
+        }
+
+        .team-score {
+          color: #6b6e73;
+          font-size: 16px;
+          font-weight: 800;
+          min-width: 20px;
+          text-align: center;
+
+          &.leading { color: #fff; }
+        }
+      }
+    }
+
+    .match-odds {
+      display: flex;
+      gap: 6px;
+
+      .odds-btn {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.06);
+        border-radius: 8px;
+        padding: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+
+        .odds-label {
+          font-size: 10px;
+          color: #6b6e73;
+          font-weight: 600;
+        }
+
+        .odds-val {
+          font-size: 13px;
+          color: #d32f2f;
+          font-weight: 800;
+        }
+
+        &:hover {
+          background: rgba(211, 47, 47, 0.1);
+          border-color: rgba(211, 47, 47, 0.2);
+        }
+      }
+    }
+  }
+}
+
+@keyframes lsPulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@media (max-width: 768px) {
+  .livescore-section .matches-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.ls-loading {
+  text-align: center;
+  color: #8b8f96;
+  font-size: 13px;
+  padding: 40px 16px;
+}

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 230">
+  <defs>
+    <radialGradient id="glow" cx="85%" cy="50%" r="70%">
+      <stop offset="0%" stop-color="#7fb2ff" stop-opacity=".38"/>
+      <stop offset="100%" stop-color="#7fb2ff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a8ccff"/><stop offset="100%" stop-color="#4f83e8"/>
+    </linearGradient>
+  </defs>
+  <rect width="1103" height="230" fill="#030509"/>
+  <rect width="1103" height="230" fill="url(#glow)"/>
+  <g transform="translate(985,115)" opacity=".8">
+    <polygon points="-70,55 -35,-25 0,15 40,-60 78,55" fill="none" stroke="#a8ccff" stroke-width="4" stroke-linejoin="round"/>
+    <polyline points="-88,72 -52,10 -18,42 34,-46 92,72" fill="none" stroke="#a8ccff" stroke-width="2" opacity=".45"/>
+  </g>
+  <text x="64" y="66" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="21" fill="#a8ccff" letter-spacing="4">SAT &amp; SUN ONLY</text>
+  <text x="60" y="130" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="58" fill="#ffffff">WEEKEND BOOSTER</text>
+  <text x="64" y="170" font-family="Arial,sans-serif" font-weight="600" font-size="22" fill="#d4e4ff">Super-charged odds on every big game</text>
+  <rect x="64" y="186" rx="19" width="182" height="38" fill="url(#bar)"/>
+  <text x="155" y="211" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="16" fill="#0a1a3d">SEE BOOSTS</text>
+</svg>

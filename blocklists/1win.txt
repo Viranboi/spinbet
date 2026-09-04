@@ -1,0 +1,23 @@
+! Title: 1win self-exclusion blocklist
+! Format: AdGuard/uBlock Origin filter syntax
+! Sources checked: 2026-08-27
+!
+! The brand uses rotating mirror domains. This rule catches future domains
+! containing "1win"; the exact rule below covers the reported non-branded URL.
+||*1win*^
+||one-vv4322.com^
+
+! Known brand and mirror domains observed in current search results.
+||1win.com^
+||1win.io^
+||1wins.io^
+||1win.global^
+||1wins.sn^
+||1win.com.sn^
+||1win-bet.sn^
+||1win-globals.net^
+||1win-casino.fyi^
+||1win-games.co.in^
+||1winmirror.com^
+||1win.wales^
+||1-win-casino.in^

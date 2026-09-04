@@ -11,9 +11,9 @@ const MyBets = () => {
             <div className="legend">
                 <div className="date">Date</div>
                 <div className="bet-100">
-                    <span className="bet">Bet, INR</span>
+                     <span className="bet">Bet BIF</span>
                     <span>X</span>
-                    <span className="cash-out"> Cash out, INR </span>
+                     <span className="cash-out"> Cash out BIF </span>
                 </div>
                 <div className="tools"></div>
             </div>
@@ -25,14 +25,14 @@ const MyBets = () => {
                                 <div className="username">{new Date(user.date).getHours() + ":" + new Date(user.date).getMinutes()}</div>
                             </div>
                             <div className="bet">
-                                {Number(user.betAmount).toFixed(2)}
+                                {Number(user.betAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                             </div>
                             {user.cashouted &&
                                 <div className="multiplier-block">
                                     <div className="bubble">{Number(user.cashoutAt).toFixed(2)}</div>
                                 </div>
                             }
-                            <div className="cash-out">{user.cashouted ? Number(user.betAmount * user.cashoutAt).toFixed(2) : ""}</div>
+                            <div className="cash-out">{user.cashouted ? Number(user.betAmount * user.cashoutAt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""}</div>
                             <div className="tools">
                                 <div className="fairness-i"></div>
                                 <div className="share-i"></div>

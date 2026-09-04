@@ -1,0 +1,164 @@
+.bonus-banner {
+  padding: 0 0 40px;
+
+  .bonus-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+    position: relative;
+  }
+
+  .bonus-glow {
+    position: absolute;
+    width: 300px;
+    height: 300px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(211, 47, 47, 0.15), transparent);
+    top: -50px;
+    right: 50px;
+    pointer-events: none;
+  }
+
+  .bonus-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, rgba(211, 47, 47, 0.12), rgba(183, 28, 28, 0.08));
+    border: 1px solid rgba(211, 47, 47, 0.2);
+    border-radius: 20px;
+    padding: 40px;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  .bonus-left {
+    flex: 1;
+    min-width: 300px;
+
+    .bonus-tag {
+      display: inline-block;
+      background: rgba(255, 170, 0, 0.15);
+      color: #ffaa00;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 6px 12px;
+      border-radius: 6px;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin: 0 0 12px;
+      font-size: 32px;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1.2;
+
+      .bonus-highlight {
+        background: linear-gradient(135deg, #ffaa00, #ff6600);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    }
+
+    p {
+      color: #8a8d93;
+      font-size: 15px;
+      margin: 0 0 20px;
+      line-height: 1.6;
+    }
+
+    .bonus-features {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+
+      span {
+        color: #28a909;
+        font-size: 13px;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .bonus-right {
+    flex-shrink: 0;
+
+    .bonus-claim-btn {
+      background: linear-gradient(135deg, #ffaa00, #ff6600);
+      color: #000;
+      border: none;
+      padding: 18px 40px;
+      border-radius: 14px;
+      font-size: 18px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.3s;
+      min-width: 220px;
+
+      &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 32px rgba(255, 170, 0, 0.3);
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+
+      .claim-loading {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+
+        &::after {
+          content: "";
+          width: 18px;
+          height: 18px;
+          border: 2px solid transparent;
+          border-top-color: #000;
+          border-radius: 50%;
+          animation: spin 0.8s linear infinite;
+        }
+      }
+    }
+
+    .bonus-claimed {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: rgba(40, 169, 9, 0.1);
+      border: 1px solid rgba(40, 169, 9, 0.2);
+      border-radius: 14px;
+      padding: 24px 32px;
+
+      .claimed-icon { font-size: 32px; }
+      span:nth-child(2) { color: #28a909; font-size: 18px; font-weight: 800; }
+      .claimed-sub { color: #6b6e73; font-size: 12px; }
+    }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  @media (max-width: 768px) {
+    .bonus-content {
+      padding: 24px;
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .bonus-left h2 { font-size: 24px; }
+
+    .bonus-features {
+      justify-content: center;
+    }
+
+    .bonus-right .bonus-claim-btn {
+      width: 100%;
+    }
+  }
+}

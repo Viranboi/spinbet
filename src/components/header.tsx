@@ -1,48 +1,189 @@
 import React from "react";
 
-import logo from "../assets/images/logo.svg";
-import refound from "../assets/images/refund.png";
 import "../index.scss";
 import Context from "../context";
-export default function Header() {
-  const { state } = React.useContext(Context)
+import aviatorLogo from "../assets/images/aviator-logo.svg";
+
+export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }) {
+  const { state, responsibleGaming, updateResponsibleGaming } = React.useContext(Context)
 
   const [howto, setHowto] = React.useState<'howto' | 'short' | 'more' | ''>("howto");
-  const [, setFireSystem] = React.useState(false);
+  const [showResponsible, setShowResponsible] = React.useState(false);
+  const [rgSettings, setRgSettings] = React.useState({
+    lossLimit: responsibleGaming.lossLimit || 0,
+    depositLimit: responsibleGaming.depositLimit || 0,
+    sessionLimit: responsibleGaming.sessionLimit || 0,
+  });
 
-  const Refound = async () => {
-      setTimeout(() => {
-        window.open("https://induswin.com/#/", "_self");
-      }, 1000)
-  }
+  const saveResponsibleGaming = () => {
+    updateResponsibleGaming({
+      lossLimit: rgSettings.lossLimit,
+      depositLimit: rgSettings.depositLimit,
+      sessionLimit: rgSettings.sessionLimit,
+    });
+    setShowResponsible(false);
+  };
 
   return (
-    <div className="header flex-none items-center">
-      <div className="header-container">
-        <div className="logo-container">
-          <img src={logo} alt="logo" className="logo"></img>
+    <>
+      {/* Row 1: Lobby + Deposit - HIGH BLACK */}
+      <div style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "40px",
+        background: "#000",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "0 12px",
+        zIndex: 850,
+      }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+          <span style={{ color: "#8be35d", cursor: "pointer", fontSize: "18px", fontWeight: 700 }} onClick={() => window.history.back()}>
+            &#8249;
+          </span>
+          <span style={{ color: "#fff", fontSize: "14px", fontWeight: 600 }}>Lobby</span>
         </div>
-        <div className="second-block">
-          {state.userInfo.userType &&
-            <div className="center" onClick={Refound}>
-            REBACK&nbsp;
-            <button className="refound">
-              <img width={23} src={refound} alt="refound"></img>
-            </button>
+        <button
+          style={{
+            background: "transparent",
+            border: "1px solid #4a8c2a",
+            borderRadius: "6px",
+            padding: "6px 28px",
+            color: "#4a8c2a",
+            fontSize: "13px",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Deposit
+        </button>
+      </div>
+
+      {/* Row 2: Aviator + Balance + Icons - DARK */}
+      <div className="header flex-none items-center" style={{ top: "40px" }}>
+        <div className="header-container" style={{ padding: "0 12px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <img src={aviatorLogo} alt="Aviator" style={{ height: "28px" }} />
           </div>
-          }
-          <button className="howto" onClick={() => setHowto("short")}>
-            <div className="help-logo"></div>
-            <div className="help-msg">How to play ?</div>
-          </button>
-          <div className="d-flex">
-            <div className="balance">
-              <span className="amount">{Number(state.userInfo.balance).toFixed(2)} </span>
-              <span className="currency">&nbsp;INR</span>
+
+          <div className="second-block" style={{ gap: "10px" }}>
+            <div className="d-flex">
+              <div className="balance">
+                <span className="amount">{Number(state.userInfo.balance).toFixed(0)} </span>
+                <span className="currency">BIF</span>
+              </div>
+            </div>
+            <div style={{
+              width: "28px",
+              height: "28px",
+              borderRadius: "50%",
+              background: "#000",
+              border: "1px solid #222",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#fff",
+              fontSize: "13px",
+            }}>
+              &#128172;
+            </div>
+            <div
+              onClick={() => setHowto("short")}
+              style={{
+                width: "28px",
+                height: "28px",
+                borderRadius: "50%",
+                background: "#000",
+                border: "1px solid #222",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "#fff",
+                fontSize: "14px",
+              }}
+            >
+              &#9776;
             </div>
           </div>
         </div>
       </div>
+
+      {showResponsible && (
+        <div className="modal" style={{ zIndex: 9999 }}>
+          <div className="back" onClick={() => setShowResponsible(false)}></div>
+          <div className="modal-dialog" style={{ maxWidth: "400px" }}>
+            <div className="modal-content">
+              <div className="modal-header">
+                <span>Responsible Gaming</span>
+                <button onClick={() => setShowResponsible(false)} className="close">×</button>
+              </div>
+              <div className="modal-body">
+                <div style={{ marginBottom: "14px" }}>
+                  <div style={{ color: "#9ea0a3", marginBottom: "6px", fontSize: "12px" }}>Session Time Limit (minutes)</div>
+                  <input
+                    type="number"
+                    value={rgSettings.sessionLimit}
+                    onChange={(e) => setRgSettings({ ...rgSettings, sessionLimit: Number(e.target.value) })}
+                    style={{ width: "100%", padding: "10px 12px", background: "#111113", border: "1px solid #2a2b2e", borderRadius: "8px", color: "#fff", fontSize: "13px" }}
+                    placeholder="0 = No limit"
+                  />
+                </div>
+                <div style={{ marginBottom: "14px" }}>
+                  <div style={{ color: "#9ea0a3", marginBottom: "6px", fontSize: "12px" }}>Loss Limit (BIF)</div>
+                  <input
+                    type="number"
+                    value={rgSettings.lossLimit}
+                    onChange={(e) => setRgSettings({ ...rgSettings, lossLimit: Number(e.target.value) })}
+                    style={{ width: "100%", padding: "10px 12px", background: "#111113", border: "1px solid #2a2b2e", borderRadius: "8px", color: "#fff", fontSize: "13px" }}
+                    placeholder="0 = No limit"
+                  />
+                </div>
+                <div style={{ marginBottom: "14px" }}>
+                  <div style={{ color: "#9ea0a3", marginBottom: "6px", fontSize: "12px" }}>Deposit Limit (BIF)</div>
+                  <input
+                    type="number"
+                    value={rgSettings.depositLimit}
+                    onChange={(e) => setRgSettings({ ...rgSettings, depositLimit: Number(e.target.value) })}
+                    style={{ width: "100%", padding: "10px 12px", background: "#111113", border: "1px solid #2a2b2e", borderRadius: "8px", color: "#fff", fontSize: "13px" }}
+                    placeholder="0 = No limit"
+                  />
+                </div>
+                {responsibleGaming.selfExcluded && (
+                  <div style={{ padding: "10px", background: "#2e1212", border: "1px solid #5c2020", borderRadius: "8px", color: "#ff6b6b", marginBottom: "12px", fontSize: "12px" }}>
+                    Your account is self-excluded. Contact support to reactivate.
+                  </div>
+                )}
+                <div style={{ display: "flex", gap: "8px" }}>
+                  <button
+                    onClick={() => {
+                      updateResponsibleGaming({ selfExcluded: true });
+                      setShowResponsible(false);
+                    }}
+                    style={{ flex: 1, padding: "10px", background: "#2e1212", border: "1px solid #5c2020", borderRadius: "8px", color: "#ff6b6b", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
+                  >
+                    Self-Exclude
+                  </button>
+                  <button
+                    onClick={saveResponsibleGaming}
+                    style={{ flex: 1, padding: "10px", background: "#8be35d", border: "none", borderRadius: "8px", color: "#000", cursor: "pointer", fontSize: "12px", fontWeight: 600 }}
+                  >
+                    Save Settings
+                  </button>
+                </div>
+                <div style={{ marginTop: "12px", padding: "10px", background: "#111113", borderRadius: "8px", color: "#9ea0a3", fontSize: "11px", lineHeight: "1.5" }}>
+                  Play responsibly. Gambling should be entertainment, not a way to make money. Set limits before you play.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {howto === "short" && <div className="modal">
         <div className="back" onClick={() => setHowto("howto")}></div>
         <div className="modal-dialog">
@@ -57,29 +198,19 @@ export default function Header() {
               <div className="youtube">
                 <div className="embed-responsive">
                   <iframe title="tutorial" className="embed-responsive-item" src="https://www.youtube.com/embed/PZejs3XDCSY?playsinline=1" />
-                  {/* <iframe className="embed-responsive-item" src="https://www.youtube.com/watch?v=bBeZSuHI4Qc" /> */}
                 </div>
               </div>
               <div className="step">
                 <div className="bullet">01</div>
-                <p>Make a bet, or even two at same time and wait for the round to start.<br />
-                  ஒரு பந்தயம் அல்லது ஒரே நேரத்தில் இரண்டு பந்தயம் கட்டலாம் ,  மற்றும் சுற்று தொடங்கும் வரை காத்திருக்கவும்.
-                  एक बेट लगाए , या एक साथ 2 बेट लगाए  और खेल शुरू होने का इंतज़ार करें  </p>
+                <p>Make a bet, or even two at same time and wait for the round to start.</p>
               </div>
               <div className="step">
                 <div className="bullet bullet-2">02</div>
-                <p>Look after the luck plane, Your win is bet multiply by a coefficient of lucky plane
-                  Cash out  before plane files away and money is yours! <br />
-
-                  அதிர்ஷ்ட விமானத்தை கவனியுங்கள், விமானம் பறக்கும் உயரம் பொறுத்து உங்கள் பணம் இரட்டிப்பு ஆகும். ( நீங்கள் 100 ரூபாய் பெட் கட்டினால் , விமானம் 2X பறந்தால், உங்களுக்கு 200 ரூபாய் கிடைக்கும்.
-
-                  लकी प्लेन को देखें, आपकी जीती हुई राशि आपकी बेट अमाउंट और प्लेन की उड़ान संख्या का गुणा करके आएगी</p>
+                <p>Look after the luck plane, Your win is bet multiply by a coefficient of lucky plane. Cash out before plane files away and money is yours!</p>
               </div>
               <div className="step">
                 <div className="bullet bullet-3">03</div>
-                <p>Cash out before plane files away and money is yours!<br />
-                  விமானம் பறந்து செல்லும் முன்பு பணத்தை கேஷ் அவுட் செயுங்கள். வெற்றி உங்களுடையது!
-                  प्लेन क्रेश होने से पहले कैशऑउट करें और अपनी बेट अमाउंट के साथ जीता हुआ अमाउंट भी आपका</p>
+                <p>Cash out before plane files away and money is yours!</p>
               </div>
             </div>
             <div className="modal-footer m-f-bg">
@@ -95,7 +226,7 @@ export default function Header() {
         <div className="back" onClick={() => setHowto("howto")}></div>
         <div className="modal-dialog">
           <div className="modal-content">
-            <div className="modal-header ">
+            <div className="modal-header">
               <span className="text-uppercase">Game rules</span>
               <button onClick={() => setHowto("howto")} className="close">
                 <span>×</span>
@@ -105,7 +236,6 @@ export default function Header() {
               <p className="text-gray">
                 Aviator is a new generation of iGaming entertainment. You can win many times more, in seconds! Aviator is built on a provably fair system, which is currently the only real guarantee of honesty in the gambling industry.
               </p>
-              <button className="under-a" onClick={() => setFireSystem(true)}> Read more about provably fair system </button>
               <h6 className="title-2"> How to play </h6>
               <div className="youtube w-99">
                 <div className="embed-responsive">
@@ -118,7 +248,7 @@ export default function Header() {
                   <h3>01</h3>
                   <div className="step-bg-img"></div>
                   <div className="step-text pt-2">
-                    <span>bet</span>   before take-off
+                    <span>bet</span> before take-off
                   </div>
                 </div>
                 <div className="step-item">
@@ -132,11 +262,11 @@ export default function Header() {
                   <h3>03</h3>
                   <div className="step-bg-img-3"></div>
                   <div className="step-text">
-                    <span>Cash out</span>  before the plane disappears and wins X times more!
+                    <span>Cash out</span> before the plane disappears and wins X times more!
                   </div>
                 </div>
               </div>
-              <p className="text-grey mt-20"> But remember, if you did not have time to Cash Out before the Lucky Plane flies away, your bet will be lost. Aviator is pure excitement! Risk and win. It’s all in your hands! </p>
+              <p className="text-grey mt-20"> But remember, if you did not have time to Cash Out before the Lucky Plane flies away, your bet will be lost. Aviator is pure excitement! Risk and win. It's all in your hands! </p>
               <div className="rules-list">
                 <div className="rules-list-title"> More details</div>
                 <ul className="list-group">
@@ -147,7 +277,7 @@ export default function Header() {
                     Your winnings are calculated at the multiplier at which you made a Cash Out, multiplied by your bet.
                   </li>
                   <li className="list-group-item">
-                    Before the start of each round, our provably fair random number generator generates the multiplier at which the Lucky Plane will fly away. You can check the honesty of this generation by clicking on  <span className="icon-fair"></span>  icon, opposite the result, in the History tab
+                    Before the start of each round, our provably fair random number generator generates the multiplier at which the Lucky Plane will fly away.
                   </li>
                 </ul>
               </div>
@@ -155,61 +285,39 @@ export default function Header() {
               <div className="rules-list pt-2">
                 <div className="rules-list-title"> Bet & Cash Out </div>
                 <ul className="list-group">
-                  <li className="list-group-item"> Select an amount and press the “Bet” button to make a bet. </li>
-                  <li className="list-group-item"> You can make two bets simultaneously, by adding a second bet panel. To add a second bet panel, press the plus icon, which is located on the top right corner of the first bet panel. </li>
-                  <li className="list-group-item"> Press the “Cash Out” button to cash out your winnings. Your win is your bet multiplied by the Cash Out multiplier. </li>
-                  <li className="list-group-item"> Your bet is lost, if you didn’t cash out before the plane flies away. </li>
+                  <li className="list-group-item"> Select an amount and press the "Bet" button to make a bet. </li>
+                  <li className="list-group-item"> You can make two bets simultaneously, by adding a second bet panel. </li>
+                  <li className="list-group-item"> Press the "Cash Out" button to cash out your winnings. Your win is your bet multiplied by the Cash Out multiplier. </li>
+                  <li className="list-group-item"> Your bet is lost, if you didn't cash out before the plane flies away. </li>
+                </ul>
+              </div>
+              <div className="rules-list pt-2">
+                <div className="rules-list-title"> Hotkeys (Desktop) </div>
+                <ul className="list-group">
+                  <li className="list-group-item"> <strong>SPACE</strong> — Cash out active bet </li>
+                  <li className="list-group-item"> <strong>B</strong> — Place first bet </li>
+                  <li className="list-group-item"> <strong>N</strong> — Place second bet </li>
+                  <li className="list-group-item"> <strong>1-4</strong> — Quick add to bet amount (500/2K/5K/10K) </li>
+                  <li className="list-group-item"> <strong>ESC</strong> — Cancel bet </li>
                 </ul>
               </div>
               <div className="rules-list pt-2">
                 <div className="rules-list-title"> Auto Play & Auto Cash Out </div>
                 <ul className="list-group">
-                  <li className="list-group-item"> Auto Play is activated from the “Auto” tab on the Bet Panel, by pressing the “Auto Play” button. </li>
-                  <li className="list-group-item"> In the Auto Play Panel, the “Stop if cash decreases by” option stops Auto Play, if the balance is decreased by the selected amount. </li>
-                  <li className="list-group-item"> In the Auto Play Panel, the “Stop if cash increases by” option stops Auto Play, if the balance is increased by the selected amount. </li>
-                  <li className="list-group-item"> In the Auto Play Panel, the “Stop if single win exceeds” option stops Auto Play, if a single win exceeds the selected amount. </li>
-                  <li className="list-group-item"> Auto Cash Out is available from the “Auto” tab on the Bet panel. After activation, your bet will be automatically cashed out when it reaches the multiplier entered </li>
-                </ul>
-              </div>
-              <div className="rules-list pt-2">
-                <div className="rules-list-title"> Live Bets & Statistics </div>
-                <ul className="list-group">
-                  <li className="list-group-item"> On the left side of the game interface (or under the Bet Panel on mobile), is located the Live Bets panel. Here you can see all bets that are being made in the current round. </li>
-                  <li className="list-group-item"> In the “My Bets” panel you can see all of your bets and Cash Out information. </li>
-                  <li className="list-group-item"> In the “Top” panel, game statistics are located. You can browse wins by amount, or Cash Out multiplier, and see the biggest round multipliers. </li>
-                </ul>
-              </div>
-              <div className="rules-list pt-2">
-                <div className="rules-list-title"> Free bets </div>
-                <ul className="list-group">
-                  <li className="list-group-item">{" You can check the status of Free Bets, from the Game Menu > Free Bets. Free Bets are awarded by the operator, or by the Rain Feature. "}</li>
-                </ul>
-              </div>
-              <div className="rules-list pt-2">
-                <div className="rules-list-title"> Randomisation </div>
-                <ul className="list-group">
-                  <li className="list-group-item"> The multiplier for each round is generated by a “Provably Fair” algorithm and is completely transparent, and 100% fair. <button className="under-a" onClick={() => setFireSystem(true)}> Read more about provably fair system </button> </li>
-                  <li className="list-group-item"> {"You can check and modify the Provably Fair settings from the Game menu > Provably Fair settings."} </li>
-                  <li className="list-group-item"> You can check the fairness of each round by pressing <span className="icon-fair"></span> icon, opposite the results in the “My Bets” or inside “Top” tabs. </li>
+                  <li className="list-group-item"> Auto Play is activated from the "Auto" tab on the Bet Panel, by pressing the "Auto Play" button. </li>
+                  <li className="list-group-item"> Auto Cash Out is available from the "Auto" tab on the Bet panel. </li>
                 </ul>
               </div>
               <div className="rules-list pt-2">
                 <div className="rules-list-title"> Return to Player </div>
                 <ul className="list-group">
-                  <li className="list-group-item"> The overall theoretical return to player is 97%. This means that on average, for every 100 rounds, every 3 rounds end with the Lucky Plane flying away at the very beginning of the round. </li>
-                </ul>
-              </div>
-              <div className="rules-list pt-2">
-                <div className="rules-list-title"> Other </div>
-                <ul className="list-group">
-                  <li className="list-group-item"> If the internet connection is interrupted when the bet is active, the game will auto cash out with the current multiplier, and the winning amount will be added to your balance. </li>
-                  <li className="list-group-item"> In the event of a malfunction of the gaming hardware/software, all affected game bets and payouts are rendered void and all affected bets are refunded. </li>
+                  <li className="list-group-item"> The overall theoretical return to player is 97%. </li>
                 </ul>
               </div>
             </div>
           </div>
         </div>
       </div>}
-    </div>
+    </>
   );
 }

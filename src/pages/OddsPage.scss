@@ -1,0 +1,251 @@
+.odds-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background:
+    radial-gradient(circle at 50% 28%, rgb(18, 35, 63), transparent 62%),
+    radial-gradient(600px 400px at 85% 90%, rgba(212, 175, 55, 0.07), transparent 65%),
+    radial-gradient(500px 360px at 8% 85%, rgba(229, 57, 53, 0.08), transparent 60%),
+    rgb(5, 11, 21);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding:
+    max(16px, env(safe-area-inset-top))
+    max(16px, env(safe-area-inset-right))
+    max(16px, env(safe-area-inset-bottom))
+    max(16px, env(safe-area-inset-left));
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+
+  .odds-back {
+    position: fixed;
+    top: max(16px, env(safe-area-inset-top));
+    left: max(16px, env(safe-area-inset-left));
+    z-index: 2;
+    padding: 10px 14px;
+    border: 1px solid rgba(245, 241, 230, 0.25);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.06);
+    color: #f5f1e6;
+    font-size: 12px;
+    font-weight: 800;
+    text-decoration: none;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    transition: background 0.2s, border-color 0.2s;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(255, 255, 255, 0.14);
+      border-color: rgba(245, 241, 230, 0.55);
+    }
+
+    &:focus-visible {
+      outline: 2px solid #d4af37;
+      outline-offset: 2px;
+    }
+  }
+
+  .odds-stage {
+    width: 100%;
+    max-width: 420px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(10px, 2.2vh, 22px);
+    position: relative;
+  }
+
+  .odds-watermark {
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: clamp(44px, 14vw, 72px);
+    font-weight: 900;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.03);
+    user-select: none;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  .odd-slot {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+
+    .odd-label {
+      color: rgba(245, 241, 230, 0.65);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .live-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #e53935;
+      box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.55);
+      animation: live-pulse 1.6s ease-out infinite;
+    }
+  }
+
+  .odd-circle {
+    position: relative;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 35%, #e53935, #b71c1c 70%, #8e0000);
+    border: 5px solid #7f0f0f;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .odd-value {
+      color: #ffffff;
+      font-weight: 900;
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+      font-variant-numeric: tabular-nums;
+      user-select: none;
+
+      &.muted {
+        color: rgba(255, 255, 255, 0.55);
+      }
+    }
+
+    &.small {
+      width: min(36vw, 140px);
+      height: min(36vw, 140px);
+      border-width: 4px;
+      opacity: 0.75;
+      filter: saturate(0.85);
+
+      .odd-value {
+        font-size: clamp(20px, 6vw, 32px);
+      }
+    }
+
+    &.big {
+      width: min(64vw, 260px);
+      height: min(64vw, 260px);
+      box-shadow:
+        0 14px 44px rgba(183, 28, 28, 0.45),
+        inset 0 -10px 24px rgba(0, 0, 0, 0.35),
+        inset 0 8px 18px rgba(255, 255, 255, 0.12);
+      animation: odd-breathe 2.2s ease-in-out infinite;
+
+      &.frozen {
+        animation: none;
+        filter: saturate(0.55) brightness(0.85);
+      }
+
+      .odd-value {
+        font-size: clamp(36px, 11vw, 56px);
+        letter-spacing: 1px;
+      }
+    }
+
+    &.medium {
+      width: min(48vw, 180px);
+      height: min(48vw, 180px);
+
+      .odd-value {
+        font-size: clamp(26px, 8vw, 40px);
+      }
+    }
+  }
+
+  .odds-actions {
+    display: flex;
+    gap: 14px;
+    width: 100%;
+    margin-top: clamp(8px, 2vh, 18px);
+    position: relative;
+    z-index: 1;
+
+    .odds-btn {
+      flex: 1;
+      min-height: 56px;
+      border: 2px solid rgba(245, 241, 230, 0.25);
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      color: #f5f1e6;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.25s;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+
+      &:active {
+        transform: scale(0.97);
+      }
+
+      &.active {
+        background: linear-gradient(135deg, #e9c94f, #d4af37);
+        border-color: #d4af37;
+        color: rgb(10, 22, 40);
+        box-shadow: 0 6px 22px rgba(212, 175, 55, 0.35);
+      }
+    }
+  }
+}
+
+@keyframes live-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0.55); }
+  70% { box-shadow: 0 0 0 9px rgba(229, 57, 53, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(229, 57, 53, 0); }
+}
+
+/* compact phones / short landscape screens */
+@media (max-height: 700px) {
+  .odds-page {
+    align-items: center;
+
+    .odd-circle.big {
+      width: min(52vw, 210px);
+      height: min(52vw, 210px);
+    }
+
+    .odd-circle.medium {
+      width: min(40vw, 150px);
+      height: min(40vw, 150px);
+    }
+
+    .odd-circle.small {
+      width: min(28vw, 110px);
+      height: min(28vw, 110px);
+    }
+
+    .odds-actions { margin-top: 4px; }
+
+    .odds-actions .odds-btn { min-height: 48px; font-size: 14px; }
+  }
+}
+
+@keyframes odd-breathe {
+  0%,
+  100% {
+    box-shadow:
+      0 14px 44px rgba(183, 28, 28, 0.45),
+      inset 0 -10px 24px rgba(0, 0, 0, 0.35),
+      inset 0 8px 18px rgba(255, 255, 255, 0.12);
+  }
+  50% {
+    box-shadow:
+      0 14px 60px rgba(229, 57, 53, 0.65),
+      inset 0 -10px 24px rgba(0, 0, 0, 0.35),
+      inset 0 8px 18px rgba(255, 255, 255, 0.12);
+  }
+}

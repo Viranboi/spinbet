@@ -1,5 +1,4 @@
 import React from "react";
-// import { useCrashContext } from "./context";
 import Context from "../../context";
 
 export default function History() {
@@ -13,7 +12,9 @@ export default function History() {
         <div className="payouts-block">
           {!!history.length && history.map((item, key) => (
             <div key={key} className="payout">
-              <div className={`item opacity-${100 - 2 * key} ${Number(item) < 2 ? "blue" : Number(item) < 10 ? "purple" : "big"}`}>{Number(item).toFixed(2)}x</div>
+              <div className={`item opacity-${100 - 2 * key} ${Number(item) < 2 ? "blue" : Number(item) < 10 ? "purple" : "big"}`}>
+                {parseFloat(Number(item).toFixed(2))}x
+              </div>
             </div>
           ))}
         </div>
@@ -34,7 +35,7 @@ export default function History() {
           <div className="payouts-block">
             {!!history.length && history.map((item, key) => (key < 123 &&
               <div key={key} className="payout">
-                <div className={`bubble-multiplier ${Number(item) < 2 ? "blue" : Number(item) < 10 ? "purple" : "big"}`}>{Number(item).toFixed(2)}x</div>
+                <div className={`bubble-multiplier ${Number(item) < 2 ? "blue" : Number(item) < 10 ? "purple" : "big"}`}>{parseFloat(Number(item).toFixed(2))}x</div>
               </div>
             ))}
           </div>

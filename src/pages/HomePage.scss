@@ -1,0 +1,2153 @@
+// ============ WINNER — sportsbook dashboard theme ============
+// Palette: pitch dark theme, bright yellow accent, crisp borders
+$y: #FFD700;         // brand bright yellow
+$y2: #FFF000;        // CTA yellow
+$yd: #e6c400;        // pressed yellow
+$r: #f4242f;         // brand red
+$g: #10a52e;         // success green
+$pg: #000000;        // page background (pitch dark)
+$hdr: #000000;       // header / nav / footer (pitch blacker)
+$box: #18181C;       // cards & rows
+$box2: #141417;      // deeper panel
+$inp: #1A1A1F;       // inputs
+$bord: #222228;      // primary border
+$bord2: #2A2A30;     // lighter border
+$t1: #ffffff;
+$t2: #999999;
+$t3: #8e9297;
+$t4: #6b7076;
+
+.wn-app {
+  min-height: 100vh;
+  background: $pg;
+  color: $t1;
+  font-family: Inter, Roboto, Montserrat, system-ui, -apple-system, sans-serif;
+
+  @media (max-width: 1023px) {
+    padding-bottom: 76px;
+  }
+}
+
+/* ============================ HEADER ============================ */
+.wn-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  height: 58px;
+  background: $hdr;
+  border-bottom: 1px solid $bord;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+
+  .wn-header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .qw-burger {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+
+    span {
+      width: 18px;
+      height: 2px;
+      background: $t1;
+      border-radius: 2px;
+    }
+
+    @media (max-width: 1023px) { display: flex; }
+  }
+
+  .wn-logo {
+    display: inline-flex;
+    align-items: center;
+    text-decoration: none;
+    user-select: none;
+
+    img {
+      display: block;
+      height: 38px;
+      width: auto;
+      object-fit: contain;
+      border-radius: 9px;
+    }
+  }
+
+  .wn-header-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .wn-lang {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: none;
+    border: none;
+    color: $t2;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 4px;
+    cursor: pointer;
+
+    .wn-flag { display: block; border-radius: 2px; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.08); }
+
+    &:hover { color: $t1; }
+
+    svg:last-child { color: $t3; }
+  }
+
+  .wn-balance {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    line-height: 1.1;
+
+    .wn-bal-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .lbl {
+      color: $t3;
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    strong {
+      color: $t1;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
+  }
+
+  .wn-btn {
+    background: none;
+    border: 1px solid $bord2;
+    color: $t1;
+    border-radius: 6px;
+    padding: 9px 22px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.4px;
+    text-decoration: none;
+    cursor: pointer;
+
+    &:hover { filter: brightness(1.15); }
+    &:active { transform: scale(0.97); }
+
+    &.login {
+      background: $bord2;
+      border-color: $bord2;
+      color: $t1;
+      padding: 9px 22px;
+      border-radius: 6px;
+    }
+
+    &.join,
+    &.accent {
+      background: #FFD700;
+      border-color: #FFD700;
+      color: #000;
+      padding: 9px 22px;
+      border-radius: 6px;
+      font-weight: 900;
+    }
+  }
+
+  .wn-avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.6px solid $t2;
+    color: $t1;
+    cursor: pointer;
+
+    &:hover { border-color: $t1; }
+
+    .dot {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: $r;
+      border: 2px solid $hdr;
+    }
+  }
+
+  @media (max-width: 640px) {
+    .wn-lang span:not(.flag),
+    .wn-lang svg:last-child { display: none; }
+    .wn-logo img { height: 30px; }
+    .wn-balance .lbl { font-size: 9.5px; }
+    .wn-balance strong { font-size: 12px; }
+  }
+}
+
+/* ============================= NAV ============================= */
+.wn-nav {
+  position: sticky;
+  top: 58px;
+  z-index: 90;
+  background: $hdr;
+  border-bottom: 1px solid $bord;
+
+  .wn-nav-scroll {
+    display: flex;
+    align-items: stretch;
+    overflow-x: auto;
+    scrollbar-width: none;
+    max-width: 1440px;
+    margin: 0 auto;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .wn-nav-item {
+    position: relative;
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    min-width: 82px;
+    padding: 8px 12px 7px;
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: $t2;
+    text-decoration: none;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+
+    &:hover { color: $t1; }
+
+    .wn-nav-ico {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+
+      svg { display: block; }
+    }
+
+    .wn-nav-label {
+      font-size: 11.5px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .wn-live-dot {
+      position: absolute;
+      top: 10px;
+      right: 16px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: $r;
+      animation: wn-pulse 1.4s infinite;
+    }
+
+    /* active item: gold outline circle icon + bright yellow text + indicator */
+    &.active {
+      color: $y;
+
+      .wn-nav-ico.ringed {
+        border: 2px solid $y;
+        box-shadow: 0 0 0 2px rgba(255, 223, 0, 0.12);
+      }
+
+      &::after {
+        content: "";
+        position: absolute;
+        bottom: -3px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 46px;
+        height: 3px;
+        border-radius: 3px;
+        background: $y;
+      }
+    }
+  }
+
+  .wn-nav-main {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .wn-more { position: relative; }
+
+  .wn-more-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    z-index: 95;
+    min-width: 190px;
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    background: $box;
+    border: 1px solid $bord;
+    border-radius: 6px;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+
+    li > a,
+    li > button {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      color: $t2;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 10px;
+      text-align: left;
+      text-decoration: none;
+      cursor: pointer;
+
+      &:hover { background: rgba(255, 255, 255, 0.06); color: $t1; }
+    }
+
+    .wn-more-ico { display: flex; color: $t3; }
+  }
+
+  .wn-more.open {
+    .wn-nav-item { color: $y; border-bottom-color: $y; }
+    .wn-more-menu { display: block; }
+  }
+
+  .wn-nav-utils {
+    display: flex;
+    margin-left: auto;
+    border-left: 1px solid $bord;
+
+    .wn-nav-item {
+      .wn-nav-ico.plain { color: $t2; }
+    }
+  }
+}
+
+/* ========================= PAGE / GRID ========================= */
+.wn-main {
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 10px 12px 30px;
+}
+
+.wn-grid {
+  display: grid;
+  grid-template-columns: 250px minmax(0, 1fr) 320px;
+  gap: 10px;
+  align-items: start;
+  margin-top: 0;
+
+  @media (max-width: 1240px) {
+    grid-template-columns: 220px minmax(0, 1fr) 300px;
+  }
+
+  @media (max-width: 1023px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.wn-col-center {
+  min-width: 0;
+}
+
+.wn-col-left {
+  @media (max-width: 1023px) { display: none; }
+}
+
+.wn-col-right {
+  position: sticky;
+  top: 114px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+
+  @media (max-width: 1023px) { display: none; }
+}
+
+/* ========================== SLIDER ========================== */
+.wn-slider {
+  position: relative;
+  border-radius: 10px;
+  overflow: hidden;
+  background: $box2;
+  border: 1px solid $bord;
+
+  .wn-slider-track {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    height: clamp(155px, 19vw, 256px);
+    transition: transform 0.55s cubic-bezier(0.33, 0.9, 0.25, 1);
+    will-change: transform;
+  }
+
+  .wn-slide {
+    position: relative;
+    flex: 0 0 100%;
+    min-width: 100%;
+    overflow: hidden;
+
+    .slide-container {
+      display: block;
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+    }
+
+    /* subtle parallax drift on the image while the slide moves */
+    .slide-container img {
+      transform: scale(1.04);
+      transition: transform 0.9s cubic-bezier(0.33, 0.9, 0.25, 1);
+    }
+
+    &[aria-hidden="false"] .slide-container img { transform: scale(1); }
+
+    /* dark scrim so promo copy pops */
+    &::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+      background: linear-gradient(90deg, rgba(15, 15, 18, 0.88) 0%, rgba(15, 15, 18, 0.42) 48%, rgba(15, 15, 18, 0) 78%);
+      pointer-events: none;
+    }
+  }
+
+  .wn-slide-copy {
+    position: absolute;
+    z-index: 2;
+    left: 4.5%;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    max-width: 62%;
+    pointer-events: none;
+
+    h2 {
+      margin: 0;
+      color: $y;
+      font-size: clamp(20px, 2.7vw, 35px);
+      font-weight: 900;
+      font-style: italic;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      line-height: 1.05;
+      text-shadow: 0 2px 14px rgba(0, 0, 0, 0.65);
+    }
+
+    p {
+      margin: 0;
+      color: $t1;
+      font-size: clamp(11.5px, 1.35vw, 16px);
+      font-weight: 600;
+      text-shadow: 0 1px 8px rgba(0, 0, 0, 0.7);
+    }
+  }
+
+  .wn-slide-tag {
+    background: #FFD700;
+    color: #000;
+    font-size: 10.5px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 3px 10px;
+    border-radius: 3px;
+  }
+
+  .wn-slider-regulatory {
+    position: absolute;
+    z-index: 2;
+    right: 12px;
+    bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 1px;
+    color: rgba(255, 255, 255, 0.72);
+    font-size: 9px;
+    font-weight: 500;
+    line-height: 1.35;
+    text-align: right;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+    pointer-events: none;
+  }
+
+  .wn-slider-arrow {
+    position: absolute;
+    z-index: 3;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(15, 15, 18, 0.55);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: $t1;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.25s, background 0.15s, border-color 0.15s, color 0.15s;
+
+    &:hover {
+      background: rgba(15, 15, 18, 0.85);
+      border-color: $y;
+      color: $y;
+    }
+
+    &.left { left: 12px; }
+    &.right { right: 12px; }
+
+    @media (max-width: 640px) {
+      width: 27px;
+      height: 27px;
+      opacity: 1;
+
+      &.left { left: 8px; }
+      &.right { right: 8px; }
+    }
+  }
+
+  &:hover .wn-slider-arrow { opacity: 1; }
+
+  .wn-slider-ind {
+    position: absolute;
+    z-index: 2;
+    bottom: 9px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 6px;
+
+    button {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      border: none;
+      background: $bord2;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+      cursor: pointer;
+      transition: all 0.25s;
+
+      &.on { background: $t2; width: 20px; }
+    }
+  }
+}
+
+/* ======================= SPORTS TREE ======================= */
+.wn-tree {
+  background: $box2;
+  border: 1px solid $bord;
+  border-radius: 8px;
+  padding: 10px;
+
+  .wn-tree-search {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: $inp;
+    border: 1px solid $bord;
+    border-radius: 6px;
+    padding: 9px 11px;
+    margin-bottom: 10px;
+    color: $t4;
+
+    input {
+      flex: 1;
+      min-width: 0;
+      background: none;
+      border: none;
+      outline: none;
+      color: $t1;
+      font-size: 13px;
+
+      &::placeholder { color: $t4; }
+    }
+  }
+
+  .wn-tree-list {
+    max-height: calc(100vh - 250px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: $bord transparent;
+    padding-right: 2px;
+    margin: 0 -10px;
+    padding-left: 10px;
+  }
+
+  .wn-acc-control {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: none;
+    border: none;
+    border-bottom: 1px solid rgba(43, 47, 54, 0.6);
+    color: $t1;
+    padding: 11px 10px 11px 12px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover { background: #1E1E24; }
+
+    .wn-acc-ico {
+      display: flex;
+      align-items: center;
+      color: #b6bac1;
+
+      svg { display: block; }
+    }
+
+    .wn-acc-state {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      min-width: 0;
+
+      .title {
+        flex: 1;
+        min-width: 0;
+        color: $t1;
+        font-size: 11.5px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.45px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .count {
+        margin-left: auto;
+        color: $t3;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+    }
+
+    .arrow {
+      width: 7px;
+      height: 7px;
+      border-right: 1.5px solid $t3;
+      border-bottom: 1.5px solid $t3;
+      transform: rotate(45deg) translateY(-2px);
+      transition: transform 0.2s;
+      flex: 0 0 auto;
+
+      &.up {
+        transform: rotate(-135deg) translateX(-2px);
+        border-color: $t1;
+      }
+    }
+  }
+
+  .wn-acc.open .wn-acc-control {
+    background: $box;
+
+    .title { color: $y; }
+  }
+
+  .wn-acc-panel {
+    background: rgba(15, 15, 18, 0.5);
+    padding: 4px 0 6px;
+
+    .wn-league-row {
+      width: calc(100% - 16px);
+      margin: 0 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      color: $t2;
+      font-size: 12px;
+      padding: 8px 10px;
+      cursor: pointer;
+
+      &:hover { background: rgba(255, 255, 255, 0.05); color: $t1; }
+
+      .name {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .count { color: $t4; font-size: 11px; }
+    }
+  }
+
+  .wn-tree-empty {
+    color: $t4;
+    font-size: 12px;
+    text-align: center;
+    padding: 26px 10px;
+  }
+}
+
+/* ===================== FAVORITE LEAGUES ===================== */
+.wn-fav-leagues {
+  position: relative;
+  margin-top: 10px;
+  margin-bottom: 10px;
+
+  .wn-fav-track {
+    list-style: none;
+    margin: 0;
+    padding: 2px;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar { display: none; }
+  }
+
+  .wn-league-chip button {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: $box;
+    border: 1px solid $bord;
+    border-radius: 999px;
+    color: $t1;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px 6px 7px;
+    cursor: pointer;
+    white-space: nowrap;
+
+    &:hover { border-color: $bord2; }
+
+    .chip-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      background: $box2;
+      border-radius: 50%;
+    }
+
+    .chip-count {
+      color: $t3;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+  }
+
+  .wn-carousel-arrow.right {
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+}
+
+.wn-carousel-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: $box;
+  border: 1px solid $bord;
+  color: $t1;
+  cursor: pointer;
+
+  &:hover { border-color: $bord2; }
+}
+
+/* ====================== FEATURED GAMES ====================== */
+.wn-featured {
+  margin-bottom: 14px;
+
+  .wn-featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
+    gap: 10px;
+  }
+
+  .wn-featured-card {
+    display: flex;
+    flex-direction: column;
+    background: $box2;
+    border: 1px solid $bord;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .fg-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      background: #111;
+      border-bottom: 1px solid $bord;
+      padding: 8px 10px;
+
+      .fg-league {
+        color: $t3;
+        font-size: 11px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .fg-time {
+        color: $t2;
+        font-size: 11px;
+        font-weight: 700;
+        white-space: nowrap;
+      }
+    }
+
+    .fg-body {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 96px;
+      gap: 10px;
+      align-items: center;
+      padding: 11px 12px 12px;
+    }
+
+    .fg-teams {
+      display: flex;
+      flex-direction: column;
+      gap: 13px;
+      min-width: 0;
+
+      .fg-team-name {
+        color: $t1;
+        font-size: 12.5px;
+        font-weight: 700;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+      }
+    }
+
+    .fg-odds {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+
+      .fg-odd {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        background: $box;
+        border: 1px solid $bord;
+        border-radius: 4px;
+        padding: 5px 9px;
+        cursor: pointer;
+        transition: all 0.13s;
+
+        .odd-label {
+          color: $t3;
+          font-size: 10px;
+          font-weight: 800;
+        }
+
+        .odd-price {
+          color: $y;
+          font-size: 12.5px;
+          font-weight: 800;
+        }
+
+        &.boosted {
+          border-color: rgba(255, 223, 0, 0.45);
+
+          .odd-price { color: $y; }
+        }
+
+        &:hover { border-color: $y; }
+        &:active { transform: scale(0.96); }
+
+        &.selected {
+          background: #FFD700;
+          border-color: #FFD700;
+
+          .odd-label { color: rgba(0, 0, 0, 0.65); }
+          .odd-price { color: #000; }
+        }
+      }
+    }
+  }
+}
+
+/* ======================== EVENTS FEED ======================== */
+.wn-events {
+  background: transparent;
+
+  .wn-center-tabs {
+    display: inline-flex;
+    gap: 6px;
+    margin-bottom: 10px;
+
+    .wn-tab {
+      background: $box2;
+      border: 1px solid $bord;
+      border-radius: 999px;
+      color: $t2;
+      font-size: 12.5px;
+      font-weight: 700;
+      padding: 8px 22px;
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:hover { color: $t1; border-color: $bord2; }
+
+      &.au-s-s {
+        border-color: $y;
+        color: $y;
+      }
+    }
+  }
+
+  .wn-sport-tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin: 0 -2px 12px;
+
+    &::-webkit-scrollbar { display: none; }
+
+    ul {
+      display: flex;
+      gap: 8px;
+      list-style: none;
+      margin: 0;
+      padding: 2px;
+      width: max-content;
+    }
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      background: $box;
+      border: 1px solid $bord;
+      border-radius: 999px;
+      color: $t1;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 7px 14px;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+      user-select: none;
+
+      .tab-ico {
+        display: flex;
+        align-items: center;
+
+        svg { display: block; }
+      }
+
+      &:hover { border-color: $y; }
+
+      &.au-s-s {
+        background: $y;
+        border-color: $y;
+        color: #111;
+      }
+    }
+  }
+
+  .wn-event-groups {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .wn-league-block {
+    background: $box2;
+    border: 1px solid $bord;
+    border-radius: 8px;
+    overflow: hidden;
+
+    .wn-league-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #111;
+      border-bottom: 1px solid $bord;
+      padding: 9px 12px;
+
+      .flag { font-size: 14px; line-height: 1; }
+
+      .name {
+        color: $t1;
+        font-size: 12.5px;
+        font-weight: 800;
+      }
+
+      .count {
+        color: $t3;
+        font-size: 11.5px;
+        font-weight: 600;
+      }
+    }
+
+    .wn-event {
+      display: grid;
+      grid-template-columns: 110px minmax(0, 1fr) auto;
+      gap: 12px;
+      align-items: center;
+      padding: 10px 12px;
+      border-bottom: 1px solid rgba(43, 47, 54, 0.55);
+      transition: background 0.15s;
+
+      &:last-child { border-bottom: none; }
+      &:hover { background: rgba(255, 255, 255, 0.02); }
+
+      &.is-live {
+        border-left: 3px solid $r;
+
+        .we-time .live-min {
+          color: $r;
+          animation: wn-pulse 1.4s infinite;
+        }
+      }
+
+      .we-time {
+        > span {
+          color: $t2;
+          font-size: 12px;
+          font-weight: 600;
+        }
+
+        .live-min {
+          color: $t1;
+          font-size: 13px;
+          font-weight: 900;
+        }
+      }
+
+      .we-teams {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-width: 0;
+
+        .we-score {
+          color: $y;
+          font-size: 11px;
+          font-weight: 800;
+        }
+
+        .we-team {
+          color: $t1;
+          font-size: 13px;
+          font-weight: 600;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .we-odds {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+
+        .we-odd {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 1px;
+          min-width: 56px;
+          background: $box;
+          border: 1px solid $bord;
+          border-radius: 5px;
+          padding: 6px 10px;
+          cursor: pointer;
+          transition: all 0.13s;
+
+          i {
+            color: $t3;
+            font-size: 9.5px;
+            font-style: normal;
+            font-weight: 800;
+          }
+
+          em {
+            color: $y;
+            font-size: 13px;
+            font-weight: 800;
+            font-style: normal;
+          }
+
+          &:hover { border-color: $y; }
+          &:active { transform: scale(0.95); }
+
+          &.selected {
+            background: #FFD700;
+            border-color: #FFD700;
+
+            i { color: rgba(0, 0, 0, 0.65); }
+            em { color: #000; }
+          }
+        }
+
+        .we-more {
+          background: none;
+          border: 1px dashed $bord2;
+          color: $t3;
+          font-size: 11px;
+          font-weight: 700;
+          border-radius: 5px;
+          padding: 10px 8px;
+          cursor: pointer;
+
+          &:hover { color: $y; border-color: $y; }
+        }
+      }
+    }
+  }
+
+  .wn-events-empty {
+    text-align: center;
+    color: $t4;
+    font-size: 13px;
+    padding: 36px 0;
+  }
+}
+
+@keyframes wn-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+/* ========================== BETSLIP ========================== */
+.wn-betslip {
+  background: $box2;
+  border: 1px solid $bord;
+  border-radius: 8px;
+  overflow: hidden;
+
+  .wn-bs-head {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    button {
+      background: $box2;
+      border: none;
+      box-shadow: inset 0 -3px 0 transparent;
+      border-right: 1px solid $bord;
+      color: $t3;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 13px 6px;
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:last-child { border-right: none; }
+      &:hover:not(.active) { color: $t2; }
+
+      &.active {
+        background: $box2;
+        box-shadow: inset 0 -3px 0 $y;
+        color: $t1;
+      }
+    }
+  }
+
+  .wn-bs-body {
+    background: $box;
+    padding: 0 0 12px;
+  }
+
+  .wn-bs-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 10px 12px;
+    border-bottom: 1px solid $bord;
+
+    .wn-check {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: $t2;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+
+      input {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .box {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 15px;
+        height: 15px;
+        flex: 0 0 auto;
+        border-radius: 3px;
+        border: 1.5px solid $bord2;
+        background: $inp;
+        color: #111;
+        transition: all 0.13s;
+
+        svg { display: block; }
+
+        &.on {
+          background: $y;
+          border-color: $y;
+        }
+      }
+
+      > svg { color: $t4; flex: 0 0 auto; }
+    }
+
+    .wn-clear {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: none;
+      border: none;
+      color: $t3;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+
+      &:hover:not(.disable) { color: $r; }
+
+      &.disable {
+        opacity: 0.45;
+        cursor: default;
+      }
+    }
+  }
+
+  .wn-load-bet {
+    display: flex;
+    gap: 8px;
+    padding: 11px 12px;
+    border-bottom: 1px solid $bord;
+
+    input {
+      flex: 1;
+      min-width: 0;
+      background: $inp;
+      border: 1px solid $bord;
+      border-radius: 5px;
+      color: $t1;
+      font-size: 12.5px;
+      padding: 10px 12px;
+      outline: none;
+
+      &::placeholder { color: $t4; }
+      &:focus { border-color: $y; }
+    }
+
+    button {
+      background: #FFD700;
+      border: none;
+      border-radius: 5px;
+      color: #000;
+      font-size: 12px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 0 20px;
+      cursor: pointer;
+      transition: all 0.15s;
+
+      &:hover { background: $yd; }
+      &:active { transform: scale(0.97); }
+    }
+  }
+
+  .wn-bs-empty {
+    text-align: center;
+    padding: 26px 24px 40px;
+    color: $t4;
+
+    > svg {
+      display: block;
+      margin: 0 auto;
+    }
+
+    h2 {
+      margin: 10px 0 5px;
+      color: $t1;
+      font-size: 14.5px;
+      font-weight: 800;
+    }
+
+    p {
+      margin: 0;
+      font-size: 12px;
+      line-height: 1.55;
+      color: $t3;
+    }
+  }
+
+  .wn-bs-selections {
+    max-height: 280px;
+    overflow-y: auto;
+    padding: 9px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    .wn-sel {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      background: $box2;
+      border: 1px solid $bord;
+      border-radius: 6px;
+      padding: 9px 11px;
+
+      .main {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+
+        .pick { color: $y; font-size: 12px; font-weight: 800; }
+
+        .match {
+          color: $t3;
+          font-size: 11px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+
+      .right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+
+        em {
+          color: $t1;
+          font-size: 13px;
+          font-weight: 800;
+          font-style: normal;
+        }
+
+        button {
+          background: none;
+          border: none;
+          color: $t4;
+          cursor: pointer;
+          padding: 3px;
+
+          &:hover { color: $r; }
+        }
+      }
+    }
+  }
+
+  .wn-stake {
+    padding: 10px 12px 2px;
+
+    input {
+      width: 100%;
+      box-sizing: border-box;
+      background: $inp;
+      border: 1px solid $bord;
+      border-radius: 5px;
+      color: $t1;
+      font-size: 14px;
+      font-weight: 800;
+      padding: 11px 13px;
+      outline: none;
+
+      &::placeholder { color: $t4; font-weight: 600; }
+      &:focus { border-color: $y; }
+    }
+
+    .quick {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 7px;
+
+      button {
+        background: $box2;
+        border: 1px solid $bord;
+        border-radius: 5px;
+        color: $t2;
+        font-size: 11px;
+        font-weight: 700;
+        padding: 7px 0;
+        cursor: pointer;
+
+        &:hover { border-color: $y; color: $y; }
+        &:active { transform: scale(0.96); }
+      }
+    }
+  }
+
+  .wn-totals {
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+
+    > div {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+
+      span { color: $t3; font-size: 12px; font-weight: 600; }
+      strong { color: $t1; font-size: 14px; font-weight: 900; }
+    }
+  }
+
+  .wn-place {
+    display: block;
+    width: calc(100% - 24px);
+    margin: 0 12px;
+    background: #FFD700;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    font-size: 14px;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    padding: 13px 0;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &:hover { background: $yd; }
+    &:active { transform: scale(0.98); }
+  }
+}
+
+/* side banner under betslip */
+.wn-side-banner {
+  border-radius: 8px;
+  overflow: hidden;
+  background: $box2;
+  border: 1px solid $bord;
+
+  img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+}
+
+/* =========================== FOOTER =========================== */
+.wn-footer {
+  background: #000000;
+  border-top: 1px solid #1a1a1a;
+  margin-top: 20px;
+
+  .wn-footer-in {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 26px 14px 18px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 26px;
+  }
+
+  .wn-f-block {
+    .title {
+      color: $t4;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 18px;
+    }
+
+    li a,
+    li button {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: none;
+      border: none;
+      color: $t2;
+      font-size: 12.5px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+
+      &:hover { color: $y; }
+    }
+  }
+
+  .wn-f-drop {
+    flex-direction: column !important;
+    align-items: stretch !important;
+
+    li button {
+      width: 100%;
+      justify-content: space-between;
+      border: 1px solid $bord;
+      border-radius: 5px;
+      padding: 10px 12px;
+      color: $t1;
+      font-size: 12.5px;
+    }
+  }
+
+  .wn-f-help {
+    flex-direction: column !important;
+    gap: 8px !important;
+    margin-top: 12px;
+
+    a { color: $t3; font-size: 12px; font-weight: 500; }
+  }
+
+  .android {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 2px;
+    background: $box;
+    border: 1px solid $bord;
+    border-radius: 8px;
+    padding: 10px 16px;
+    text-decoration: none;
+    margin-bottom: 12px;
+
+    b { color: $t1; font-size: 12.5px; }
+    span { color: $t3; font-size: 11px; }
+  }
+
+  .wn-f-lang {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1px solid $bord;
+    border-radius: 5px;
+    color: $t2;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 9px 12px;
+    cursor: pointer;
+  }
+
+  .wn-footer-base {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 12px 14px 16px;
+    border-top: 1px solid $bord;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    color: $t4;
+    font-size: 11.5px;
+
+    .wn-f-brand {
+      color: $y;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+    }
+  }
+
+  @media (max-width: 720px) {
+    .wn-footer-base { flex-direction: column; gap: 4px; }
+  }
+}
+
+/* ================= DRAWER / SHEET / OVERLAY ================= */
+.qw-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  z-index: 200;
+  animation: qw-fade 0.2s;
+}
+
+@keyframes qw-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.qw-drawer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: min(300px, 85vw);
+  background: $pg;
+  z-index: 210;
+  overflow-y: auto;
+  animation: qw-slide-in 0.25s;
+
+  .qw-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 16px 10px;
+    color: $y;
+    font-weight: 900;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+
+    button {
+      background: none;
+      border: none;
+      color: $t3;
+      font-size: 16px;
+      cursor: pointer;
+
+      &:hover { color: $t1; }
+    }
+  }
+}
+
+@keyframes qw-slide-in {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+
+.qw-sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 210;
+  background: $pg;
+  border-radius: 16px 16px 0 0;
+  max-height: 78vh;
+  overflow-y: auto;
+  animation: qw-up 0.25s;
+
+  .qw-sheet-head {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: $box;
+    padding: 14px 16px;
+    color: $t1;
+    font-weight: 900;
+    font-size: 14px;
+    text-transform: uppercase;
+
+    button {
+      background: none;
+      border: none;
+      color: $t3;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  }
+}
+
+@keyframes qw-up {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+
+/* ======================= MOBILE TABBAR ======================= */
+.qw-tabbar {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  .qw-tabbar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 150;
+    display: flex;
+    align-items: stretch;
+    background: #000000;
+    border-top: 1px solid #1a1a1a;
+    padding: 5px 2px calc(5px + env(safe-area-inset-bottom));
+
+    .qw-tab {
+      position: relative;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      background: none;
+      border: none;
+      color: $t3;
+      font-size: 10px;
+      font-weight: 700;
+      text-decoration: none;
+      padding: 4px 0;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+
+      &.active { color: $y; }
+      &:active { transform: scale(0.94); }
+
+      .qw-badge {
+        position: absolute;
+        top: -2px;
+        right: calc(50% - 22px);
+        background: $r;
+        color: $t1;
+        font-size: 9px;
+        font-style: normal;
+        font-weight: 900;
+        min-width: 15px;
+        height: 15px;
+        border-radius: 999px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0 3px;
+      }
+
+      &.slip { color: $y; }
+    }
+  }
+
+  .wn-slider .wn-slider-track { height: clamp(160px, 48vw, 236px); }
+
+  .wn-slider-regulatory { font-size: 8px; }
+
+  .wn-events {
+    .wn-event {
+      grid-template-columns: 84px minmax(0, 1fr);
+
+      .we-odds {
+        grid-column: 1 / -1;
+        justify-content: space-between;
+
+        .we-odd { flex: 1; min-width: 0; }
+        .we-more { flex: 0 0 auto; }
+      }
+    }
+
+    .wn-center-tabs {
+      display: flex;
+      width: 100%;
+
+      .wn-tab { flex: 1; }
+    }
+
+    .wn-sport-tabs li span { max-width: 70px; overflow: hidden; text-overflow: ellipsis; }
+  }
+
+  .wn-featured .wn-featured-grid { grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); }
+}
+
+/* Reference skin refinements. Kept scoped to the sportsbook home page so the
+   Aviator canvas and its existing controls retain their original styling. */
+.wn-app {
+  background: #000000;
+  font-family: "Arial Narrow", Roboto, Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+.wn-header {
+  height: 60px;
+  padding: 0 12px;
+  background: #000000;
+  border-bottom-color: #1a1a1a;
+
+  .wn-logo img {
+    height: 40px;
+    width: auto;
+    border-radius: 0;
+    filter: brightness(1.1) saturate(1.2);
+  }
+
+  .wn-header-right { gap: 14px; }
+
+  .wn-lang {
+    color: #f2f2f2;
+    font-weight: 500;
+    font-size: 13px;
+    gap: 6px;
+
+    .wn-flag { box-shadow: none; }
+  }
+
+  .wn-btn {
+    border-radius: 4px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 800;
+
+    &.login {
+      background: transparent;
+      border-color: #555;
+      padding: 9px 18px;
+      border-radius: 4px;
+    }
+
+    &.join,
+    &.accent {
+      background: #fff000;
+      border-color: #fff000;
+      color: #000;
+      border-radius: 4px;
+      padding: 10px 22px;
+    }
+  }
+
+  .wn-avatar {
+    width: 38px;
+    height: 38px;
+    border-color: #888;
+    background: #000000;
+    border-width: 1.5px;
+
+    svg { width: 24px; height: 24px; color: #fff; }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      top: -1px;
+      right: -1px;
+      background: #3e9cff;
+      border-color: #000000;
+      border-width: 2px;
+    }
+  }
+
+  .wn-balance {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    border-left: 1px solid #333;
+
+    .wn-bal-metric {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 2px;
+      min-width: 58px;
+      padding: 0 10px;
+      border-right: 1px solid #333;
+
+      &:last-child { border-right: none; }
+    }
+
+    .wn-bal-row { display: contents; }
+
+    .lbl {
+      color: #aaa;
+      font-size: 10px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    strong {
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+  }
+}
+
+.wn-nav {
+  top: 60px;
+  background: #000000;
+  border-bottom: 1px solid #1a1a1a;
+
+  .wn-nav-scroll { max-width: none; }
+
+  .wn-nav-item {
+    min-width: 82px;
+    padding: 9px 12px 10px;
+    color: #999;
+    font-weight: 500;
+
+    .wn-nav-ico {
+      width: 38px;
+      height: 38px;
+
+      svg { display: block; }
+
+      .wn-nav-image {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        image-rendering: auto;
+      }
+    }
+
+    .wn-nav-label {
+      font-size: 12.5px;
+      font-weight: 500;
+    }
+
+    &.active {
+      color: #fff000;
+
+      .wn-nav-ico.ringed {
+        border: 0;
+        box-shadow: none;
+      }
+
+      &::after { background: #fff000; }
+    }
+  }
+
+  .wn-nav-utils { border-left-color: #1a1a1a; }
+
+  .wn-nav-utils .wn-nav-item {
+    min-width: 100px;
+
+    &:first-child { min-width: 115px; }
+
+    .wn-nav-ico.plain {
+      width: 38px;
+      height: 38px;
+      color: #ccc;
+
+      svg { width: 28px; height: 28px; stroke-width: 1.35; }
+    }
+  }
+
+  .wn-nav-main > li:not(:first-child) .wn-nav-ico svg {
+    width: 28px;
+    height: 28px;
+    stroke-width: 1.45;
+  }
+
+  .wn-nav-main > li:nth-child(2) .wn-nav-ico svg {
+    color: #fff000;
+    width: 30px;
+    height: 30px;
+  }
+
+  .wn-nav-main > li:first-child .wn-nav-ico svg {
+    width: 30px;
+    height: 30px;
+    stroke-width: 2.2;
+  }
+
+  .wn-nav-main .wn-nav-ico .wn-nav-image {
+    width: auto;
+    max-width: 100%;
+    height: 38px;
+  }
+
+  .wn-nav-utils .wn-nav-ico .wn-nav-image {
+    width: auto;
+    max-width: 100%;
+    height: 36px;
+  }
+}
+
+.wn-main {
+  max-width: none;
+  padding: 14px 10px 34px;
+}
+
+.wn-grid {
+  grid-template-columns: 190px minmax(0, 1fr) 286px;
+  gap: 10px;
+
+  @media (max-width: 1240px) {
+    grid-template-columns: 190px minmax(0, 1fr) 286px;
+  }
+}
+
+.wn-tree,
+.wn-betslip,
+.wn-side-banner {
+  border-radius: 3px;
+  border-color: #222;
+}
+
+.wn-tree {
+  padding: 0;
+  background: #1a1a1a;
+
+  .wn-tree-search {
+    margin: 0 0 2px;
+    border-radius: 3px;
+    background: #141414;
+    border-color: #444;
+    padding: 9px 10px;
+  }
+
+  .wn-tree-list {
+    margin: 0;
+    padding: 0;
+  }
+
+  .wn-acc-control {
+    padding: 10px 9px;
+    border-bottom-color: #333;
+    background: #1a1a1a;
+    font-weight: 400;
+
+    &:hover { background: #222; }
+    .wn-acc-state .title { font-weight: 400; }
+  }
+}
+
+.wn-slider {
+  border-radius: 0;
+  border-color: #1a1a1a;
+  background: #000000;
+}
+
+.wn-fav-leagues {
+  margin-top: 14px;
+
+  .wn-league-chip button {
+    padding: 7px 12px 7px 8px;
+    border-radius: 18px;
+    background: #0a0a0a;
+    border-color: #555;
+    font-weight: 500;
+
+    .chip-count { color: #ccc; }
+  }
+}
+
+.wn-featured {
+  .wn-featured-grid { gap: 8px; }
+
+  .wn-featured-card {
+    border-radius: 3px;
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+
+    .fg-header {
+      padding: 8px 9px;
+      background: #111;
+      border-bottom-color: #2a2a2a;
+    }
+
+    .fg-body { padding: 10px 9px; }
+
+    .fg-odd {
+      border-radius: 2px;
+      background: #222;
+      border-color: #333;
+      padding: 6px 8px;
+    }
+  }
+}
+
+.wn-events {
+  .wn-center-tabs .wn-tab,
+  .wn-sport-tabs li {
+    border-radius: 3px;
+    font-weight: 400;
+  }
+
+  .wn-league-block {
+    border-radius: 3px;
+    background: #1a1a1a;
+    border-color: #2a2a2a;
+  }
+
+  .wn-event .we-odd {
+    border-radius: 2px;
+    background: #222;
+    border-color: #333;
+  }
+}
+
+.wn-betslip {
+  background: #111;
+
+  .wn-bs-head button { border-radius: 0; background: #222; }
+  .wn-bs-body { background: #1a1a1a; }
+  .wn-load-bet input,
+  .wn-stake input { border-radius: 3px; background: #1a1a1a; border-color: #555; }
+  .wn-load-bet button,
+  .wn-place { border-radius: 3px; background: #fff000; }
+}
+
+@media (max-width: 1023px) {
+  .wn-header { height: 54px; }
+  .wn-nav { top: 54px; }
+  .wn-header .wn-logo img { height: 32px; }
+  .wn-main { padding: 10px 8px 24px; }
+
+  .wn-header .wn-balance {
+    .wn-bal-metric { min-width: 45px; padding: 0 6px; }
+    .lbl { font-size: 8px; }
+    strong { font-size: 11px; }
+  }
+}

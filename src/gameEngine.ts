@@ -8,16 +8,42 @@ export interface FakePlayer {
   bot?: boolean;
 }
 
-const FAKE_NAMES = [
-  "Raj***k", "Sud***p", "Vik***r", "Ama***n", "Kri***a",
-  "San***y", "Pri***a", "Ank***h", "Dev***s", "Rah***l",
-  "Ayu***i", "Sur***j", "Nar***a", "Man***h", "Gau***m",
-  "Kum***r", "Lak***i", "Ram***h", "Sit***a", "Shi***a",
-  "Joh***n", "Mar***a", "Dav***d", "Car***s", "Pat***k",
-  "Ric***d", "Ste***n", "Jas***e", "Bra***y", "Toh***a",
-  "Kau***l", "Ani***a", "Roh***t", "Nik***l", "Sar***a",
-  "Ven***t", "Oma***r", "Zai***a", "Har***h", "Mea***a",
+const FIRST_NAMES = [
+  "Ali", "Kamal", "Jean", "Pierre", "Eric", "Musa", "David", "Samuel",
+  "Joseph", "Patrick", "Emmanuel", "Benjamin", "Daniel", "Michael", "James",
+  "John", "Robert", "William", "Richard", "Thomas", "Charles", "Peter",
+  "Steven", "Paul", "Andrew", "Joshua", "Kenneth", "Kevin", "Brian",
+  "George", "Timothy", "Ronald", "Edward", "Jason", "Jeffrey", "Ryan",
+  "Jacob", "Gary", "Nicholas", "Eric", "Jonathan", "Stephen", "Larry",
+  "Justin", "Scott", "Brandon", "Benjamin", "Samuel", "Raymond", "Gregory",
+  "Frank", "Alexander", "Patrick", "Jack", "Dennis", "Jerry", "Tyler",
+  "Aaron", "Jose", "Nathan", "Henry", "Douglas", "Peter", "Zachary",
+  "Noah", "Adam", "Kyle", "Carl", "Arthur", "Gerald", "Roger",
+  "Keith", "Jeremy", "Terry", "Lawrence", "Sean", "Austin", "Joe",
+  "Willie", "Billy", "Bruce", "Gabriel", "Logan", "Albert", "Ethan",
+  "Wayne", "Ralph", "Roy", "Eugene", "Randy", "Vincent", "Philip",
+  "Bobby", "Harry", "Ralph", "Louis", "Philip", "Wayne", "Eugene",
+  "Bruno", "Kofi", "Amadou", "Ibrahim", "Moussa", "Omar", "Hassan",
+  "Karim", "Youssef", "Ahmed", "Mamadou", "Abdoulaye", "Ismail",
+  "Sekou", "Moussa", "Boubacar", "Amadou", "Souleymane", "Bakari",
 ];
+
+const LAST_NAMES = [
+  "M.", "D.", "K.", "J.", "B.", "S.", "A.", "L.", "T.", "R.",
+  "N.", "C.", "E.", "P.", "W.", "G.", "H.", "F.", "O.", "I.",
+  "U.", "V.", "X.", "Z.", "Y.", "Q.", "M.B.", "A.K.", "J.P.",
+  "D.W.", "S.T.", "B.R.", "K.N.", "L.C.", "E.H.", "P.G.", "W.F.",
+  "N.O.", "C.I.", "R.U.", "T.V.", "G.X.", "H.Z.", "F.Y.",
+];
+
+const MASKED_NAMES: string[] = [];
+for (let i = 0; i < 200; i++) {
+  const first = FIRST_NAMES[Math.floor(Math.random() * FIRST_NAMES.length)];
+  const last = LAST_NAMES[Math.floor(Math.random() * LAST_NAMES.length)];
+  MASKED_NAMES.push(`${first} ${last}`);
+}
+// Ensure uniqueness
+const UNIQUE_NAMES = Array.from(new Set(MASKED_NAMES));
 
 const AVATARS = [
   "./avatars/av-3.png", "./avatars/av-4.png", "./avatars/av-5.png",
@@ -80,25 +106,36 @@ export async function computeCrashPoint(
     .join("");
 
   const h = parseInt(hex.substring(0, 8), 16) / 0xffffffff;
-  const e = Math.pow(2, 32);
-  const crashPoint =
-    Math.floor((100 - 1) * e) / (parseInt(hex.substring(0, 8), 16) + 1);
+
+  if (h === 0) return 1;
+
+  const crashPoint = 0.97 / h;
   return Math.max(1, Math.floor(crashPoint * 100) / 100);
 }
 
 export function generateFakePlayers(crashPoint: number): FakePlayer[] {
-  const count = Math.floor(Math.random() * 12) + 4;
+  const count = Math.floor(Math.random() * 251) + 1050;
   const users: FakePlayer[] = [];
+  const usedNames = new Set<string>();
   for (let i = 0; i < count; i++) {
-    const name = FAKE_NAMES[Math.floor(Math.random() * FAKE_NAMES.length)];
-    const betAmount = [20, 50, 100, 200, 500, 1000][
-      Math.floor(Math.random() * 6)
-    ];
+    let name: string;
+    if (i < UNIQUE_NAMES.length) {
+      name = UNIQUE_NAMES[i % UNIQUE_NAMES.length];
+    } else {
+      name = UNIQUE_NAMES[Math.floor(Math.random() * UNIQUE_NAMES.length)];
+    }
+    if (usedNames.has(name) && Math.random() > 0.3) {
+      name = `${name} ${Math.floor(Math.random() * 99)}`;
+    }
+    usedNames.add(name);
+    const betAmount = i < 12
+      ? Math.floor(Math.random() * 29999 + 60001)
+      : Math.floor(Math.random() * 49000 + 1000);
     const willCashOut = Math.random() > 0.3;
     const cashOutMult = willCashOut
       ? Math.max(
           1.01,
-          Math.floor((Math.random() * Math.min(crashPoint, 50) + 1) * 100) / 100
+          Math.floor((Math.random() * Math.min(crashPoint, 20) + 1) * 100) / 100
         )
       : 0;
     users.push({
@@ -114,12 +151,16 @@ export function generateFakePlayers(crashPoint: number): FakePlayer[] {
   return users;
 }
 
+export function generateWatcherCount(): number {
+  return Math.floor(Math.random() * 3000) + 5000;
+}
+
 export function generateInitialHistory(): number[] {
   const values = [
-    1.23, 2.45, 1.87, 5.67, 1.12, 3.45, 12.34, 1.56, 2.89, 7.89,
-    1.34, 4.56, 1.78, 9.12, 1.45, 2.34, 6.78, 1.23, 3.98, 15.67,
-    1.12, 2.67, 8.9, 1.34, 4.12, 1.89, 5.43, 1.23, 2.78, 11.23,
-    1.56, 3.21, 1.08, 2.11, 6.54, 1.44, 4.88, 1.92, 10.11, 1.67,
+    1.98, 1.34, 5.67, 1.12, 2.45, 1.87, 12.34, 1.56, 2.89, 3.45,
+    1.34, 4.56, 1.78, 2.12, 1.45, 2.34, 1.67, 1.23, 3.98, 1.11,
+    1.12, 2.67, 1.90, 1.34, 4.12, 1.89, 5.43, 1.23, 2.78, 1.23,
+    1.56, 3.21, 1.08, 2.11, 1.54, 1.44, 1.88, 1.92, 1.11, 1.67,
   ];
   return values;
 }

@@ -1,0 +1,197 @@
+/* ============ Winner — global mobile / small-screen pass ============ */
+
+@media (max-width: 768px) {
+  html { font-size: 15px; }
+
+  /* ---- layout shell ---- */
+  .main-content,
+  main,
+  .page-wrap {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  /* ---- navbar ---- */
+  .navbar {
+    padding: 0 12px;
+
+    .nav-links { display: none; }
+
+    .nav-right {
+      gap: 8px;
+
+      .balance-chip { font-size: 12px; padding: 6px 10px; }
+      .btn-deposit { font-size: 12px; padding: 7px 12px; }
+    }
+  }
+
+  /* ---- generic sections / headings ---- */
+  h1 { font-size: 26px !important; }
+  h2 { font-size: 21px !important; }
+  h3 { font-size: 17px !important; }
+
+  .section-title {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  /* ---- casino lobby ---- */
+  .casino-page { padding: 14px 12px 40px; }
+
+  .casino-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+
+    .search-box input { width: 100%; }
+    .cat-row, .prov-row {
+      overflow-x: auto;
+      flex-wrap: nowrap;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
+    }
+  }
+
+  .game-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 10px;
+  }
+
+  .game-card {
+    .g-thumb { height: 92px; font-size: 34px; }
+    .g-name { font-size: 12.5px; }
+    .g-meta { font-size: 10.5px; }
+  }
+
+  /* game modal full-screen feel */
+  .game-modal-overlay { padding: 0; }
+
+  .game-modal {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 100dvh;
+    height: 100dvh;
+    border-radius: 0 !important;
+
+    .gm-head { padding: 14px 16px; position: sticky; top: 0; background: #16181d; z-index: 3; }
+  }
+
+  .engine { padding: 16px 14px; }
+
+  .slot-machine { max-width: 260px; .reel { font-size: 30px; } }
+
+  .crash-screen { height: 140px; .crash-mult { font-size: 32px; } }
+
+  .mines-grid { max-width: 280px; gap: 6px; .tile { font-size: 18px; } }
+
+  .wheel-wrap { width: 190px; height: 190px; }
+
+  .flip-card { width: 92px; .flip-icon { font-size: 28px; } }
+
+  .plinko-board { width: 220px; }
+
+  .engine-controls {
+    flex-wrap: wrap;
+
+    .bet-field { min-width: 100%; }
+    .btn-gold, .btn-green { flex: 1; padding: 12px 18px; }
+  }
+
+  /* ---- P2P / deposit page ---- */
+  .deposit-page { padding: 14px 12px 60px; }
+
+  .p2p-hero h2 { font-size: 22px; }
+
+  .exchanger-list { grid-template-columns: 1fr !important; }
+
+  .ex-card {
+    .ex-top { flex-wrap: wrap; gap: 8px; }
+    .ex-stats { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .order-view, .my-orders {
+    .o-body { grid-template-columns: repeat(2, 1fr); }
+  }
+
+  .fund-player .fund-row {
+    flex-direction: column;
+
+    input { width: 100% !important; }
+    .btn-gold { padding: 12px; }
+  }
+
+  .apply-form .form-grid { grid-template-columns: 1fr !important; }
+
+  /* tables → horizontal scroll */
+  .admin-table-wrap,
+  .table-scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+
+    table { min-width: 640px; }
+  }
+
+  /* ---- livescore ---- */
+  .livescore-section { padding: 16px 12px; }
+
+  .ls-tabs { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
+
+  .match-card {
+    grid-template-columns: 1fr !important;
+    gap: 8px;
+
+    .m-teams { order: 1; }
+    .m-status-col { order: 2; flex-direction: row; justify-content: space-between; }
+    .m-odds { order: 3; }
+  }
+
+  /* ---- admin ---- */
+  .admin-page { padding: 16px 12px 50px; }
+
+  .admin-table {
+    th, td { padding: 9px 10px; font-size: 12px; white-space: nowrap; }
+  }
+
+  .topup-row {
+    flex-wrap: wrap;
+    input { width: 110px; }
+  }
+
+  .user-search { width: 100% !important; margin: 8px 0 0 !important; }
+
+  /* ---- partner page ---- */
+  .partner-page { padding: 20px 14px 50px; }
+  .partner-form .form-grid { grid-template-columns: 1fr !important; }
+
+  /* ---- home / hero ---- */
+  .home-hero {
+    padding: 26px 16px;
+
+    .hero-actions {
+      flex-direction: column;
+      width: 100%;
+
+      button, a { width: 100%; text-align: center; }
+    }
+  }
+
+  .promo-strip { overflow-x: auto; flex-wrap: nowrap; scrollbar-width: none; }
+
+  /* ---- footer ---- */
+  .footer-cols { grid-template-columns: repeat(2, 1fr); gap: 18px; }
+
+  /* ---- toasts ---- */
+  .Toastify__toast {
+    font-size: 13px;
+    border-radius: 10px;
+    margin: 8px 10px;
+  }
+}
+
+@media (max-width: 380px) {
+  .game-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 8px; }
+  .game-card .g-thumb { height: 78px; font-size: 28px; }
+  .footer-cols { grid-template-columns: 1fr; }
+}

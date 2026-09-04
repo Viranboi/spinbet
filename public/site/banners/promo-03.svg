@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 230">
+  <defs>
+    <radialGradient id="glow" cx="88%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#8b5cf6" stop-opacity=".42"/>
+      <stop offset="100%" stop-color="#8b5cf6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#a78bfa"/><stop offset="100%" stop-color="#7c3aed"/>
+    </linearGradient>
+  </defs>
+  <rect width="1103" height="230" fill="#050308"/>
+  <rect width="1103" height="230" fill="url(#glow)"/>
+  <g opacity=".55" stroke="#a78bfa" stroke-width="2">
+    <circle cx="980" cy="115" r="78" fill="none"/>
+    <circle cx="980" cy="115" r="56" fill="none" opacity=".6"/>
+    <circle cx="980" cy="115" r="34" fill="none" opacity=".4"/>
+  </g>
+  <path d="M980 37 v156 M902 115 h156 M925 60 l110 110 M1035 60 l-110 110" stroke="#a78bfa" stroke-width="1.5" opacity=".35"/>
+  <text x="64" y="66" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="21" fill="#a78bfa" letter-spacing="4">WEEKLY LEADERBOARD</text>
+  <text x="60" y="130" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="58" fill="#ffffff">MEGA RACE $10,000</text>
+  <text x="64" y="170" font-family="Arial,sans-serif" font-weight="600" font-size="22" fill="#ddd0ff">Climb the ranks on sports &amp; casino every week</text>
+  <rect x="64" y="186" rx="19" width="150" height="38" fill="url(#bar)"/>
+  <text x="139" y="211" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="16" fill="#160a33">JOIN RACE</text>
+</svg>

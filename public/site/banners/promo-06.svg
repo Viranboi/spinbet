@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 230">
+  <defs>
+    <radialGradient id="glow" cx="86%" cy="45%" r="68%">
+      <stop offset="0%" stop-color="#ffd600" stop-opacity=".35"/>
+      <stop offset="100%" stop-color="#ffd600" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ffe14d"/><stop offset="100%" stop-color="#e6a800"/>
+    </linearGradient>
+  </defs>
+  <rect width="1103" height="230" fill="#070602"/>
+  <rect width="1103" height="230" fill="url(#glow)"/>
+  <g stroke="#ffd600" stroke-width="3" fill="none" opacity=".7" transform="translate(985,115)">
+    <path d="M-60 40 h120 M-48 12 h96 M-36 -16 h72 M-24 -44 h48"/>
+  </g>
+  <text x="64" y="66" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="21" fill="#ffd600" letter-spacing="4">YOUR ODDS, YOUR WAY</text>
+  <text x="60" y="130" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="60" fill="#ffffff">BET BUILDER</text>
+  <text x="64" y="170" font-family="Arial,sans-serif" font-weight="600" font-size="22" fill="#ffedb3">Combine markets from one match &amp; boost the price</text>
+  <rect x="64" y="186" rx="19" width="168" height="38" fill="url(#bar)"/>
+  <text x="148" y="211" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="16" fill="#2e2200">TRY BUILDER</text>
+</svg>

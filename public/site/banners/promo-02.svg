@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1103 230">
+  <defs>
+    <radialGradient id="glow" cx="15%" cy="20%" r="80%">
+      <stop offset="0%" stop-color="#e50914" stop-opacity=".35"/>
+      <stop offset="100%" stop-color="#e50914" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bar" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0%" stop-color="#ff183c"/><stop offset="100%" stop-color="#e50914"/>
+    </linearGradient>
+  </defs>
+  <rect width="1103" height="230" fill="#070304"/>
+  <rect width="1103" height="230" fill="url(#glow)"/>
+  <path d="M760 190 C 850 150, 950 90, 1060 55" stroke="#ff183c" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85"/>
+  <g transform="translate(1046 46) rotate(-18)">
+    <path d="M-24 0 Q -10 -10 12 -6 L 26 0 L 12 6 Q -10 10 -24 0 Z" fill="#ff183c"/>
+    <path d="M2 -2 L -10 -16 L -18 -13 Z" fill="#b0061f"/>
+  </g>
+  <circle cx="756" cy="192" r="6" fill="#ff183c"/>
+  <text x="64" y="66" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="21" fill="#ff183c" letter-spacing="4">EVERY ROUND</text>
+  <text x="60" y="130" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="58" fill="#ffffff">AVIATOR RAIN</text>
+  <text x="64" y="170" font-family="Arial,sans-serif" font-weight="600" font-size="22" fill="#ffc9d1">$ prize drops while you watch the plane fly</text>
+  <rect x="64" y="186" rx="19" width="182" height="38" fill="url(#bar)"/>
+  <text x="155" y="211" text-anchor="middle" font-family="Arial Black,Arial,sans-serif" font-weight="900" font-size="16" fill="#fff">PLAY AVIATOR</text>
+</svg>
