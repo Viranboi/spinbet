@@ -1,9 +1,7 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
 import {
-  Home as HomeIcon, Radio, LayoutGrid, Receipt, Ticket,
+  Radio, Receipt,
   Menu as MenuIcon, Search, User,
-  Mail, PhoneCall, MessageCircle, Send, Facebook, Instagram, Twitter, ChevronDown,
 } from "lucide-react";
 import Header from "../components/qwin/Header";
 import SubNavbar from "../components/qwin/SubNavbar";
