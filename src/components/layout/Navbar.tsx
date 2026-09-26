@@ -19,7 +19,7 @@ export default function Navbar() {
       <nav className="site-navbar">
         <div className="nav-inner">
           <Link to="/" className="nav-logo">
-            <img src="/assets/Winner_logo112223.png" alt="Winner logo" className="logo-img" />
+            <img src="/assets/spinbet-logo.png" alt="SpinBet logo" className="logo-img" />
           </Link>
 
           <div className="nav-right">

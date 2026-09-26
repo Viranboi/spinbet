@@ -102,7 +102,7 @@ export default function PromotionsPage() {
             <li>Maximum bet with bonus funds: BIF 5,000</li>
             <li>Bonuses expire after 30 days if not used</li>
             <li>One bonus per household/IP address</li>
-            <li>Winner reserves the right to modify or cancel promotions at any time</li>
+            <li>SpinBet reserves the right to modify or cancel promotions at any time</li>
             <li>Players must be 18+ to participate</li>
           </ul>
         </div>

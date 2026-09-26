@@ -119,7 +119,7 @@ export default function OrderView({ order, onDone }: { order: P2POrder; onDone: 
               </div>
               <p className="pay-note">
                 Send exactly <b>{order.fiatAmount.toLocaleString()} {meta.symbol}</b> to one of the accounts below,
-                then click “I have paid”. Use your Winner username as the MoMo reference where possible.
+                then click “I have paid”. Use your SpinBet username as the MoMo reference where possible.
               </p>
             </>
           )}

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import {
   Radio, Receipt,
   Menu as MenuIcon, Search, User,
+  Mail, PhoneCall, MessageCircle, Send, Facebook, Instagram, Twitter, ChevronDown,
 } from "lucide-react";
 import Header from "../components/qwin/Header";
 import SubNavbar from "../components/qwin/SubNavbar";
@@ -109,7 +110,7 @@ export default function HomePage() {
           </div>
         </div>
         <div className="wn-footer-base">
-          <span className="wn-f-brand">WINNER © {new Date().getFullYear()}</span>
+          <span className="wn-f-brand">SPINBET © {new Date().getFullYear()}</span>
           <span>18+ Gambling can be addictive, play responsibly. Regulated by NLGC of RDB.</span>
         </div>
       </footer>

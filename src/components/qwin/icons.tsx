@@ -81,7 +81,7 @@ export function Free2PlayBadgeIcon({ size = 20, className }: IconProps) {
   );
 }
 
-/** Trophy with soccer-ball emblem (Winner Leagues). */
+/** Trophy with soccer-ball emblem (SpinBet Leagues). */
 export function StakeLeaguesTrophyIcon({ size = 20, className }: IconProps) {
   return (
     <svg {...svgProps(size, className)}>
@@ -162,13 +162,13 @@ export function VirtualShopIcon({ size = 19, className }: IconProps) {
 
 /* ============================ UI GLYPHS ============================ */
 
-/** White-outline user/person inside a circle (profile button). */
+/** Filled user/person icon inside a circle (profile button). */
 export function UserPersonIcon({ size = 18, className }: IconProps) {
   return (
     <svg {...svgProps(size, className)}>
-      <circle cx="12" cy="12" r="9.2" stroke="currentColor" strokeWidth="1.6" />
-      <circle cx="12" cy="9.6" r="3.1" stroke="currentColor" strokeWidth="1.6" />
-      <path d="M5.9 18.4c1.1-2.6 3.4-4 6.1-4s5 1.4 6.1 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="10" fill="#3a3c43" />
+      <circle cx="12" cy="9" r="3.5" fill="#fff" />
+      <path d="M5.5 19c1.5-3 4-4.5 6.5-4.5s5 1.5 6.5 4.5" fill="#fff" />
     </svg>
   );
 }

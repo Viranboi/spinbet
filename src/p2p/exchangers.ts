@@ -67,7 +67,7 @@ export function seedExchangers(): Exchanger[] {
   return [
     ex(
       "official",
-      "Winner Official",
+      "SpinBet Official",
       "#FCD535",
       true,
       true,

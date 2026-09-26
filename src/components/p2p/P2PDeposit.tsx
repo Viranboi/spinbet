@@ -51,7 +51,7 @@ export default function P2PDeposit() {
           </span>
         </div>
         <div className="w-note">
-          Coins are used for betting across Winner. Buy them here from verified exchangers with MTN MoMo or Airtel Money.
+          Coins are used for betting across SpinBet. Buy them here from verified exchangers with MTN MoMo or Airtel Money.
         </div>
       </div>
 

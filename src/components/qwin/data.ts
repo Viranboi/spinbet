@@ -44,15 +44,15 @@ export interface Banner {
 }
 
 export const BANNERS: Banner[] = [
-  { img: "/assets/Home-1.webp", alt: "Winner Home" },
-  { img: "/assets/image1.webp", alt: "Winner Promo 1" },
-  { img: "/assets/image2.webp", alt: "Winner Promo 2" },
-  { img: "/assets/image3.webp", alt: "Winner Promo 3" },
-  { img: "/assets/image4.webp", alt: "Winner Promo 4" },
-  { img: "/assets/image5.webp", alt: "Winner Promo 5" },
-  { img: "/assets/image6.webp", alt: "Winner Promo 6" },
-  { img: "/assets/image7.webp", alt: "Winner Promo 7" },
-  { img: "/assets/image8.webp", alt: "Winner Promo 8" },
+  { img: "/assets/Home-1.webp", alt: "SpinBet Home" },
+  { img: "/assets/image1.webp", alt: "SpinBet Promo 1" },
+  { img: "/assets/image2.webp", alt: "SpinBet Promo 2" },
+  { img: "/assets/image3.webp", alt: "SpinBet Promo 3" },
+  { img: "/assets/image4.webp", alt: "SpinBet Promo 4" },
+  { img: "/assets/image5.webp", alt: "SpinBet Promo 5" },
+  { img: "/assets/image6.webp", alt: "SpinBet Promo 6" },
+  { img: "/assets/image7.webp", alt: "SpinBet Promo 7" },
+  { img: "/assets/image8.webp", alt: "SpinBet Promo 8" },
 ];
 
 export const SIDE_BANNER = "/assets/customer-care.webp";
@@ -108,10 +108,9 @@ export interface LeagueChip {
 }
 
 export const FAVORITE_LEAGUES: LeagueChip[] = [
-  { flag: "🌍", label: "UEFA Champions League", count: 7 },
-  { flag: "🏆", label: "UEFA Europa League", count: 14 },
-  { flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", label: "Premier League", count: 21 },
-  { flag: "🏆", label: "UEFA Conference League", count: 24 },
+  { flag: "🏴󠁧󠁢󠁥󠁮󠁧󠁿", label: "Premier League", count: 19 },
+  { flag: "🇮🇹", label: "Serie A", count: 18 },
+  { flag: "🇪🇸", label: "LaLiga", count: 19 },
 ];
 
 export const FEATURED_GAMES: FeaturedGame[] = [
@@ -131,6 +130,7 @@ export const CENTER_TABS = [
   { key: "live", label: "Live" },
   { key: "top", label: "Top Events" },
   { key: "upcoming", label: "Upcoming" },
+  { key: "countries", label: "Countries" },
 ] as const;
 
 export interface SportTab {

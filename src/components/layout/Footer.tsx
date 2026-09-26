@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import logoUrl from "../../assets/logo.webp";
+import logoUrl from "../../assets/spinbet-logo.png";
 import "./Footer.scss";
 
 export default function Footer() {
@@ -10,8 +10,8 @@ export default function Footer() {
         <div className="footer-grid">
           <div className="footer-brand">
             <div className="footer-logo">
-              <img src={logoUrl} alt="Winner logo" className="logo-img" />
-              <span className="logo-text">Winner</span>
+              <img src={logoUrl} alt="SpinBet logo" className="logo-img" />
+              <span className="logo-text">SpinBet</span>
             </div>
             <p className="footer-desc">
               The premier online betting platform for Africa.
@@ -55,7 +55,7 @@ export default function Footer() {
         </div>
 
         <div className="footer-bottom">
-          <p>&copy; 2026 Winner. All rights reserved. 18+ Only. Bet responsibly.</p>
+          <p>&copy; 2026 SpinBet. All rights reserved. 18+ Only. Bet responsibly.</p>
           <div className="footer-flags">
             <span>🌍 Africa</span>
           </div>

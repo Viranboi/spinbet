@@ -6,9 +6,9 @@ const SERVER_SEED =
 const CLIENT_SEED =
   process.env.CRASH_CLIENT_SEED || "titanfortunes-shared-client";
 
-const BET_MS = 3000;
+const BET_MS = 4000;
 const PLAY_MS = 10000;
-const END_MS = 2000;
+const END_MS = 5000;
 const ROUND_MS = BET_MS + PLAY_MS + END_MS;
 const EPOCH_MS = Date.UTC(2026, 0, 1);
 

@@ -2,7 +2,6 @@
 import React from "react";
 import "./crash.scss";
 import Unity from "react-unity-webgl";
-import propeller from "../../assets/images/propeller.png";
 import Context from "../../context";
 import { playCrashSound, playWaitingTick, startRoundMusic, fadeOutMusic } from "../../sounds";
 
@@ -20,8 +19,8 @@ export default function WebGLStarter() {
   const lastCrashRef = React.useRef(false);
   const lastWaitingRef = React.useRef(0);
   const musicStartedRef = React.useRef(false);
-  const basePlayers = React.useRef(5900);
-  const [livePlayers, setLivePlayers] = React.useState(5900);
+  const basePlayers = React.useRef(4800);
+  const [livePlayers, setLivePlayers] = React.useState(4800);
 
   const avatarSets = React.useRef([
     ["https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=80&h=80&fit=crop","https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=80&h=80&fit=crop","https://images.unsplash.com/photo-1518495973542-4542c06a5843?w=80&h=80&fit=crop"],
@@ -55,8 +54,8 @@ export default function WebGLStarter() {
       if (!musicStartedRef.current) {
         musicStartedRef.current = true;
         startRoundMusic();
-        basePlayers.current = Math.floor(Math.random() * 2000) + 5000;
-        setLivePlayers(basePlayers.current);
+        basePlayers.current = Math.floor(Math.random() * 1500) + 3500;
+        setLivePlayers(Math.min(5000, basePlayers.current));
       }
 
       let startTime = Date.now() - time;
@@ -72,7 +71,7 @@ export default function WebGLStarter() {
           Math.pow(0.04 * currentTime, 4);
 
         const drop = Math.floor((currentMult - 1) * 800);
-        setLivePlayers(Math.max(1200, basePlayers.current - drop));
+        setLivePlayers(Math.min(5000, Math.max(800, basePlayers.current - drop)));
 
         if (currentMult > 2 && e === 2) {
           setFlag(3);
@@ -108,7 +107,7 @@ export default function WebGLStarter() {
         setWaiting(w);
         const elapsedSec = w / 1000;
         const tickSec = Math.floor(elapsedSec);
-        if (tickSec > lastWaitingRef.current && tickSec < 5) {
+        if (tickSec > lastWaitingRef.current && tickSec < 10) {
           lastWaitingRef.current = tickSec;
           playWaitingTick(elapsedSec * 1000);
         }
@@ -138,26 +137,42 @@ export default function WebGLStarter() {
         <div className="crash-live-count">{livePlayers.toLocaleString()}</div>
       </div>
       <div className="crash-text-container">
-        {GameState === "BET" ? (
-          <div className={`crashtext wait font-9`}>
-            <div className="rotate">
-              <img width={100} height={100} src={propeller} alt="propellar"></img>
-            </div>
-            <div className="waiting-font">WAITING FOR NEXT ROUND</div>
-            <div className="waiting">
-              <div style={{ width: `${(5000 - waiting) * 100 / 5000}%` }}></div>
-            </div>
-          </div>
-        ) : (
-          <div className={`crashtext ${GameState === "GAMEEND" && "red"}`}>
-            {GameState === "GAMEEND" && <div className="flew-away">FLEW AWAY!</div>}
+        {GameState === "PLAYING" ? (
+          <div className="crashtext">
             <div>
-              {GameState === "GAMEEND"
-                ? parseFloat(Number(currentNum).toFixed(2))
-                : target - 0.01 >= 1
+              {target - 0.01 >= 1
                 ? parseFloat(Number(target - 0.01).toFixed(2))
                 : "1.00"}{" "}
               <span className="font-[900]">x</span>
+            </div>
+          </div>
+        ) : GameState === "GAMEEND" ? (
+          <div className="crashtext red">
+            <div className="flew-away">FLEW AWAY!</div>
+            <div>
+              {parseFloat(Number(currentNum).toFixed(2))}{" "}
+              <span className="font-[900]">x</span>
+            </div>
+          </div>
+        ) : (
+          <div className="crash-badge-layer">
+            <img
+              src="/assets/spribe-official-game.png"
+              alt="SPRIBE Official Game"
+              className="crash-badge-img"
+            />
+            <div className="crash-badge-content">
+              <div className="crash-badge-waiting">
+                <div className="waiting-sub">Next round starts soon</div>
+                <div className="waiting-dots">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                </div>
+                <div className="waiting-bar-wrapper">
+                  <div className="waiting-bar" style={{ width: `${(4000 - waiting) * 100 / 4000}%` }}></div>
+                </div>
+              </div>
             </div>
           </div>
         )}

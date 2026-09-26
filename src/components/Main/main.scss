@@ -484,6 +484,7 @@ $btn-color: linear-gradient(90deg, rgb(43, 35, 87) 0%, rgb(43, 35, 87) 100%);
                     font-size: 20px;
                     font-weight: 700;
                     color: #fff;
+                    margin-left: 4px;
                   }
                 }
               }
@@ -669,7 +670,7 @@ $btn-color: linear-gradient(90deg, rgb(43, 35, 87) 0%, rgb(43, 35, 87) 100%);
   .flew-away {
     color: white;
     font-size: 36px;
-    margin-top: 20px;
+    margin-bottom: 4px;
   }
 
   &.wait {
@@ -908,4 +909,31 @@ $btn-color: linear-gradient(90deg, rgb(43, 35, 87) 0%, rgb(43, 35, 87) 100%);
 
 .justify-space {
   justify-content: space-between !important;
+}
+
+@media (max-width: 768px) {
+  .bet-control {
+    .buttons-block {
+      .btn-success,
+      .btn-waiting {
+        span {
+          label {
+            &.amount {
+              font-size: 16px;
+            }
+            .currency {
+              font-size: 16px;
+            }
+          }
+        }
+      }
+    }
+
+    .bet-opt-list {
+      .bet-opt {
+        font-size: 12px;
+        padding: 6px 4px;
+      }
+    }
+  }
 }

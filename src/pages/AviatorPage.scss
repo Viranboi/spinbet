@@ -7,39 +7,17 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: radial-gradient(circle at 50% 42%, #131417, #000 72%);
+  background: #000;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: 24px;
 
-  .spribe-powered {
-    font-family: "Inter", Roboto, Arial, sans-serif;
-    font-size: 11px;
-    letter-spacing: 0.42em;
-    color: #8b8f98;
-    font-weight: 600;
-  }
-
-  .spribe-logo {
-    position: relative;
-    font-family: "Inter", "Arial Black", sans-serif;
-    font-size: 44px;
-    font-weight: 900;
-    letter-spacing: -1px;
-    color: #fff;
-
-    i {
-      position: absolute;
-      right: -14px;
-      bottom: 10px;
-      width: 9px;
-      height: 9px;
-      border-radius: 50%;
-      background: #e50914;
-      box-shadow: 0 0 12px #e50914;
-    }
+  .spribe-loading-img {
+    display: block;
+    width: 340px;
+    height: auto;
   }
 
   .spribe-dots {

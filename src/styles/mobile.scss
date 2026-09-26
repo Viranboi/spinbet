@@ -1,4 +1,4 @@
-/* ============ Winner — global mobile / small-screen pass ============ */
+/* ============ SpinBet — global mobile / small-screen pass ============ */
 
 @media (max-width: 768px) {
   html { font-size: 15px; }
@@ -9,6 +9,25 @@
   .page-wrap {
     padding-left: 0 !important;
     padding-right: 0 !important;
+  }
+
+  /* ---- header balance ---- */
+  .header .d-flex .balance {
+    padding: 0 6px;
+    white-space: nowrap;
+
+    .amount {
+      font-size: 13px;
+      margin-right: 3px;
+    }
+
+    .currency {
+      font-size: 13px;
+    }
+  }
+
+  .header-hamburger {
+    display: flex !important;
   }
 
   /* ---- navbar ---- */

@@ -39,11 +39,8 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
     <>
       <header className="wn-header">
         <div className="wn-header-left">
-          <button className="qw-burger" onClick={onMenu} aria-label="Menu">
-            <span></span><span></span><span></span>
-          </button>
-          <Link to="/" className="wn-logo" aria-label="Winner home">
-            <img src="/assets/Winner_logo112223.png" alt="Winner" />
+          <Link to="/" className="wn-logo" aria-label="SpinBet home">
+            <img src="/assets/spinbet-logo.png" alt="SpinBet" />
           </Link>
         </div>
 
@@ -74,8 +71,8 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
             </>
           ) : (
             <>
-              <button className="wn-btn login" onClick={openLogin}>Login</button>
-              <button className="wn-btn accent join" onClick={openJoin}>Join</button>
+              <button className="wn-btn login" onClick={openLogin}>LOGIN</button>
+              <button className="wn-btn accent join" onClick={openJoin}>JOIN</button>
             </>
           )}
         </div>

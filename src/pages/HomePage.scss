@@ -1,4 +1,4 @@
-// ============ WINNER — sportsbook dashboard theme ============
+// ============ SPINBET — sportsbook dashboard theme ============
 // Palette: pitch dark theme, bright yellow accent, crisp borders
 $y: #FFD700;         // brand bright yellow
 $y2: #FFF000;        // CTA yellow
@@ -25,6 +25,27 @@ $t4: #6b7076;
 
   @media (max-width: 1023px) {
     padding-bottom: 76px;
+  }
+}
+
+.wn-acc-control {
+  .wn-acc-ico {
+    .sport-emoji {
+      font-size: 18px;
+      line-height: 1;
+    }
+  }
+}
+
+.wn-tree {
+  .wn-acc-control {
+    .wn-acc-state {
+      .title {
+        text-transform: uppercase;
+        font-weight: 700;
+        letter-spacing: 0.3px;
+      }
+    }
   }
 }
 
@@ -149,9 +170,9 @@ $t4: #6b7076;
     &:active { transform: scale(0.97); }
 
     &.login {
-      background: $bord2;
-      border-color: $bord2;
-      color: $t1;
+      background: #c41230;
+      border-color: #c41230;
+      color: #fff;
       padding: 9px 22px;
       border-radius: 6px;
     }
@@ -959,6 +980,10 @@ $t4: #6b7076;
     }
   }
 
+  .wn-sport-filter {
+    display: none;
+  }
+
   .wn-sport-tabs {
     overflow-x: auto;
     scrollbar-width: none;
@@ -1098,6 +1123,32 @@ $t4: #6b7076;
           overflow: hidden;
           text-overflow: ellipsis;
         }
+      }
+
+      .we-team-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .we-jersey {
+        width: 28px;
+        height: 32px;
+        border-radius: 4px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+
+        svg { width: 24px; height: 28px; }
+      }
+
+      .we-vs {
+        color: $t4;
+        font-size: 12px;
+        font-weight: 600;
+        padding: 2px 0;
       }
 
       .we-odds {
@@ -1850,8 +1901,9 @@ $t4: #6b7076;
     font-weight: 800;
 
     &.login {
-      background: transparent;
-      border-color: #666;
+      background: #c41230;
+      border-color: #c41230;
+      color: #fff;
       padding: 9px 18px;
       border-radius: 4px;
     }
@@ -2146,47 +2198,333 @@ $t4: #6b7076;
 
 /* ========================= MOBILE LAYOUT ========================= */
 @media (max-width: 1023px) {
+  .wn-app {
+    background: #1a1a1a;
+    padding-bottom: 60px;
+  }
+
+  /* ---- HEADER ---- */
   .wn-header {
-    height: 52px;
+    height: 50px;
     padding: 0 8px;
-    gap: 6px;
+    background: #000;
+    border-bottom-color: #333;
   }
 
-  .wn-header .wn-logo img { height: 30px; }
-  .wn-header .wn-header-right { gap: 8px; }
+  .wn-header .wn-logo img { height: 32px; border-radius: 0; }
 
-  .wn-header .wn-lang span,
-  .wn-header .wn-lang svg:last-child { display: none; }
+  .wn-header .wn-header-right { gap: 6px; }
 
-  .wn-header .wn-balance {
-    .wn-bal-metric { min-width: 42px; padding: 0 5px; }
-    .lbl { font-size: 8px; }
-    strong { font-size: 10px; }
-  }
+  .wn-header .wn-lang { display: none; }
 
   .wn-header .wn-btn.accent {
-    padding: 8px 14px;
+    background: #ffd700;
+    border-color: #ffd700;
+    color: #000;
+    padding: 7px 14px;
     font-size: 12px;
+    font-weight: 900;
+    border-radius: 4px;
+  }
+
+  .wn-header .wn-balance {
+    flex-direction: row;
+    align-items: stretch;
+    gap: 0;
+    border-left: 1px solid #444;
+
+    .wn-bal-metric {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 1px;
+      min-width: 36px;
+      padding: 0 6px;
+      border-right: 1px solid #444;
+      &:last-child { border-right: none; }
+    }
+
+    .lbl {
+      color: #999;
+      font-size: 8px;
+      font-weight: 500;
+      line-height: 1;
+    }
+
+    strong {
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.2;
+    }
   }
 
   .wn-header .wn-avatar {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
+    border-color: #666;
+    background: #1a1a1a;
+    .dot { background: #3e9cff; border-color: #000; }
   }
 
-  .wn-nav { top: 52px; }
+  /* ---- SUB NAVBAR ---- */
+  .wn-nav {
+    top: 50px;
+    background: #000;
+    border-bottom-color: #333;
+  }
 
-  .wn-main { padding: 8px 6px 80px; }
+  .wn-nav .wn-nav-scroll {
+    max-width: none;
+    padding: 0;
+  }
+
+  .wn-nav .wn-nav-item {
+    min-width: 72px;
+    padding: 6px 8px 8px;
+    gap: 3px;
+
+    .wn-nav-ico {
+      width: 34px;
+      height: 34px;
+      .wn-nav-image { width: 100%; height: 100%; object-fit: contain; }
+    }
+
+    .wn-nav-label {
+      font-size: 10px;
+      font-weight: 600;
+    }
+
+    &.active {
+      color: #ffd700;
+      .wn-nav-ico.ringed { border: 2px solid #ffd700; box-shadow: 0 0 0 2px rgba(255, 215, 0, 0.12); }
+      &::after { background: #ffd700; }
+    }
+  }
+
+  .wn-nav .wn-nav-main > li:first-child .wn-nav-ico .wn-nav-image { height: 30px; }
+
+  .wn-nav-utils { display: none !important; }
+
+  /* ---- MAIN CONTENT ---- */
+  .wn-main { padding: 8px 6px 10px; }
 
   .wn-grid {
     grid-template-columns: 1fr;
-    gap: 8px;
+    gap: 0;
   }
 
   .wn-col-left,
   .wn-col-right { display: none; }
 
-  .wn-slider .wn-slider-track { height: clamp(150px, 42vw, 220px); }
+  /* ---- SLIDER ---- */
+  .wn-slider {
+    border-radius: 6px;
+    border-color: #2a2a2a;
+    margin-bottom: 10px;
+
+    .wn-slider-track { height: clamp(140px, 40vw, 200px); }
+
+    .wn-slide-copy {
+      left: 3%;
+      max-width: 70%;
+      h2 { font-size: clamp(16px, 4vw, 24px); }
+      p { font-size: clamp(10px, 2.5vw, 13px); }
+    }
+
+    .wn-slider-regulatory { font-size: 7px; right: 6px; bottom: 4px; }
+
+    .wn-slider-arrow {
+      width: 26px;
+      height: 26px;
+      opacity: 1;
+      &.left { left: 6px; }
+      &.right { right: 6px; }
+    }
+  }
+
+  /* ---- FAVORITE LEAGUES ---- */
+  .wn-fav-leagues {
+    margin-top: 8px;
+    margin-bottom: 10px;
+
+    .wn-fav-track { gap: 6px; }
+
+    .wn-league-chip button {
+      padding: 5px 10px 5px 6px;
+      border-radius: 16px;
+      background: #1e1e1e;
+      border-color: #444;
+      font-size: 11px;
+      font-weight: 600;
+      gap: 6px;
+
+      .chip-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 11px;
+      }
+    }
+  }
+
+  .wn-carousel-arrow.right { display: none; }
+
+  /* ---- FEATURED GAMES ---- */
+  .wn-featured {
+    margin-bottom: 10px;
+
+    .wn-featured-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 6px;
+    }
+
+    .wn-featured-card {
+      border-radius: 4px;
+
+      .fg-header { padding: 6px 8px; }
+      .fg-body { padding: 8px; grid-template-columns: 1fr 80px; gap: 6px; }
+      .fg-team-name { font-size: 11px; }
+      .fg-odd { padding: 4px 6px; .odd-price { font-size: 11px; } }
+    }
+  }
+
+  /* ---- EVENTS FEED ---- */
+  .wn-events {
+    .wn-center-tabs {
+      display: flex;
+      width: 100%;
+      gap: 5px;
+      margin-bottom: 8px;
+
+      .wn-tab {
+        flex: 1;
+        padding: 7px 8px;
+        font-size: 11.5px;
+        text-align: center;
+        border-radius: 4px;
+      }
+    }
+
+    .wn-sport-filter {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      &::-webkit-scrollbar { display: none; }
+    }
+
+    .wn-sf-btn {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #1e1e1e;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 10px;
+      white-space: nowrap;
+      cursor: pointer;
+
+      .sf-ico { display: flex; align-items: center; }
+      svg { color: #999; }
+    }
+
+    .wn-sf-icon {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px;
+      height: 34px;
+      background: #1e1e1e;
+      border: 1px solid #444;
+      border-radius: 4px;
+      color: #ffd700;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    .wn-league-block {
+      border-radius: 4px;
+      margin-bottom: 8px;
+
+      .wn-league-head {
+        padding: 8px 10px;
+        background: #111;
+        border-bottom-color: #333;
+      }
+    }
+
+    .wn-event {
+      grid-template-columns: 60px 1fr;
+      gap: 8px;
+      padding: 8px 10px;
+
+      .we-time {
+        > span { font-size: 11px; }
+        .live-min { font-size: 12px; }
+      }
+
+      .we-teams {
+        gap: 2px;
+
+        .we-team { font-size: 12px; font-weight: 600; }
+        .we-score { font-size: 10px; }
+      }
+
+      .we-team-row {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .we-jersey {
+        width: 24px;
+        height: 28px;
+        border-radius: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        overflow: hidden;
+
+        svg { width: 20px; height: 24px; }
+      }
+
+      .we-vs {
+        color: #666;
+        font-size: 11px;
+        font-weight: 600;
+        padding: 2px 0;
+      }
+
+      .we-odds {
+        grid-column: 1 / -1;
+        display: flex;
+        gap: 5px;
+        padding-top: 6px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+
+        .we-odd {
+          flex: 1;
+          min-width: 0;
+          padding: 5px 6px;
+          border-radius: 3px;
+
+          i { font-size: 9px; }
+          em { font-size: 12px; }
+        }
+      }
+    }
+
+    .wn-sport-tabs { display: none; }
+  }
+
+  /* ---- FOOTER ---- */
+  .wn-footer { display: none; }
 }
 
 /* ========================= MOBILE TABBAR ========================= */
@@ -2199,10 +2537,10 @@ $t4: #6b7076;
     z-index: 150;
     display: flex;
     align-items: stretch;
-    background: #1a1a1a;
+    background: #000;
     border-top: 1px solid #333;
     padding: 4px 0 calc(4px + env(safe-area-inset-bottom));
-    height: 54px;
+    height: 56px;
 
     .qw-tab {
       position: relative;
@@ -2211,24 +2549,26 @@ $t4: #6b7076;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2px;
+      gap: 3px;
       background: none;
       border: none;
       color: #888;
-      font-size: 9.5px;
+      font-size: 10px;
       font-weight: 600;
       text-decoration: none;
       padding: 4px 0;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
 
-      &.active { color: #fff000; }
+      &.active { color: #ffd700; }
       &:active { transform: scale(0.94); }
+
+      svg { color: inherit; }
 
       .qw-badge {
         position: absolute;
-        top: 0;
-        right: calc(50% - 20px);
+        top: 2px;
+        right: calc(50% - 22px);
         background: #f4242f;
         color: #fff;
         font-size: 8px;
@@ -2243,7 +2583,7 @@ $t4: #6b7076;
         padding: 0 3px;
       }
 
-      &.slip { color: #fff000; }
+      &.slip { color: #ffd700; }
     }
   }
 }

@@ -19,7 +19,7 @@ export default function PartnerPage() {
         <div className="gate-card">
           <span className="gate-icon">🤝</span>
           <h2>Partner Access</h2>
-          <p>Enter the invitation code you received from the Winner team.</p>
+          <p>Enter the invitation code you received from the SpinBet team.</p>
           <input
             type="password"
             placeholder="Invitation code"

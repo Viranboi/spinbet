@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { CasinoGame } from "../pages/casinoGames";
+import { playGemSound, playMineExplodeSound, playCashoutSoundMines } from "./../sounds";
 
 export type EngineKind = "slot" | "crash" | "mines" | "wheel" | "flip" | "plinko" | "dice";
 
@@ -233,12 +234,15 @@ function CrashEngine({ game, debit, creditWin }: EngineProps) {
 
 /* ---------------- MINES ENGINE ---------------- */
 
+const MINE_COUNTS = [1, 3, 5, 10, 15, 20, 24];
+
 function MinesEngine({ game, debit, creditWin }: EngineProps) {
   const { bet, setBet, amount } = useWager();
   const [mines, setMines] = useState(5);
   const [board, setBoard] = useState<boolean[]>(Array(25).fill(false));
   const [revealed, setRevealed] = useState<Set<number>>(new Set());
   const [state, setState] = useState<"idle" | "playing" | "lost" | "won">("idle");
+  const [autoGame, setAutoGame] = useState(false);
 
   function start() {
     if (amount <= 0) return toast.error("Enter a bet");
@@ -248,17 +252,33 @@ function MinesEngine({ game, debit, creditWin }: EngineProps) {
     setBoard(Array.from({ length: 25 }, (_, i) => bombs.has(i)));
     setRevealed(new Set());
     setState("playing");
+    setAutoGame(false);
   }
 
   function pick(i: number) {
     if (state !== "playing" || revealed.has(i)) return;
+    playGemSound();
     if (board[i]) {
+      playMineExplodeSound();
       setState("lost");
+      toast.error("Mine hit!");
       return;
     }
     const next = new Set(revealed).add(i);
     setRevealed(next);
-    if (next.size === 25 - mines) finish(next.size);
+    if (next.size === 25 - mines) {
+      playCashoutSoundMines();
+      finish(next.size);
+    }
+    if (autoGame) {
+      setTimeout(() => {
+        const unrevealed = Array.from({ length: 25 }, (_, i) => i).filter((x) => !revealed.has(x));
+        if (unrevealed.length > 0) {
+          const pickIdx = unrevealed[Math.floor(Math.random() * unrevealed.length)];
+          pick(pickIdx);
+        }
+      }, 600);
+    }
   }
 
   function currentMult(picks: number): number {
@@ -270,8 +290,17 @@ function MinesEngine({ game, debit, creditWin }: EngineProps) {
 
   function finish(picks: number) {
     const win = Math.round(amount * currentMult(picks) * 100) / 100;
+    playCashoutSoundMines();
     creditWin(win, `${game.name} cleared ${picks}`);
     setState("won");
+  }
+
+  function randomPick() {
+    if (state !== "playing") return;
+    const unrevealed = Array.from({ length: 25 }, (_, i) => i).filter((x) => !revealed.has(x));
+    if (unrevealed.length > 0) {
+      pick(unrevealed[Math.floor(Math.random() * unrevealed.length)]);
+    }
   }
 
   const picks = revealed.size;
@@ -279,30 +308,52 @@ function MinesEngine({ game, debit, creditWin }: EngineProps) {
   return (
     <div className="engine">
       <div className="mines-head">
-        <select value={mines} onChange={(e) => setMines(Number(e.target.value))} disabled={state === "playing"}>
-          {[3, 5, 10].map((n) => <option key={n} value={n}>{n} traps</option>)}
-        </select>
-        {state === "playing" && (
-          <span className="mines-info">Next: {currentMult(picks + 1).toFixed(2)}× · Now: {currentMult(picks).toFixed(2)}×</span>
-        )}
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <select value={mines} onChange={(e) => setMines(Number(e.target.value))} disabled={state === "playing"}>
+            {MINE_COUNTS.map((n) => <option key={n} value={n}>{n} mines</option>)}
+          </select>
+          <span className="mines-info">Next: {currentMult(picks + 1).toFixed(2)}×</span>
+        </div>
+        <span className="mines-info">Now: {currentMult(picks).toFixed(2)}×</span>
       </div>
       <div className="mines-grid">
-        {board.map((isTrap, i) => (
-          <button
-            key={i}
-            className={`tile ${revealed.has(i) ? "safe" : ""} ${(state === "lost" || state === "won") && isTrap ? "trap-show" : ""}`}
-            onClick={() => pick(i)}
-            disabled={state !== "playing"}
-          >
-            {(state === "lost" || state === "won") && isTrap ? "💥" : revealed.has(i) ? "💎" : ""}
-          </button>
-        ))}
+        {board.map((isTrap, i) => {
+          const isRevealed = revealed.has(i);
+          const isLostOrWon = state === "lost" || state === "won";
+          return (
+            <button
+              key={i}
+              className={`tile ${isRevealed ? "safe" : ""} ${isLostOrWon && isTrap ? "trap-show" : ""}`}
+              onClick={() => pick(i)}
+              disabled={state !== "playing"}
+              style={{ fontSize: 20 }}
+            >
+              {(isLostOrWon && isTrap) ? "💥" : isRevealed ? "💎" : ""}
+            </button>
+          );
+        })}
       </div>
-      {state === "lost" && <div className="engine-result lose">💥 Hit a trap — lost</div>}
-      {state === "won" && <div className="engine-result win">🎉 Cleared! Won {Math.round(amount * currentMult(state === "won" ? picks : picks)).toLocaleString()} coins</div>}
+      {state === "playing" && (
+        <div style={{ display: "flex", gap: 8, justifyContent: "center", margin: "8px 0" }}>
+          <button className="btn-gold" onClick={randomPick} style={{ fontSize: 12, padding: "6px 14px" }}>🎲 RANDOM</button>
+          <button
+            className={`mines-toggle ${autoGame ? "on" : ""}`}
+            onClick={() => setAutoGame(!autoGame)}
+            style={{ width: 40, height: 22, borderRadius: 11, border: 'none', background: autoGame ? '#4caf50' : 'rgba(255,255,255,0.2)', position: 'relative', cursor: 'pointer' }}
+          >
+            <div style={{
+              width: 18, height: 18, borderRadius: '50%', background: '#fff',
+              position: 'absolute', top: 2, left: autoGame ? 18 : 2, transition: 'transform 0.2s',
+            }} />
+          </button>
+          <span style={{ fontSize: 11, color: '#9ea0a3', alignSelf: 'center' }}>Auto</span>
+        </div>
+      )}
+      {state === "lost" && <div className="engine-result lose">💥 Hit a mine — lost</div>}
+      {state === "won" && <div className="engine-result win">🎉 Cleared! Won {Math.round(amount * currentMult(picks) * 100) / 100} coins</div>}
       <BetBox bet={bet} setBet={setBet} disabled={state === "playing"}>
         {state === "playing" ? (
-          <button className="btn-green" onClick={() => finish(picks)} disabled={picks === 0}>
+          <button className="btn-green" onClick={() => { if (picks > 0) finish(picks) }} disabled={picks === 0}>
             Cash out {currentMult(picks).toFixed(2)}×
           </button>
         ) : (

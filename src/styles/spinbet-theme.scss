@@ -1,0 +1,117 @@
+/* ===== SpinBet premium dark gaming/casino theme ===== */
+:root {
+  --sb-bg: #0f0a1e;
+  --sb-bg2: #150e2e;
+  --sb-card: #1c1338;
+  --sb-card2: #241a4b;
+  --sb-line: #35256b;
+  --sb-text: #ffffff;
+  --sb-muted: #bfb3e6;
+  --sb-neon: #a855f7;
+  --sb-neon2: #7c3aed;
+  --sb-gold: #fbbf24;
+  --sb-gold2: #f59e0b;
+}
+
+html, body, #root {
+  background: var(--sb-bg) !important;
+  color: var(--sb-text) !important;
+}
+
+body {
+  background: radial-gradient(1200px 600px at 20% -10%, #2a165e 0%, transparent 60%),
+    radial-gradient(1000px 500px at 90% 0%, #3b1d7a 0%, transparent 55%),
+    var(--sb-bg) !important;
+}
+
+.site-layout, .site-main, .main-container, .myloading {
+  background: transparent !important;
+}
+
+/* header / navbar */
+.site-navbar, .header .header-container, .wn-header {
+  background: linear-gradient(180deg, #180f36, #120b28) !important;
+  border-bottom: 1px solid var(--sb-line) !important;
+  box-shadow: 0 4px 24px rgba(124, 58, 237, 0.35) !important;
+}
+.nav-logo .logo-img, .wn-logo img, .footer-logo .logo-img, .loading-logo {
+  height: 38px !important;
+  width: auto !important;
+  object-fit: contain !important;
+  filter: drop-shadow(0 0 10px rgba(168, 85, 247, 0.6)) !important;
+}
+.logo-text, .nav-logo .logo-text {
+  color: var(--sb-gold) !important;
+  font-weight: 900 !important;
+}
+
+/* buttons: neon + gold */
+.nav-register-btn, .nav-deposit-btn, .wn-btn.accent, .btn-gold {
+  background: linear-gradient(135deg, var(--sb-gold), var(--sb-gold2)) !important;
+  color: #1a1000 !important;
+  border: none !important;
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.4) !important;
+  font-weight: 800 !important;
+}
+.nav-login-btn, .wn-btn.login, .btn-green {
+  background: linear-gradient(135deg, var(--sb-neon), var(--sb-neon2)) !important;
+  color: #fff !important;
+  border: 1px solid #c084fc !important;
+  box-shadow: 0 0 16px rgba(168, 85, 247, 0.55) !important;
+}
+
+/* cards / panels */
+.bets-block, .modal-content, .casino-card, .cg-card, .game-modal, .cg-modal,
+.mines-grid, .engine, .footer-inner, .casino-inner, .dice-game {
+  background: linear-gradient(180deg, var(--sb-card), var(--sb-bg2)) !important;
+  border: 1px solid var(--sb-line) !important;
+  border-radius: 16px !important;
+}
+.card-art, .cg-card-img {
+  border-bottom: 1px solid var(--sb-line) !important;
+}
+.card-name, .gm-title, h1, h2, h3 {
+  color: #fff !important;
+}
+.card-cat, .card-players, .card-rtp, .text-grey, .text-gray {
+  color: var(--sb-muted) !important;
+}
+
+/* sidebar nav (modern clean) */
+.qw-drawer, .sports-sidebar, .subnavbar, .cg-toolbar, .casino-categories {
+  background: linear-gradient(180deg, #1a1038, #130c2a) !important;
+  border: 1px solid var(--sb-line) !important;
+}
+.cat-btn, .cg-tab, .prov-chip, .top-link, .nav-link {
+  color: var(--sb-muted) !important;
+  border: 1px solid transparent !important;
+}
+.cat-btn.active, .cg-tab.active, .prov-chip.sel {
+  background: linear-gradient(135deg, var(--sb-neon), var(--sb-neon2)) !important;
+  color: #fff !important;
+  border-color: #c084fc !important;
+  box-shadow: 0 0 14px rgba(168, 85, 247, 0.5) !important;
+}
+
+/* game thumbnails colorful */
+.casino-grid .casino-card .card-art span.card-icon,
+.cg-grid .cg-card {
+  filter: saturate(1.25) contrast(1.05) !important;
+}
+.hot-tag {
+  background: linear-gradient(135deg, #ef4444, var(--sb-gold)) !important;
+}
+.new-tag {
+  background: linear-gradient(135deg, var(--sb-neon), #22d3ee) !important;
+}
+
+/* inputs */
+input, select {
+  background: #120b28 !important;
+  color: #fff !important;
+  border: 1px solid var(--sb-line) !important;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { background: #150e2e !important; }
+::-webkit-scrollbar-thumb { background: var(--sb-neon2) !important; }

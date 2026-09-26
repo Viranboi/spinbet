@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120">
+  <rect width="200" height="120" rx="12" fill="#ffcc00"/>
+  <!-- MTN Triangle Logo -->
+  <polygon points="70,30 90,70 50,70" fill="#000000"/>
+  <polygon points="100,30 120,70 80,70" fill="#000000"/>
+  <polygon points="85,45 105,85 65,85" fill="#000000"/>
+  <!-- MoMo Text -->
+  <text x="140" y="52" text-anchor="middle" font-family="Arial, sans-serif" font-size="30" font-weight="900" fill="#000000">MoMo</text>
+  <text x="140" y="72" text-anchor="middle" font-family="Arial, sans-serif" font-size="12" font-weight="600" fill="#333333">from MTN</text>
+</svg>

@@ -22,15 +22,42 @@ function saveLast(value: number): void {
   }
 }
 
+interface LogEntry {
+  id: number;
+  time: string;
+  type: "info" | "crash" | "warn" | "system";
+  text: string;
+}
+
+let logId = 0;
+
 export default function OddsPage() {
   const [finished, setFinished] = React.useState<number | null>(loadLast);
   const [currentOdd, setCurrentOdd] = React.useState<number | null>(null);
   const [nextOdd, setNextOdd] = React.useState<number | null>(null);
   const [running, setRunning] = React.useState(true);
+  const [logs, setLogs] = React.useState<LogEntry[]>([]);
+  const [history, setHistory] = React.useState<number[]>([]);
   const runningRef = React.useRef(true);
   const headRef = React.useRef<number | null>(null);
+  const logEndRef = React.useRef<HTMLDivElement>(null);
+  const logsRef = React.useRef(logs);
+  logsRef.current = logs;
 
   runningRef.current = running;
+
+  const now = () => {
+    const d = new Date();
+    return d.toLocaleTimeString("en-US", { hour12: false });
+  };
+
+  const addLog = (type: LogEntry["type"], text: string) => {
+    logId++;
+    setLogs((prev) => [...prev.slice(-80), { id: logId, time: now(), type, text }]);
+  };
+
+  const addLogRef = React.useRef(addLog);
+  addLogRef.current = addLog;
 
   const fetchOdds = React.useCallback(async () => {
     const odds = await getUpcomingOdds();
@@ -40,11 +67,20 @@ export default function OddsPage() {
     if (prevHead !== null && odds[0] !== prevHead) {
       setFinished(prevHead);
       saveLast(prevHead);
+      setHistory((h) => [prevHead, ...h].slice(0, 20));
+      addLogRef.current("crash", `ROUND ENDED → ${prevHead.toFixed(2)}x`);
     }
     headRef.current = odds[0];
 
     setCurrentOdd(odds[0]);
     setNextOdd(odds.length > 1 ? odds[1] : null);
+  }, []);
+
+  React.useEffect(() => {
+    addLogRef.current("system", "SECRET ODDS TERMINAL v2.0");
+    addLogRef.current("system", "PROVABLY FAIR — SHA256 HMAC");
+    addLogRef.current("info", "Connecting to game server...");
+    addLogRef.current("info", "Sync established. Streaming live odds.");
   }, []);
 
   React.useEffect(() => {
@@ -55,66 +91,103 @@ export default function OddsPage() {
     return () => clearInterval(id);
   }, [fetchOdds]);
 
+  React.useEffect(() => {
+    logEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [logs]);
+
   return (
-    <div className="odds-page">
-      <a
-        className="odds-back"
-        href="https://avepayment.vercel.app/"
-        aria-label="Back to chat with admin"
-      >
-        &larr; Back to chat
-      </a>
-      <div className="odds-stage">
-        <div className="odd-slot slot-finished">
-          <span className="odd-label">Finished</span>
-          <div className="odd-circle small">
-            {finished === null ? (
-              <span className="odd-value muted">--</span>
-            ) : (
-              <span className="odd-value">{finished.toFixed(2)}x</span>
-            )}
+    <div className="terminal-page">
+      <div className="terminal-window">
+        <div className="terminal-titlebar">
+          <div className="terminal-dots">
+            <span className="dot red" />
+            <span className="dot yellow" />
+            <span className="dot green" />
+          </div>
+          <span className="terminal-title">secret-odds@aviator:~</span>
+          <div className="terminal-spacer" />
+        </div>
+
+        <div className="terminal-body">
+          <div className="terminal-header-art">
+{`╔══════════════════════════════════════════╗
+║     ▄▄▄▄▄▄▄  SECRET ODDS  ▄▄▄▄▄▄▄      ║
+║     █ AVIATOR █ PREDICTOR █             ║
+║     ▀▀▀▀▀▀▀  PROVABLY FAIR  ▀▀▀▀▀▀▀    ║
+╚══════════════════════════════════════════╝`}
+          </div>
+
+          <div className="terminal-odds-grid">
+            <div className="odd-block finished-block">
+              <div className="odd-block-label">[ LAST CRASHED ]</div>
+              <div className="odd-block-value finished-val">
+                {finished === null ? "---" : `${finished.toFixed(2)}x`}
+              </div>
+            </div>
+
+            <div className="odd-block current-block">
+              <div className="odd-block-label">
+                <span className="live-indicator" /> [ LIVE ODDS ]
+              </div>
+              <div className={`odd-block-value current-val ${running ? "" : "frozen"}`}>
+                {currentOdd === null ? "..." : `${currentOdd.toFixed(2)}x`}
+              </div>
+            </div>
+
+            <div className="odd-block next-block">
+              <div className="odd-block-label">[ NEXT ROUND ]</div>
+              <div className="odd-block-value next-val">
+                {nextOdd === null ? "---" : `${nextOdd.toFixed(2)}x`}
+              </div>
+            </div>
+          </div>
+
+          {history.length > 0 && (
+            <div className="terminal-history">
+              <div className="terminal-section-label">▸ HISTORY</div>
+              <div className="history-chips">
+                {history.map((v, i) => (
+                  <span key={i} className={`history-chip ${v < 2 ? "low" : v < 5 ? "mid" : "high"}`}>
+                    {v.toFixed(2)}x
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className="terminal-log">
+            <div className="terminal-section-label">▸ SYSTEM LOG</div>
+            <div className="log-scroll">
+              {logs.map((l) => (
+                <div key={l.id} className={`log-line log-${l.type}`}>
+                  <span className="log-time">[{l.time}]</span>
+                  <span className="log-text">{l.text}</span>
+                </div>
+              ))}
+              <div ref={logEndRef} />
+            </div>
+          </div>
+
+          <div className="terminal-actions">
+            <button
+              className={`term-btn ${running ? "btn-stop" : "btn-start"}`}
+              onClick={() => setRunning((r) => !r)}
+            >
+              {running ? "[ STOP ]" : "[ START ]"}
+            </button>
+            <button className="term-btn btn-refresh" onClick={fetchOdds}>
+              [ REFRESH ]
+            </button>
+          </div>
+
+          <div className="terminal-cursor">
+            <span className="prompt">root@aviator:~$</span>
+            <span className="cursor-blink">_</span>
           </div>
         </div>
-
-        <div className="odd-slot slot-current">
-          <span className="odd-label now-label">
-            <i className="live-dot" /> Now
-          </span>
-          <div className={`odd-circle big ${running ? "" : "frozen"}`}>
-            {currentOdd === null ? (
-              <span className="odd-value muted">...</span>
-            ) : (
-              <span className="odd-value">{currentOdd.toFixed(2)}x</span>
-            )}
-          </div>
-        </div>
-
-        <div className="odd-slot slot-next">
-          <span className="odd-label">Next</span>
-          <div className="odd-circle medium">
-            {nextOdd === null ? (
-              <span className="odd-value muted">--</span>
-            ) : (
-              <span className="odd-value">{nextOdd.toFixed(2)}x</span>
-            )}
-          </div>
-        </div>
-
-        <div className="odds-actions">
-          <button
-            type="button"
-            className={`odds-btn ${running ? "" : "active"}`}
-            onClick={() => setRunning((r) => !r)}
-          >
-            {running ? "Stop" : "Resume"}
-          </button>
-          <button type="button" className="odds-btn" onClick={fetchOdds}>
-            Refresh
-          </button>
-        </div>
-
-        <div className="odds-watermark">STAKE</div>
       </div>
+
+      <div className="scanlines" />
     </div>
   );
 }

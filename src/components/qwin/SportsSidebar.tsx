@@ -1,7 +1,25 @@
 import React, { useState } from "react";
 import { Search } from "lucide-react";
 import { TREE_SPORTS, TOP_LEAGUES } from "./data";
-import { SportGlyph } from "./icons";
+
+const SPORT_EMOJI: Record<number, string> = {
+  31: "\u26BD",
+  32: "\uD83C\uDFC0",
+  35: "\uD83C\uDFD3",
+  3137: "\uD83C\uDFAE",
+  3117: "\uD83E\uDD4A",
+  33: "\u26BE",
+  310: "\uD83E\uDD4A",
+  312: "\uD83C\uDFC9",
+  321: "\uD83C\uDFCF",
+  329: "\u26BD",
+  36: "\uD83C\uDFD0",
+  34: "\uD83C\uDFD2",
+  319: "\uD83C\uDFB1",
+  320: "\uD83C\uDFD3",
+  323: "\uD83C\uDFD0",
+  334: "\uD83C\uDFD0",
+};
 
 export default function SportsSidebar() {
   const [query, setQuery] = useState("");
@@ -35,10 +53,10 @@ export default function SportsSidebar() {
                 onClick={() => setExpanded(open ? null : s.id)}
               >
                 <span className="wn-acc-ico">
-                  <SportGlyph id={s.id} size={18} />
+                  <span className="sport-emoji">{SPORT_EMOJI[s.id] || "\u26BD"}</span>
                 </span>
                 <span className="wn-acc-state">
-                  <span className="title">{s.name}</span>
+                  <span className="title">{s.name.toUpperCase()}</span>
                   <span className="count">({s.count})</span>
                 </span>
                 <i className={`arrow ${open ? "up" : ""}`} />

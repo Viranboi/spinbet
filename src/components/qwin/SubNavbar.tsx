@@ -10,8 +10,8 @@ const MAIN_ITEMS = [
   { label: "Casino", image: "/assets/nav/casino.png", path: "/casino" },
   { label: "Aviator", image: "/assets/nav/aviator.png", path: "/aviator" },
   { label: "Free2Play", image: "/assets/nav/free2play.png" },
-  { label: "Winner Leagues", image: "/assets/nav/leagues.png" },
-  { label: "Crash Games", image: "/assets/nav/crash.png" },
+  { label: "SpinBet Leagues", image: "/assets/nav/leagues.png" },
+  { label: "Crash Games", image: "/assets/nav/crash.png", path: "/crash-games" },
 ];
 
 const MORE_ITEMS = [
@@ -24,6 +24,7 @@ const MORE_ITEMS = [
 ];
 
 const UTILITIES = [
+  { label: "Prepaid", image: "/assets/nav/prepaid.png" },
   { label: "Check Betslip", image: "/assets/nav/check-betslip.png" },
   { label: "Virtual Shop", image: "/assets/nav/virtual-shop.png" },
 ];

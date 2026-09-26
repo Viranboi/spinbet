@@ -264,33 +264,33 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 								</button>
 							</div>
 							:
-							<div className="bet-opt-list">
-								<button onClick={() => manualPlus(500, "500")} className="bet-opt">
-									<span>500</span>
-								</button>
-								<button onClick={() => manualPlus(2000, "2000")} className="bet-opt">
-									<span>2,000</span>
-								</button>
-								<button onClick={() => manualPlus(5000, "5000")} className="bet-opt">
-									<span>5,000</span>
-								</button>
-								<button onClick={() => manualPlus(10000, "10000")} className="bet-opt">
-									<span>10,000</span>
-								</button>
-							</div>
+						<div className="bet-opt-list">
+							<button onClick={() => manualPlus(500, "500")} className="bet-opt">
+								<span>500</span>
+							</button>
+							<button onClick={() => manualPlus(2000, "2000")} className="bet-opt">
+								<span>2,000</span>
+							</button>
+							<button onClick={() => manualPlus(5000, "5000")} className="bet-opt">
+								<span>5,000</span>
+							</button>
+							<button onClick={() => manualPlus(10000, "10000")} className="bet-opt">
+								<span>10,000</span>
+							</button>
+						</div>
 						}
 					</div>
 					<div className="buttons-block">
 						{betted ? GameState === "PLAYING" ?
-							<button className="btn-waiting" onClick={() => { playCashoutSound(); callCashOut(currentTarget, index) }}>
-								<span>
-									<label>CASHOUT</label>
-									<label className="amount">
-										<span>{Math.round(betAmount * currentTarget)}</span>
-                                                            <span className="currency">BIF</span>
-									</label>
-								</span>
-							</button>
+						<button className="btn-waiting" onClick={() => { playCashoutSound(); callCashOut(currentTarget, index) }}>
+							<span>
+								<label>CASHOUT</label>
+								<label className="amount">
+									<span>{Math.round(betAmount * currentTarget)}</span>
+                                    <span className="currency"> BIF</span>
+								</label>
+							</span>
+						</button>
 							: <button className="btn-danger">WAITING</button> : betState ?
 							<>
 								<div className="btn-tooltip">Waiting for next round</div>
@@ -299,15 +299,15 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 									update({ ...state, [`${index}autoCound`]: 0, userInfo: { ...state.userInfo, [index]: { ...state.userInfo[index], auto: false } } })
 								}}><label>CANCEL</label></button>
 							</> :
-							<button onClick={() => { playBetSound(); onBetClick(true); }} className="btn-success">
-								<span>
-									<label>BET</label>
-									<label className="amount">
-										<span>{Math.round(betAmount)}</span>
-                                                            <span className="currency">BIF</span>
-									</label>
-								</span>
-							</button>
+						<button onClick={() => { playBetSound(); onBetClick(true); }} className="btn-success">
+							<span>
+								<label>BET</label>
+								<label className="amount">
+									<span>{Math.round(betAmount)}</span>
+                                    <span className="currency"> BIF</span>
+								</label>
+							</span>
+						</button>
 						}
 					</div>
 				</div>

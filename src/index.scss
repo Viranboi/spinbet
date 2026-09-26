@@ -1,5 +1,5 @@
-$back-color: #0a0a0a;
-$btn-color: linear-gradient(90deg, rgb(43, 35, 87) 0%, rgb(43, 35, 87) 100%);
+$back-color: #0f0a1e;
+$btn-color: linear-gradient(90deg, #7c3aed 0%, #a855f7 100%);
 
 .scroll-restyle ::-webkit-scrollbar {
   width: 5px !important;
@@ -127,6 +127,15 @@ code {
     align-items: center;
     justify-content: space-between;
     border-bottom: 1px solid #000000;
+  }
+
+  .header-soft-dark {
+    background-color: #1c1c1e !important;
+    border-bottom: 1px solid #2a2b2e !important;
+  }
+
+  .header-hamburger {
+    display: none;
   }
 
   .logo-container {
@@ -277,11 +286,13 @@ code {
       align-items: center;
       display: flex;
       justify-content: flex-end;
+      white-space: nowrap;
 
       .amount {
         font-size: 16px;
         color: #fff;
         font-weight: 700;
+        margin-right: 4px;
       }
 
       .currency {

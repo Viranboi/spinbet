@@ -14,10 +14,7 @@ function AviatorGame() {
     <div className="main-container">
       {!unityLoading && (
         <div className="spribe-splash">
-          <div className="spribe-powered">POWERED BY</div>
-          <div className="spribe-logo">
-            spribe<i />
-          </div>
+          <img src="/assets/spribe-loading.png" alt="Powered by Spribe" className="spribe-loading-img" />
           <div className="spribe-dots">
             <i /><i /><i />
           </div>

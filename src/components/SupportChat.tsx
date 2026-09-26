@@ -69,7 +69,7 @@ export default function SupportChat() {
         <div className="support-panel">
           <div className="sp-head">
             <div>
-              <b>Winner Support</b>
+              <b>SpinBet Support</b>
               <span className="sp-status">● Online — replies in minutes</span>
             </div>
             <button className="sp-close" onClick={() => setOpen(false)}>×</button>

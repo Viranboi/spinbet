@@ -77,7 +77,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "register" }:
           <div className="auth-success">
             <span className="success-icon">✅</span>
             <h3>Account Created!</h3>
-            <p>Welcome to Winner. You can now log in.</p>
+            <p>Welcome to SpinBet. You can now log in.</p>
             <button className="auth-submit" onClick={() => { setSuccess(false); setMode("login"); setEmail(""); setPassword(""); }}>
               Continue to Login
             </button>

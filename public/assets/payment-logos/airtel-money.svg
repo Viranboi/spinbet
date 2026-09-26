@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="120" viewBox="0 0 200 120">
+  <rect width="200" height="120" rx="12" fill="#f5f5f5"/>
+  <!-- Airtel Swirl Logo -->
+  <circle cx="100" cy="40" r="18" fill="none" stroke="#e40000" stroke-width="4"/>
+  <path d="M88 30 Q100 20 112 30" fill="none" stroke="#e40000" stroke-width="4" stroke-linecap="round"/>
+  <path d="M88 50 Q100 60 112 50" fill="none" stroke="#e40000" stroke-width="4" stroke-linecap="round"/>
+  <!-- Airtel Text -->
+  <text x="100" y="78" text-anchor="middle" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#e40000" font-style="italic">airtel</text>
+  <text x="100" y="98" text-anchor="middle" font-family="Arial, sans-serif" font-size="14" font-weight="600" fill="#e40000">money</text>
+</svg>

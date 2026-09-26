@@ -46,25 +46,48 @@ export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }
           </span>
           <span style={{ color: "#fff", fontSize: "14px", fontWeight: 600 }}>Lobby</span>
         </div>
-        <button
-          style={{
-            background: "transparent",
-            border: "1px solid #4a8c2a",
-            borderRadius: "6px",
-            padding: "6px 28px",
-            color: "#4a8c2a",
-            fontSize: "13px",
-            fontWeight: 700,
-            cursor: "pointer",
-          }}
-        >
-          Deposit
-        </button>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <button
+            style={{
+              background: "transparent",
+              border: "1px solid #4a8c2a",
+              borderRadius: "6px",
+              padding: "6px 28px",
+              color: "#4a8c2a",
+              fontSize: "13px",
+              fontWeight: 700,
+              cursor: "pointer",
+            }}
+          >
+            Deposit
+          </button>
+          <div
+            onClick={() => {
+              if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen();
+              } else {
+                document.exitFullscreen();
+              }
+            }}
+            style={{
+              width: "28px",
+              height: "28px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              color: "#fff",
+              fontSize: "16px",
+            }}
+          >
+            &#x26F6;
+          </div>
+        </div>
       </div>
 
-      {/* Row 2: Aviator + Balance + Icons - DARK */}
+      {/* Row 2: Aviator + Balance + Icons - SOFT DARK */}
       <div className="header flex-none items-center" style={{ top: "40px" }}>
-        <div className="header-container" style={{ padding: "0 12px" }}>
+        <div className="header-container header-soft-dark" style={{ padding: "0 12px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <img src={aviatorLogo} alt="Aviator" style={{ height: "28px" }} />
           </div>
@@ -72,43 +95,28 @@ export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }
           <div className="second-block" style={{ gap: "10px" }}>
             <div className="d-flex">
               <div className="balance">
-                <span className="amount">{Number(state.userInfo.balance).toFixed(0)} </span>
+                <span className="amount">{Number(state.userInfo.balance).toLocaleString()}</span>{' '}
                 <span className="currency">BIF</span>
               </div>
             </div>
-            <div style={{
-              width: "28px",
-              height: "28px",
-              borderRadius: "50%",
-              background: "#000",
-              border: "1px solid #222",
+            <div className="header-hamburger" style={{
+              width: "32px",
+              height: "32px",
+              borderRadius: "8px",
+              background: "#2a2b2e",
               display: "flex",
+              flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
+              gap: "4px",
               cursor: "pointer",
-              color: "#fff",
-              fontSize: "13px",
+              padding: "7px",
             }}>
-              &#128172;
+              <span style={{ display: "block", width: "16px", height: "2px", background: "#ccc", borderRadius: "1px" }}></span>
+              <span style={{ display: "block", width: "16px", height: "2px", background: "#ccc", borderRadius: "1px" }}></span>
+              <span style={{ display: "block", width: "16px", height: "2px", background: "#ccc", borderRadius: "1px" }}></span>
             </div>
-            <div
-              onClick={() => setHowto("short")}
-              style={{
-                width: "28px",
-                height: "28px",
-                borderRadius: "50%",
-                background: "#000",
-                border: "1px solid #222",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                cursor: "pointer",
-                color: "#fff",
-                fontSize: "14px",
-              }}
-            >
-              &#9776;
-            </div>
+
           </div>
         </div>
       </div>
