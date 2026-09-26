@@ -26,8 +26,9 @@ export function engineFor(game: CasinoGame): EngineKind {
   const key = game.id.replace(/-/g, "");
   if (SPECIAL[key]) return SPECIAL[key];
   if (game.cat === "Crash") return "crash";
-  if (game.cat === "Slots" || game.cat === "Fishing") return "slot";
-  if (game.cat === "Table" || game.cat === "Live" || game.cat === "Card" || game.cat === "Virtual")
+  if (game.cat === "Slots" || game.cat === "Fishing" || game.cat === "Jackpot") return "slot";
+  if (game.cat === "Dice") return "dice";
+  if (game.cat === "Table" || game.cat === "Live" || game.cat === "Card" || game.cat === "Virtual" || game.cat === "Roulette" || game.cat === "Blackjack" || game.cat === "Poker" || game.cat === "Baccarat")
     return "wheel";
   return "flip";
 }

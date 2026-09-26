@@ -16,7 +16,7 @@ import {
 } from "../games/CasinoEngines";
 import "./CasinoPage.scss";
 
-const CATEGORIES = ["All", "Instant", "Crash", "Slots", "Live", "Table", "Card", "Fishing", "Virtual"];
+const CATEGORIES = ["All", "Instant", "Crash", "Slots", "Live", "Table", "Card", "Roulette", "Blackjack", "Poker", "Baccarat", "Dice", "Jackpot", "Fishing", "Virtual"];
 const FAV_KEY = "letsbet_fav_games";
 const UNLOCK_THRESHOLD = 10_000;
 
