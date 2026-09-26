@@ -109,6 +109,7 @@ export default function CasinoPage() {
                 ★
               </button>
               <div className="card-art" style={{ background: g.gradient }}>
+                <span className="card-icon">{g.icon}</span>
                 <img className="card-thumb" src={g.thumb} alt={g.name} loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 <span className="card-provider">{g.provider}</span>
                 <span className="card-play">▶ Play now</span>
