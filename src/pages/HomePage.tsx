@@ -1,6 +1,7 @@
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu as MenuIcon, Search } from "lucide-react";
+import { toast } from "react-toastify";
 import Header from "../components/qwin/Header";
 import "./HomePage.scss";
 
@@ -10,105 +11,123 @@ interface LobbyGame {
   provider: string;
   icon: string;
   grad: string;
-  rtp: string;
-  live?: boolean;
-  to?: string;
-  soon?: boolean;
+  cat: "slots" | "table" | "live" | "crash" | "instant";
+  hot?: boolean;
+  isNew?: boolean;
 }
 
-const PLAYABLE: LobbyGame[] = [
-  {
-    id: "aviator", name: "Aviator", provider: "Spribe", icon: "✈️",
-    grad: "linear-gradient(135deg,#7C3AED,#DB2777)", rtp: "97% RTP", live: true, to: "/aviator",
-  },
-  {
-    id: "mines", name: "Mines", provider: "Spribe", icon: "💣",
-    grad: "linear-gradient(135deg,#059669,#0EA5E9)", rtp: "97% RTP", live: true, to: "/mines",
-  },
+const POPULAR: LobbyGame[] = [
+  { id: "serpent", name: "Serpent Shrine", provider: "SpinBet Originals", icon: "🐍", grad: "linear-gradient(135deg,#065f46,#a3a847)", cat: "slots", hot: true },
+  { id: "gates-ss", name: "Gates of Olympus Super Scatter", provider: "Pragmatic Play", icon: "⚡", grad: "linear-gradient(135deg,#4c1d95,#c026d3)", cat: "slots", hot: true },
+  { id: "wanted", name: "Wanted Dead or a Wild", provider: "Hacksaw", icon: "🤠", grad: "linear-gradient(135deg,#7c2d12,#b45309)", cat: "slots" },
+  { id: "coin-strike", name: "Coin Strike Hold and Win", provider: "Playson", icon: "🪙", grad: "linear-gradient(135deg,#1e3a8a,#f59e0b)", cat: "slots", isNew: true },
+  { id: "hot-chilli", name: "Super Hot Chilli", provider: "Red Tiger", icon: "🌶️", grad: "linear-gradient(135deg,#991b1b,#f97316)", cat: "slots" },
+  { id: "duck", name: "Duck Hunters", provider: "Nolimit City", icon: "🦆", grad: "linear-gradient(135deg,#0c4a6e,#22d3ee)", cat: "slots", isNew: true },
+  { id: "gates-1000", name: "Gates of Olympus 1000", provider: "Pragmatic Play", icon: "🏛️", grad: "linear-gradient(135deg,#581c87,#fbbf24)", cat: "slots", hot: true },
 ];
 
-const COMING_SOON: LobbyGame[] = [
-  { id: "jetx", name: "JetX", provider: "SmartSoft", icon: "🛩️", grad: "linear-gradient(135deg,#DC2626,#F59E0B)", rtp: "97% RTP", soon: true },
-  { id: "dice", name: "Dice", provider: "Spribe", icon: "🎲", grad: "linear-gradient(135deg,#2563EB,#7C3AED)", rtp: "98% RTP", soon: true },
-  { id: "plinko", name: "Plinko", provider: "BGaming", icon: "🔮", grad: "linear-gradient(135deg,#D97706,#EF4444)", rtp: "97% RTP", soon: true },
-  { id: "hilo", name: "Hi-Lo", provider: "Spribe", icon: "🃏", grad: "linear-gradient(135deg,#DB2777,#7C3AED)", rtp: "97% RTP", soon: true },
+const FEATURED: LobbyGame[] = [
+  { id: "sweet", name: "Sweet Bonanza", provider: "Pragmatic Play", icon: "🍭", grad: "linear-gradient(135deg,#db2777,#f9a8d4)", cat: "slots", hot: true },
+  { id: "bass", name: "Big Bass Splash", provider: "Pragmatic Play", icon: "🎣", grad: "linear-gradient(135deg,#0369a1,#34d399)", cat: "slots" },
+  { id: "blackjack", name: "Blackjack Classic", provider: "Evolution", icon: "♠️", grad: "linear-gradient(135deg,#111827,#374151)", cat: "table" },
+  { id: "roulette", name: "European Roulette", provider: "Evolution", icon: "🎡", grad: "linear-gradient(135deg,#7f1d1d,#ef4444)", cat: "table", isNew: true },
+  { id: "crazy", name: "Crazy Time", provider: "Evolution", icon: "🎪", grad: "linear-gradient(135deg,#6d28d9,#ec4899)", cat: "live", hot: true },
+  { id: "sugar", name: "Sugar Rush", provider: "Pragmatic Play", icon: "🍬", grad: "linear-gradient(135deg,#9333ea,#f0abfc)", cat: "slots", isNew: true },
 ];
 
-const SIDEBAR = [
-  { label: "All Games", icon: "🎮", tab: "all" },
-  { label: "Aviator", icon: "✈️", to: "/aviator" },
-  { label: "Mines", icon: "💣", to: "/mines" },
-  { label: "Casino", icon: "🎰", to: "/casino" },
-  { label: "Crash Games", icon: "🚀", to: "/crash-games" },
-  { label: "Promotions", icon: "🎁", to: "/promotions" },
-  { label: "Deposit", icon: "💰", to: "/deposit" },
-  { label: "Support", icon: "💬", tab: "support" },
+const SIDEBAR: { label: string; icon: string; cat: string }[] = [
+  { label: "Providers Spotlight", icon: "🌟", cat: "providers" },
+  { label: "All Games", icon: "🎮", cat: "all" },
+  { label: "New Games", icon: "🆕", cat: "new" },
+  { label: "Drops and Wins", icon: "💧", cat: "all" },
+  { label: "Live Casino", icon: "📹", cat: "live" },
+  { label: "Blackjack", icon: "♠️", cat: "table" },
+  { label: "Roulette", icon: "🎡", cat: "table" },
+  { label: "Slots", icon: "🎰", cat: "slots" },
+  { label: "Crash Games", icon: "🚀", cat: "crash" },
+  { label: "Game Shows", icon: "🎪", cat: "live" },
+  { label: "VIP Program", icon: "👑", cat: "all" },
+  { label: "Wednesday Free Spins", icon: "🌀", cat: "all" },
+  { label: "Challenges", icon: "🏁", cat: "all" },
+  { label: "Blog", icon: "📰", cat: "all" },
+  { label: "Support", icon: "💬", cat: "all" },
 ];
 
-const TABS = ["All Games", "Popular", "Featured", "New Games"];
+const TABS = ["All Games", "Popular", "Featured", "Provider Spotlight", "New Games", "Table Games"];
 
-function GameCard({ g, onPlay }: { g: LobbyGame; onPlay: (g: LobbyGame) => void }) {
+function Thumb({ g, onClick }: { g: LobbyGame; onClick: () => void }) {
   return (
-    <div className={`sb-card${g.soon ? " is-soon" : ""}`} onClick={() => onPlay(g)}>
-      <div className="sb-art" style={{ background: g.grad }}>
-        <span className="sb-emoji">{g.icon}</span>
-        {g.live && <span className="sb-hot">HOT</span>}
-        {g.soon && <span className="sb-soon-tag">SOON</span>}
-        {!g.soon && <span className="sb-play">▶ Play now</span>}
+    <div className="ref-card" onClick={onClick}>
+      <div className="ref-art" style={{ background: g.grad }}>
+        <span className="ref-emoji">{g.icon}</span>
+        {g.hot && <span className="ref-badge hot">HOT</span>}
+        {g.isNew && <span className="ref-badge new">NEW</span>}
+        <span className="ref-hover">▶ Play now</span>
       </div>
-      <div className="sb-meta">
-        <span className="sb-name">{g.name}</span>
-        <span className="sb-provider">{g.provider} • {g.rtp}</span>
-      </div>
+      <div className="ref-name">{g.name}</div>
+      <div className="ref-sub">{g.provider}</div>
     </div>
   );
 }
 
 export default function HomePage() {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("Popular");
+  const [activeTab, setActiveTab] = useState("All Games");
+  const [sideCat, setSideCat] = useState("all");
   const [query, setQuery] = useState("");
-  const [sideTab, setSideTab] = useState("all");
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const allGames = useMemo(() => [...PLAYABLE, ...COMING_SOON], []);
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return allGames.filter((g) => {
-      if (activeTab === "Popular" && g.soon) return false;
-      if (activeTab === "Featured" && g.soon) return false;
-      if (activeTab === "New Games" && !g.soon) return false;
-      if (q && !g.name.toLowerCase().includes(q)) return false;
-      return true;
-    });
-  }, [allGames, activeTab, query]);
-
-  function play(g: LobbyGame) {
-    if (g.soon || !g.to) return;
-    navigate(g.to);
+  function matchTab(g: LobbyGame): boolean {
+    switch (activeTab) {
+      case "Popular": return !!g.hot;
+      case "Featured": return true;
+      case "Provider Spotlight": return g.provider === "Pragmatic Play";
+      case "New Games": return !!g.isNew;
+      case "Table Games": return g.cat === "table" || g.cat === "live";
+      default: return true;
+    }
   }
 
-  function sideClick(item: { label: string; icon: string; tab?: string; to?: string }) {
-    if (item.to) {
-      navigate(item.to);
-    } else {
-      setSideTab(item.tab || "all");
-      setActiveTab("All Games");
-    }
-    setDrawerOpen(false);
+  function matchSide(g: LobbyGame): boolean {
+    if (sideCat === "all" || sideCat === "providers") return true;
+    if (sideCat === "new") return !!g.isNew;
+    if (sideCat === "crash") return false; // crash lives in its own section below
+    return g.cat === sideCat;
+  }
+
+  function matchQuery(g: LobbyGame): boolean {
+    const q = query.trim().toLowerCase();
+    return !q || g.name.toLowerCase().includes(q) || g.provider.toLowerCase().includes(q);
+  }
+
+  const popular = POPULAR.filter((g) => matchTab(g) && matchSide(g) && matchQuery(g));
+  const featured = FEATURED.filter((g) => matchTab(g) && matchSide(g) && matchQuery(g));
+
+  function soon(g: LobbyGame) {
+    toast.info(`${g.name} is coming soon to SpinBet — try Aviator & Mines below!`);
+  }
+
+  function goCrash(id: string) {
+    document.getElementById("crash-instant")?.scrollIntoView({ behavior: "smooth" });
+    if (id === "aviator") setTimeout(() => navigate("/aviator"), 600);
+    if (id === "mines") setTimeout(() => navigate("/mines"), 600);
   }
 
   const sideNav = (
     <nav className="sb-sidenav">
-      <div className="sb-side-search">
-        <Search size={15} />
-        <input placeholder="Search games…" value={query} onChange={(e) => setQuery(e.target.value)} />
-      </div>
       {SIDEBAR.map((s) => (
         <button
           key={s.label}
-          className={`sb-side-item${!s.to && sideTab === s.tab ? " active" : ""}`}
-          onClick={() => sideClick(s)}
+          className={`sb-side-item${sideCat === s.cat && s.cat !== "crash" ? " active" : ""}`}
+          onClick={() => {
+            if (s.cat === "crash") {
+              document.getElementById("crash-instant")?.scrollIntoView({ behavior: "smooth" });
+            } else {
+              setSideCat(s.cat);
+              setActiveTab("All Games");
+            }
+            setDrawerOpen(false);
+          }}
         >
           <span className="sb-side-ico">{s.icon}</span>
           <span>{s.label}</span>
@@ -130,24 +149,24 @@ export default function HomePage() {
         <aside className="sb-left">{sideNav}</aside>
 
         <main className="sb-main">
-          {/* promo banners */}
+          {/* ===== 3 promo banners ===== */}
           <section className="sb-banners">
             <div className="sb-banner">
               <div className="sb-banner-kicker">SPINBET EXCLUSIVE</div>
               <h2>MORE WAYS<br />TO WIN</h2>
-              <p>Aviator &amp; Mines with instant payouts</p>
-              <button className="sb-btn-gold" onClick={() => navigate("/aviator")}>Play Now</button>
+              <p>New drops every week with huge prizes</p>
+              <button className="sb-btn-gold" onClick={() => navigate("/aviator")}>Join Now</button>
               <span className="sb-banner-art">🎰</span>
             </div>
             <div className="sb-banner">
-              <div className="sb-banner-kicker">SPRIBE</div>
+              <div className="sb-banner-kicker">PRAGMATIC PLAY</div>
               <h2>PROVIDER<br />SPOTLIGHT</h2>
-              <p>Provably fair crash &amp; instant games</p>
-              <button className="sb-btn-ghost" onClick={() => navigate("/casino")}>Play Now</button>
+              <p>Gates of Olympus &amp; Sweet Bonanza</p>
+              <button className="sb-btn-ghost" onClick={() => { setActiveTab("Provider Spotlight"); }}>Play Now</button>
               <span className="sb-banner-art">🏆</span>
             </div>
             <div className="sb-banner">
-              <div className="sb-banner-kicker">EVERY WEEK</div>
+              <div className="sb-banner-kicker">EVERY WEDNESDAY</div>
               <h2>WEEKLY<br />FREE SPINS</h2>
               <p>Deposit &amp; get rewarded on SpinBet</p>
               <button className="sb-btn-ghost" onClick={() => navigate("/promotions")}>Learn More</button>
@@ -155,7 +174,7 @@ export default function HomePage() {
             </div>
           </section>
 
-          {/* filter tabs */}
+          {/* ===== filter tabs ===== */}
           <section className="sb-toolbar">
             <div className="sb-tabs">
               {TABS.map((t) => (
@@ -168,39 +187,55 @@ export default function HomePage() {
               <Search size={15} />
               <input placeholder="Search…" value={query} onChange={(e) => setQuery(e.target.value)} />
             </div>
+            <button className="sb-btn-gold sb-prov-btn" onClick={() => setActiveTab("Provider Spotlight")}>PROVIDERS</button>
           </section>
 
-          {/* popular */}
+          {/* ===== Popular ===== */}
           <section className="sb-section">
             <div className="sb-section-head">
               <h3>🔥 Popular</h3>
-              <button onClick={() => { setActiveTab("All Games"); }}>View All</button>
+              <button onClick={() => { setActiveTab("All Games"); setSideCat("all"); }}>View All</button>
             </div>
-            <div className="sb-grid">
-              {filtered.map((g) => (
-                <GameCard key={g.id} g={g} onPlay={play} />
-              ))}
+            <div className="ref-grid">
+              {popular.map((g) => <Thumb key={g.id} g={g} onClick={() => soon(g)} />)}
             </div>
-            {filtered.length === 0 && <div className="sb-empty">No games found.</div>}
+            {popular.length === 0 && <div className="sb-empty">No games in this section.</div>}
           </section>
 
-          {/* featured */}
+          {/* ===== Featured ===== */}
           <section className="sb-section">
             <div className="sb-section-head">
               <h3>⭐ Featured</h3>
               <button onClick={() => navigate("/casino")}>View All</button>
             </div>
+            <div className="ref-grid">
+              {featured.map((g) => <Thumb key={g.id} g={g} onClick={() => soon(g)} />)}
+            </div>
+            {featured.length === 0 && <div className="sb-empty">No games in this section.</div>}
+          </section>
+
+          {/* ===== Crash & Instant — Aviator + Mines playable on scroll ===== */}
+          <section className="sb-section" id="crash-instant">
+            <div className="sb-section-head">
+              <h3>🚀 Crash &amp; Instant — Play Now</h3>
+              <button onClick={() => navigate("/casino")}>View All</button>
+            </div>
             <div className="sb-featured">
-              {PLAYABLE.map((g) => (
-                <button key={g.id} className="sb-feat" style={{ background: g.grad }} onClick={() => play(g)}>
-                  <span className="sb-feat-emoji">{g.icon}</span>
-                  <span className="sb-feat-body">
-                    <b>{g.name}</b>
-                    <i>{g.provider} • {g.rtp}</i>
-                  </span>
-                  <span className="sb-feat-cta">PLAY NOW</span>
-                </button>
-              ))}
+              <button className="sb-feat" style={{ background: "linear-gradient(135deg,#7C3AED,#DB2777)" }} onClick={() => navigate("/aviator")}>
+                <span className="sb-feat-emoji">✈️</span>
+                <span className="sb-feat-body"><b>Aviator</b><i>Spribe • 97% RTP • Cash out before fly-away</i></span>
+                <span className="sb-feat-cta">PLAY NOW</span>
+              </button>
+              <button className="sb-feat" style={{ background: "linear-gradient(135deg,#059669,#0EA5E9)" }} onClick={() => navigate("/mines")}>
+                <span className="sb-feat-emoji">💣</span>
+                <span className="sb-feat-body"><b>Mines</b><i>Spribe • 97% RTP • Find gems, avoid bombs</i></span>
+                <span className="sb-feat-cta">PLAY NOW</span>
+              </button>
+            </div>
+            {/* quick launch tiles */}
+            <div className="ref-grid crash-tiles">
+              <Thumb g={{ id: "aviator", name: "Aviator", provider: "Spribe • Crash", icon: "✈️", grad: "linear-gradient(135deg,#7C3AED,#DB2777)", cat: "crash", hot: true }} onClick={() => goCrash("aviator")} />
+              <Thumb g={{ id: "mines", name: "Mines", provider: "Spribe • Instant", icon: "💣", grad: "linear-gradient(135deg,#059669,#0EA5E9)", cat: "instant", hot: true }} onClick={() => goCrash("mines")} />
             </div>
           </section>
         </main>

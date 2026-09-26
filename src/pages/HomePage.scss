@@ -316,3 +316,105 @@ $t3: #8f80c7;
   background: #100826 !important;
   border-top: 1px solid $line !important;
 }
+
+/* ---- reference-style portrait game cards ---- */
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+
+  @media (max-width: 1240px) { grid-template-columns: repeat(4, 1fr); }
+  @media (max-width: 860px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 560px) { grid-template-columns: repeat(2, 1fr); }
+}
+
+.ref-card {
+  cursor: pointer;
+  transition: transform 0.15s;
+  &:hover { transform: translateY(-3px); }
+
+  .ref-art {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    border-radius: 12px;
+    border: 1px solid $line;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 50% 30%, rgba(255, 255, 255, 0.25), transparent 60%);
+      pointer-events: none;
+    }
+
+    .ref-emoji { font-size: 64px; filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.55)); }
+  }
+
+  .ref-badge {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 2;
+    font-size: 9.5px;
+    font-weight: 900;
+    letter-spacing: 1px;
+    padding: 3px 9px;
+    border-radius: 6px;
+    color: #fff;
+
+    &.hot { background: linear-gradient(135deg, #ef4444, $gold); }
+    &.new { background: linear-gradient(135deg, $neon, #22d3ee); }
+  }
+
+  .ref-hover {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2;
+    background: rgba(0, 0, 0, 0.65);
+    border: 1px solid $gold;
+    color: $gold;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 6px 16px;
+    border-radius: 999px;
+    opacity: 0;
+    transition: opacity 0.15s;
+    white-space: nowrap;
+  }
+  &:hover .ref-hover { opacity: 1; }
+
+  .ref-name {
+    margin-top: 7px;
+    font-size: 11.5px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .ref-sub { font-size: 10.5px; color: $t3; }
+}
+
+.sb-prov-btn {
+  font-size: 11.5px;
+  padding: 9px 20px;
+  letter-spacing: 1px;
+}
+
+#crash-instant { scroll-margin-top: 70px; }
+
+.crash-tiles {
+  margin-top: 12px;
+  grid-template-columns: repeat(6, 1fr);
+
+  @media (max-width: 860px) { grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 560px) { grid-template-columns: repeat(2, 1fr); }
+}
