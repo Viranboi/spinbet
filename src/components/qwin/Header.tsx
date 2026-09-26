@@ -53,7 +53,6 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
 
           {user ? (
             <>
-              <Link to="/deposit" className="wn-btn accent">Deposit</Link>
                <div className="wn-balance" aria-label="Account balances">
                   <div className="wn-bal-metric">
                     <span className="lbl">Balance</span>
@@ -63,7 +62,8 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
                     <span className="lbl">Free Bet</span>
                     <strong>$0</strong>
                   </div>
-               </div>
+                </div>
+              <Link to="/deposit" className="wn-btn accent">Deposit</Link>
               <button className="wn-avatar" onClick={logout} title="Logout">
                 <UserPersonIcon size={22} />
                 <i className="dot" />
