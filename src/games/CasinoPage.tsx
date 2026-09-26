@@ -1,14 +1,8 @@
 import React, { useState } from 'react';
-import { Mines, Dice, Plinko, HiLo, Keno, Goal, Balloon, Aviator } from './spribe';
+import { Mines, Aviator } from './spribe';
 
 const GAMES = [
-  { id: 'mines', name: 'Mines', emoji: '💣', color: '#7C3AED', component: Mines, desc: 'Find gems, avoid bombs' },
-  { id: 'dice', name: 'Dice', emoji: '🎲', color: '#2563EB', component: Dice, desc: 'Roll over or under' },
-  { id: 'plinko', name: 'Plinko', emoji: '🔮', color: '#D97706', component: Plinko, desc: 'Drop ball for multipliers' },
-  { id: 'hilo', name: 'Hi-Lo', emoji: '🃏', color: '#DC2626', component: HiLo, desc: 'Guess higher or lower' },
-  { id: 'keno', name: 'Keno', emoji: '🎯', color: '#DB2777', component: Keno, desc: 'Pick lucky numbers' },
-  { id: 'goal', name: 'Goal', emoji: '⚽', color: '#059669', component: Goal, desc: 'Score penalties' },
-  { id: 'balloon', name: 'Balloon', emoji: '🎈', color: '#EA580C', component: Balloon, desc: 'Inflate and cash out' },
+  { id: 'mines', name: 'Mines', emoji: '💣', color: '#059669', component: Mines, desc: 'Find gems, avoid bombs' },
 ];
 
 export default function CasinoPage({ onBack, balance }: { onBack: () => void; balance: number }) {

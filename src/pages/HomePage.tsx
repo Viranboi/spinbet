@@ -1,156 +1,235 @@
-import React, { useState } from "react";
-import {
-  Radio, Receipt,
-  Menu as MenuIcon, Search, User,
-  Mail, PhoneCall, MessageCircle, Send, Facebook, Instagram, Twitter, ChevronDown,
-} from "lucide-react";
+import React, { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Menu as MenuIcon, Search } from "lucide-react";
 import Header from "../components/qwin/Header";
-import SubNavbar from "../components/qwin/SubNavbar";
-import SportsSidebar from "../components/qwin/SportsSidebar";
-import HeroBanner from "../components/qwin/HeroBanner";
-import FavoriteLeagues from "../components/qwin/FavoriteLeagues";
-import FeaturedGames from "../components/qwin/FeaturedGames";
-import MatchFeed from "../components/qwin/MatchFeed";
-import Betslip from "../components/qwin/Betslip";
-import { SIDE_BANNER } from "../components/qwin/data";
-import type { Selection } from "../components/qwin/data";
 import "./HomePage.scss";
 
+interface LobbyGame {
+  id: string;
+  name: string;
+  provider: string;
+  icon: string;
+  grad: string;
+  rtp: string;
+  live?: boolean;
+  to?: string;
+  soon?: boolean;
+}
+
+const PLAYABLE: LobbyGame[] = [
+  {
+    id: "aviator", name: "Aviator", provider: "Spribe", icon: "✈️",
+    grad: "linear-gradient(135deg,#7C3AED,#DB2777)", rtp: "97% RTP", live: true, to: "/aviator",
+  },
+  {
+    id: "mines", name: "Mines", provider: "Spribe", icon: "💣",
+    grad: "linear-gradient(135deg,#059669,#0EA5E9)", rtp: "97% RTP", live: true, to: "/mines",
+  },
+];
+
+const COMING_SOON: LobbyGame[] = [
+  { id: "jetx", name: "JetX", provider: "SmartSoft", icon: "🛩️", grad: "linear-gradient(135deg,#DC2626,#F59E0B)", rtp: "97% RTP", soon: true },
+  { id: "dice", name: "Dice", provider: "Spribe", icon: "🎲", grad: "linear-gradient(135deg,#2563EB,#7C3AED)", rtp: "98% RTP", soon: true },
+  { id: "plinko", name: "Plinko", provider: "BGaming", icon: "🔮", grad: "linear-gradient(135deg,#D97706,#EF4444)", rtp: "97% RTP", soon: true },
+  { id: "hilo", name: "Hi-Lo", provider: "Spribe", icon: "🃏", grad: "linear-gradient(135deg,#DB2777,#7C3AED)", rtp: "97% RTP", soon: true },
+];
+
+const SIDEBAR = [
+  { label: "All Games", icon: "🎮", tab: "all" },
+  { label: "Aviator", icon: "✈️", to: "/aviator" },
+  { label: "Mines", icon: "💣", to: "/mines" },
+  { label: "Casino", icon: "🎰", to: "/casino" },
+  { label: "Crash Games", icon: "🚀", to: "/crash-games" },
+  { label: "Promotions", icon: "🎁", to: "/promotions" },
+  { label: "Deposit", icon: "💰", to: "/deposit" },
+  { label: "Support", icon: "💬", tab: "support" },
+];
+
+const TABS = ["All Games", "Popular", "Featured", "New Games"];
+
+function GameCard({ g, onPlay }: { g: LobbyGame; onPlay: (g: LobbyGame) => void }) {
+  return (
+    <div className={`sb-card${g.soon ? " is-soon" : ""}`} onClick={() => onPlay(g)}>
+      <div className="sb-art" style={{ background: g.grad }}>
+        <span className="sb-emoji">{g.icon}</span>
+        {g.live && <span className="sb-hot">HOT</span>}
+        {g.soon && <span className="sb-soon-tag">SOON</span>}
+        {!g.soon && <span className="sb-play">▶ Play now</span>}
+      </div>
+      <div className="sb-meta">
+        <span className="sb-name">{g.name}</span>
+        <span className="sb-provider">{g.provider} • {g.rtp}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function HomePage() {
-  const [selections, setSelections] = useState<Selection[]>([]);
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState("Popular");
+  const [query, setQuery] = useState("");
+  const [sideTab, setSideTab] = useState("all");
   const [drawerOpen, setDrawerOpen] = useState(false);
-  const [sheetOpen, setSheetOpen] = useState(false);
 
-  function togglePick(sel: Omit<Selection, "key">) {
-    setSelections((prev) => {
-      if (prev.some((s) => s.key === sel.pickLabel)) {
-        return prev.filter((s) => s.key !== sel.pickLabel);
-      }
-      return [...prev, { ...sel, key: sel.pickLabel }];
+  const allGames = useMemo(() => [...PLAYABLE, ...COMING_SOON], []);
+  const filtered = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    return allGames.filter((g) => {
+      if (activeTab === "Popular" && g.soon) return false;
+      if (activeTab === "Featured" && g.soon) return false;
+      if (activeTab === "New Games" && !g.soon) return false;
+      if (q && !g.name.toLowerCase().includes(q)) return false;
+      return true;
     });
+  }, [allGames, activeTab, query]);
+
+  function play(g: LobbyGame) {
+    if (g.soon || !g.to) return;
+    navigate(g.to);
   }
 
-  function removeSel(key: string) {
-    setSelections((prev) => prev.filter((s) => s.key !== key));
+  function sideClick(item: { label: string; icon: string; tab?: string; to?: string }) {
+    if (item.to) {
+      navigate(item.to);
+    } else {
+      setSideTab(item.tab || "all");
+      setActiveTab("All Games");
+    }
+    setDrawerOpen(false);
   }
 
-  function clearAll() {
-    setSelections([]);
-  }
+  const sideNav = (
+    <nav className="sb-sidenav">
+      <div className="sb-side-search">
+        <Search size={15} />
+        <input placeholder="Search games…" value={query} onChange={(e) => setQuery(e.target.value)} />
+      </div>
+      {SIDEBAR.map((s) => (
+        <button
+          key={s.label}
+          className={`sb-side-item${!s.to && sideTab === s.tab ? " active" : ""}`}
+          onClick={() => sideClick(s)}
+        >
+          <span className="sb-side-ico">{s.icon}</span>
+          <span>{s.label}</span>
+        </button>
+      ))}
+      <div className="sb-side-promo">
+        <div className="sb-side-promo-title">WEEKLY FREE SPINS</div>
+        <div className="sb-side-promo-sub">Every Wednesday on SpinBet</div>
+        <button onClick={() => navigate("/promotions")}>Learn More</button>
+      </div>
+    </nav>
+  );
 
   return (
-    <div className="wn-app">
+    <div className="sb-app">
       <Header onMenu={() => setDrawerOpen(true)} />
-       <SubNavbar onMenu={() => setDrawerOpen(true)} />
 
-      <main className="wn-main">
-        <div className="wn-grid">
-          <aside className="wn-col-left">
-            <SportsSidebar />
-          </aside>
+      <div className="sb-layout">
+        <aside className="sb-left">{sideNav}</aside>
 
-          <div className="wn-col-center">
-            <HeroBanner />
-            <FavoriteLeagues />
-            <FeaturedGames selections={selections} onToggle={togglePick} />
-            <MatchFeed selections={selections} onToggle={togglePick} />
-          </div>
-
-          <aside className="wn-col-right">
-            <Betslip selections={selections} onRemove={removeSel} onClear={clearAll} />
-            <div className="wn-side-banner">
-              <img src={SIDE_BANNER} alt="Contact us" loading="lazy" />
+        <main className="sb-main">
+          {/* promo banners */}
+          <section className="sb-banners">
+            <div className="sb-banner">
+              <div className="sb-banner-kicker">SPINBET EXCLUSIVE</div>
+              <h2>MORE WAYS<br />TO WIN</h2>
+              <p>Aviator &amp; Mines with instant payouts</p>
+              <button className="sb-btn-gold" onClick={() => navigate("/aviator")}>Play Now</button>
+              <span className="sb-banner-art">🎰</span>
             </div>
-          </aside>
-        </div>
-      </main>
+            <div className="sb-banner">
+              <div className="sb-banner-kicker">SPRIBE</div>
+              <h2>PROVIDER<br />SPOTLIGHT</h2>
+              <p>Provably fair crash &amp; instant games</p>
+              <button className="sb-btn-ghost" onClick={() => navigate("/casino")}>Play Now</button>
+              <span className="sb-banner-art">🏆</span>
+            </div>
+            <div className="sb-banner">
+              <div className="sb-banner-kicker">EVERY WEEK</div>
+              <h2>WEEKLY<br />FREE SPINS</h2>
+              <p>Deposit &amp; get rewarded on SpinBet</p>
+              <button className="sb-btn-ghost" onClick={() => navigate("/promotions")}>Learn More</button>
+              <span className="sb-banner-art">🪙</span>
+            </div>
+          </section>
 
-      <footer className="wn-footer">
-        <div className="wn-footer-in">
-          <div className="wn-f-block">
-            <div className="title">Contact Us</div>
-            <ul>
-              <li><a href="#!"><Mail size={16} /><span>Email</span></a></li>
-              <li><a href="#!"><PhoneCall size={16} /><span>Call Us</span></a></li>
-              <li><a href="#!"><MessageCircle size={16} /><span>Chat</span></a></li>
-              <li><a href="#!"><Send size={16} /><span>Telegram</span></a></li>
-            </ul>
-          </div>
+          {/* filter tabs */}
+          <section className="sb-toolbar">
+            <div className="sb-tabs">
+              {TABS.map((t) => (
+                <button key={t} className={`sb-tab${activeTab === t ? " active" : ""}`} onClick={() => setActiveTab(t)}>
+                  {t}
+                </button>
+              ))}
+            </div>
+            <div className="sb-tool-search">
+              <Search size={15} />
+              <input placeholder="Search…" value={query} onChange={(e) => setQuery(e.target.value)} />
+            </div>
+          </section>
 
-          <div className="wn-f-block">
-            <div className="title">Social</div>
-            <ul>
-              <li><a href="#!" aria-label="Facebook"><Facebook size={16} /></a></li>
-              <li><a href="#!" aria-label="Instagram"><Instagram size={16} /></a></li>
-              <li><a href="#!" aria-label="Twitter"><Twitter size={16} /></a></li>
-              <li><a href="#!" aria-label="Telegram"><Send size={16} /></a></li>
-            </ul>
-          </div>
+          {/* popular */}
+          <section className="sb-section">
+            <div className="sb-section-head">
+              <h3>🔥 Popular</h3>
+              <button onClick={() => { setActiveTab("All Games"); }}>View All</button>
+            </div>
+            <div className="sb-grid">
+              {filtered.map((g) => (
+                <GameCard key={g.id} g={g} onPlay={play} />
+              ))}
+            </div>
+            {filtered.length === 0 && <div className="sb-empty">No games found.</div>}
+          </section>
 
-          <div className="wn-f-block">
-            <ul className="wn-f-drop">
-              <li><button type="button"><span>Support Information</span><ChevronDown size={13} /></button></li>
-              <li><button type="button"><span>Essentials</span><ChevronDown size={13} /></button></li>
-            </ul>
-            <ul className="wn-f-help">
-              <li><a href="#!">How to Deposit</a></li>
-              <li><a href="#!">How to Withdraw</a></li>
-              <li><a href="#!">Help Center</a></li>
-            </ul>
-          </div>
+          {/* featured */}
+          <section className="sb-section">
+            <div className="sb-section-head">
+              <h3>⭐ Featured</h3>
+              <button onClick={() => navigate("/casino")}>View All</button>
+            </div>
+            <div className="sb-featured">
+              {PLAYABLE.map((g) => (
+                <button key={g.id} className="sb-feat" style={{ background: g.grad }} onClick={() => play(g)}>
+                  <span className="sb-feat-emoji">{g.icon}</span>
+                  <span className="sb-feat-body">
+                    <b>{g.name}</b>
+                    <i>{g.provider} • {g.rtp}</i>
+                  </span>
+                  <span className="sb-feat-cta">PLAY NOW</span>
+                </button>
+              ))}
+            </div>
+          </section>
+        </main>
+      </div>
 
-          <div className="wn-f-block lang">
-            <a className="android" href="#!">
-              <b>Get the App</b>
-              <span>Android</span>
-            </a>
-            <button type="button" className="wn-f-lang">
-              🇬🇧 English <ChevronDown size={12} />
-            </button>
-          </div>
-        </div>
-        <div className="wn-footer-base">
-          <span className="wn-f-brand">SPINBET © {new Date().getFullYear()}</span>
-          <span>18+ Gambling can be addictive, play responsibly. Regulated by NLGC of RDB.</span>
-        </div>
+      <footer className="sb-footer">
+        <span className="sb-f-brand">SPINBET © {new Date().getFullYear()}</span>
+        <span>18+ Play responsibly. Aviator &amp; Mines — provably fair.</span>
       </footer>
 
       {drawerOpen && (
         <>
           <div className="qw-overlay" onClick={() => setDrawerOpen(false)} />
-          <aside className="qw-drawer">
+          <aside className="qw-drawer sb-drawer">
             <div className="qw-drawer-head">
-              <span>All Sports</span>
+              <span>Menu</span>
               <button onClick={() => setDrawerOpen(false)}>✕</button>
             </div>
-            <SportsSidebar />
+            {sideNav}
           </aside>
         </>
       )}
 
-      {sheetOpen && (
-        <>
-          <div className="qw-overlay" onClick={() => setSheetOpen(false)} />
-          <div className="qw-sheet">
-            <div className="qw-sheet-head">
-              <span>Betslip</span>
-              <button onClick={() => setSheetOpen(false)}>✕</button>
-            </div>
-            <Betslip selections={selections} onRemove={removeSel} onClear={clearAll} />
-          </div>
-        </>
-      )}
-
-      <nav className="qw-tabbar">
+      <nav className="qw-tabbar sb-tabbar">
+        <button className="qw-tab active" type="button" onClick={() => navigate("/")}><MenuIcon size={20} /><span>Home</span></button>
+        <button className="qw-tab" type="button" onClick={() => navigate("/casino")}><span>🎰</span><span>Casino</span></button>
+        <button className="qw-tab" type="button" onClick={() => navigate("/aviator")}><span>✈️</span><span>Aviator</span></button>
+        <button className="qw-tab" type="button" onClick={() => navigate("/mines")}><span>💣</span><span>Mines</span></button>
         <button className="qw-tab" type="button" onClick={() => setDrawerOpen(true)}><MenuIcon size={20} /><span>Menu</span></button>
-        <button className="qw-tab" type="button"><Search size={20} /><span>Search</span></button>
-        <button className="qw-tab slip" onClick={() => setSheetOpen(true)}>
-          <Receipt size={20} />
-          <span>BetSlip</span>
-          {selections.length > 0 && <i className="qw-badge">{selections.length}</i>}
-        </button>
-        <button className="qw-tab" type="button"><Radio size={20} /><span>Live</span></button>
-        <button className="qw-tab" type="button"><User size={20} /><span>My Bets</span></button>
       </nav>
     </div>
   );

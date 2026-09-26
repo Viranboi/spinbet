@@ -28,19 +28,6 @@ interface CrashGame {
 
 const GAMES: CrashGame[] = [
   { id: "aviator", name: "Aviator", image: "/assets/games/aviator.jpg", category: "crash" },
-  { id: "jetx", name: "JetX", image: "/assets/games/jetx.jpg", category: "crash" },
-  { id: "navigator", name: "Navigator", image: "/assets/games/navigator.jpg", category: "crash" },
-  { id: "helicopter-x", name: "Helicopter X", image: "/assets/games/helicopter-x.jpg", category: "crash" },
-  { id: "smash", name: "Smash", image: "/assets/games/smash.jpg", category: "crash" },
-  { id: "comet-crash-deluxe", name: "Comet Crash Deluxe", image: "/assets/games/comet-crash-deluxe.jpg", category: "crash" },
-  { id: "aviatrix", name: "Aviatrix", image: "/assets/games/aviatrix.jpg", category: "crash" },
-  { id: "swimbulator", name: "Swimbulator", image: "/assets/games/swimbulator.jpg", category: "fishing" },
-  { id: "fishbulator", name: "Fishbulator", image: "/assets/games/fishbulator.jpg", category: "fishing" },
-  { id: "punch-mator", name: "Punch Mator", image: "/assets/games/punch-mator.jpg", category: "instant" },
-  { id: "comet-crash", name: "Comet Crash", image: "/assets/games/comet-crash.jpg", category: "crash" },
-  { id: "dragon-run", name: "Dragon Run", image: "/assets/games/dragon-run.jpg", category: "spinners" },
-  { id: "super-shoot-crash", name: "Super Shoot Crash", image: "/assets/games/super-shoot-crash.jpg", category: "crash" },
-  { id: "taxi-ride", name: "Taxi Ride", image: "/assets/games/taxi-ride.jpg", category: "spinners" },
   { id: "mines", name: "Mines", image: "/assets/games/mines.jpg", category: "instant" },
 ];
 
