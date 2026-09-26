@@ -11,9 +11,9 @@ const MyBets = () => {
             <div className="legend">
                 <div className="date">Date</div>
                 <div className="bet-100">
-                     <span className="bet">Bet BIF</span>
+                     <span className="bet">Bet $</span>
                     <span>X</span>
-                     <span className="cash-out"> Cash out BIF </span>
+                     <span className="cash-out"> Cash out $ </span>
                 </div>
                 <div className="tools"></div>
             </div>

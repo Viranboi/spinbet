@@ -53,7 +53,7 @@ export default function Betslip({ selections, onRemove, onClear }: Props) {
       return;
     }
     toast.success(
-      `Bet placed (demo): ${selections.length} pick${selections.length > 1 ? "s" : ""} @ ${totalOdds.toFixed(2)} — ${Math.round(returns).toLocaleString()} BIF`
+      `Bet placed (demo): ${selections.length} pick${selections.length > 1 ? "s" : ""} @ ${totalOdds.toFixed(2)} — $${Math.round(returns).toLocaleString()}`
     );
     setStake("");
     onClear();
@@ -176,7 +176,7 @@ export default function Betslip({ selections, onRemove, onClear }: Props) {
                   </div>
                   <div>
                     <span>Possible Payout</span>
-                    <strong>{Math.round(returns).toLocaleString()} BIF</strong>
+                    <strong>${Math.round(returns).toLocaleString()}</strong>
                   </div>
                 </div>
 

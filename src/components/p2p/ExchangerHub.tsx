@@ -84,7 +84,7 @@ function ApplyForm() {
         <h3>Become an Exchanger</h3>
         <p>
           Sell coins for African francs (RWF or BIF). You receive Mobile Money payments directly and
-          release coins from your float. Top exchangers complete trades in under 5 minutes.
+          release funds from your float. Top exchangers complete trades in under 5 minutes.
         </p>
       </div>
       <div className="form-grid">
@@ -102,8 +102,8 @@ function ApplyForm() {
         </label>
         <label>Pricing currency
           <select value={currency} onChange={(e) => setCurrency(e.target.value as FiatCurrency)}>
-            <option value="RWF">RWF — African Franc</option>
-            <option value="BIF">BIF — African Franc</option>
+            <option value="RWF">USD — US Dollar</option>
+            <option value="BIF">USD — US Dollar</option>
           </select>
         </label>
         <label>Rate ({CURRENCY_META[currency].symbol} per coin)
@@ -121,7 +121,7 @@ function ApplyForm() {
       </div>
       <label className="agree-row">
         <input type="checkbox" checked={agree} onChange={(e) => setAgree(e.target.checked)} />
-        I agree to release coins within 10 minutes of a confirmed payment and to resolve disputes honestly.
+        I agree to release funds within 10 minutes of a confirmed payment and to resolve disputes honestly.
       </label>
       <button className="btn-gold" disabled={!agree || !holderName.trim() || (!mtn.trim() && !airtel.trim())} onClick={submit}>
         Submit application
@@ -138,12 +138,12 @@ function FundPlayer({ profile }: { profile: Exchanger }) {
   function send() {
     const coins = Number(amount);
     if (!coins || coins <= 0) return toast.error("Enter an amount");
-    if (coins > balance) return toast.error("Not enough coins in your wallet");
+    if (coins > balance) return toast.error("Not enough funds in your wallet");
     const user = findUser(target);
     if (!user) return toast.error("No player found with that email or UID");
     try {
       transferCoins(profile.uid, user.uid, coins, `Funded by ${profile.displayName}`);
-      toast.success(`Sent ${coins.toLocaleString()} coins to ${user.displayName || user.email}`);
+      toast.success(`Sent $${coins.toLocaleString()} to ${user.displayName || user.email}`);
       setTarget("");
       setAmount("");
     } catch (err: any) {
@@ -155,7 +155,7 @@ function FundPlayer({ profile }: { profile: Exchanger }) {
     <div className="fund-player">
       <h4 className="section-title">Fund a player directly</h4>
       <p className="fund-hint">
-        Send coins from your wallet ({balance.toLocaleString()} 🪙) straight to a player's account.
+        Send funds from your wallet ({balance.toLocaleString()} 🪙) straight to a player's account.
       </p>
       <div className="fund-row">
         <input
@@ -199,12 +199,12 @@ function ExchangerDashboard({ profile }: { profile: Exchanger }) {
       </div>
 
       <div className="stat-cards">
-        <div className="stat"><span>Float available</span><b>{Math.floor(profile.availableCoins).toLocaleString()} coins</b></div>
-        <div className="stat"><span>In escrow</span><b>{profile.lockedCoins.toLocaleString()} coins</b></div>
+        <div className="stat"><span>Float available</span><b>${Math.floor(profile.availableCoins).toLocaleString()}</b></div>
+        <div className="stat"><span>In escrow</span><b>${profile.lockedCoins.toLocaleString()}</b></div>
         <div className="stat"><span>Completed</span><b>{profile.stats.completedOrders.toLocaleString()} / {profile.stats.totalOrders.toLocaleString()}</b></div>
         <div className="stat"><span>Completion rate</span><b>{profile.stats.completionRate}%</b></div>
         <div className="stat"><span>Avg. release</span><b>{profile.stats.avgReleaseMinutes || "—"} min</b></div>
-        <div className="stat"><span>Your wallet</span><b>{balance.toLocaleString()} coins</b></div>
+        <div className="stat"><span>Your wallet</span><b>${balance.toLocaleString()}</b></div>
       </div>
 
       <FundPlayer profile={profile} />
@@ -244,9 +244,9 @@ function ExchangerDashboard({ profile }: { profile: Exchanger }) {
                   <button className="btn-green" onClick={() => {
                     try {
                       ordersApi.releaseCoins(o.id, profile.uid);
-                      toast.success(`Released ${o.coinAmount.toLocaleString()} coins to ${o.buyerName}`);
+                      toast.success(`Released $${o.coinAmount.toLocaleString()} to ${o.buyerName}`);
                     } catch (err: any) { toast.error(err.message); }
-                  }}>Release coins</button>
+                  }}>Release funds</button>
                   <button className="btn-ghost danger" onClick={() => {
                     try {
                       ordersApi.refundBuyer(o.id, profile.uid);

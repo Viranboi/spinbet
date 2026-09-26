@@ -27,7 +27,7 @@ export default function P2PDeposit() {
         <div className="login-gate">
           <span className="big">🔒</span>
           <h2>Login Required</h2>
-          <p>You need to be logged in to buy coins on the P2P market.</p>
+          <p>You need to be logged in to top up on the P2P market.</p>
         </div>
       </div>
     );
@@ -47,7 +47,7 @@ export default function P2PDeposit() {
         <div className="w-cell">
           <span className="w-label">P2P deposits</span>
           <span className="w-value">
-            {ledger.filter((l) => l.type === "p2p_deposit").reduce((s, l) => s + l.amount, 0).toLocaleString()} coins
+            ${ledger.filter((l) => l.type === "p2p_deposit").reduce((s, l) => s + l.amount, 0).toLocaleString()}
           </span>
         </div>
         <div className="w-note">

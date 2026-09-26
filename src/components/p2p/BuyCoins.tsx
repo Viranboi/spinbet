@@ -59,7 +59,7 @@ export default function BuyCoins({ currency, onCurrencyChange, onStartTrade }: P
         currency,
         fiatAmount: amountNum,
       });
-      toast.success("Order opened — complete the payment to receive your coins");
+      toast.success("Order opened — complete the payment to receive your funds");
       onStartTrade();
     } catch (err: any) {
       toast.error(err.message || "Could not open order");
@@ -96,7 +96,7 @@ export default function BuyCoins({ currency, onCurrencyChange, onStartTrade }: P
             onChange={(e) => setFiatAmount(e.target.value)}
           />
           <span className="coin-eq">
-            {bestCoins(amountNum)} coins
+            ${bestCoins(amountNum)}
           </span>
         </div>
         <div className="quick-row">
@@ -158,7 +158,7 @@ export default function BuyCoins({ currency, onCurrencyChange, onStartTrade }: P
                     </div>
                   </td>
                   <td className="price-cell">{rate.toFixed(3)}</td>
-                  <td>{Math.floor(ex.availableCoins).toLocaleString()} coins</td>
+                  <td>${Math.floor(ex.availableCoins).toLocaleString()}</td>
                   <td>
                     {l.min.toLocaleString()} – {l.max.toLocaleString()}
                   </td>

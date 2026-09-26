@@ -35,18 +35,18 @@ export default function DepositPage() {
     }
     const numAmount = Number(amount);
     if (!numAmount || numAmount < 1) {
-      toast.error("Enter a valid amount (min 1 BIF)");
+      toast.error("Enter a valid amount (min $1)");
       return;
     }
     if (numAmount > 10_000_000) {
-      toast.error("Maximum deposit is 10,000,000 BIF");
+      toast.error("Maximum deposit is $10,000,000");
       return;
     }
     setBusy(true);
     try {
       await new Promise((r) => setTimeout(r, 1500));
       credit(user.uid, numAmount, "adjustment", `mm-${Date.now()}`, `Mobile Money deposit via ${method.toUpperCase()}`);
-      toast.success(`Deposit of ${numAmount.toLocaleString()} BIF successful!`);
+      toast.success(`Deposit of $${numAmount.toLocaleString()} successful!`);
       setAmount("400");
       setPromoCode("");
     } catch (e: any) {
@@ -194,7 +194,7 @@ export default function DepositPage() {
           {/* Amount input */}
           <div className="dm-amount-wrap">
             <div className="dm-amount-field">
-              <span className="dm-amount-cur">RWF</span>
+              <span className="dm-amount-cur">$</span>
               <div className="dm-amount-divider" />
               <input
                 type="number"

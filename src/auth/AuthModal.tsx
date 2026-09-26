@@ -68,7 +68,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "register" }:
             <span className="bonus-icon">🎁</span>
             <div>
               <strong>100% Welcome Bonus</strong>
-              <p>Get up to BIF 100,000 on your first deposit!</p>
+              <p>Get up to $100,000 on your first deposit!</p>
             </div>
           </div>
         )}

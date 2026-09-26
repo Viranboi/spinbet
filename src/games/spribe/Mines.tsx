@@ -114,7 +114,7 @@ export default function Mines({ balance, setBalance }: { balance: number; setBal
     setCashedOut(true);
     setPhase('done');
     setAutoGame(false);
-    toast.success(`Cashed out ${currentMult}× — +${payout.toFixed(2)}`);
+    toast.success(`Cashed out ${currentMult}× — +$${payout.toFixed(2)}`);
   }
 
   function resetGame() {

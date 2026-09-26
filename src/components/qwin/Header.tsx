@@ -55,14 +55,14 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
             <>
               <Link to="/deposit" className="wn-btn accent">Deposit</Link>
                <div className="wn-balance" aria-label="Account balances">
-                 <div className="wn-bal-metric">
-                   <span className="lbl">Balance</span>
-                   <strong>{balanceText}</strong>
-                 </div>
-                 <div className="wn-bal-metric">
-                   <span className="lbl">Free Bet</span>
-                   <strong>0</strong>
-                 </div>
+                  <div className="wn-bal-metric">
+                    <span className="lbl">Balance</span>
+                    <strong>${balanceText}</strong>
+                  </div>
+                  <div className="wn-bal-metric">
+                    <span className="lbl">Free Bet</span>
+                    <strong>$0</strong>
+                  </div>
                </div>
               <button className="wn-avatar" onClick={logout} title="Logout">
                 <UserPersonIcon size={22} />

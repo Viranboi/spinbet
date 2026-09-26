@@ -30,7 +30,7 @@ function calcNextMultiplier(gems: number, mines: number) {
   return calcMultiplier(gems + 1, mines);
 }
 
-function fmtBIF(n: number) {
+function fmtUSD(n: number) {
   return Math.round(n).toLocaleString("en-US");
 }
 
@@ -132,7 +132,7 @@ function MinesGame() {
         setBalance((b) => parseFloat((b + payout).toFixed(2)));
         setLastPayout(payout);
         setPhase("done");
-        toast.success(`All gems found! +${fmtBIF(payout)} BIF`);
+        toast.success(`All gems found! +$${fmtUSD(payout)}`);
       }
     }
   }, [phase, revealed, cashedOut, mineSet, bet, mineCount, setBalance]);
@@ -145,7 +145,7 @@ function MinesGame() {
     setLastPayout(payout);
     setCashedOut(true);
     setPhase("done");
-    toast.success(`Cashed out ${currentMult}x — +${fmtBIF(payout)} BIF`);
+    toast.success(`Cashed out ${currentMult}x — +$${fmtUSD(payout)}`);
   }, [canCashout, bet, currentMult, setBalance]);
 
   useEffect(() => {
@@ -235,7 +235,7 @@ function MinesGame() {
           <span className="mines-lobby-arrow">‹</span> <span>Lobby</span>
         </button>
         <div className="mines-sitebar-right">
-          <span className="mines-sitebar-bal">{fmtBIF(balance)} BIF</span>
+          <span className="mines-sitebar-bal">${fmtUSD(balance)}</span>
           <button className="mines-deposit-btn" onClick={() => navigate("/deposit")}>
             Deposit
           </button>
@@ -439,7 +439,7 @@ function MinesGame() {
               <div className="mines-bet-controls pill">
                 <div className="mines-bet-amount-col">
                   <div className="mines-bet-label">
-                    Bet BIF
+                    Bet $
                   </div>
                   <input
                     type="number"
@@ -465,7 +465,7 @@ function MinesGame() {
                   <div className="mines-quickbets">
                     {quickBetValues.map((v) => (
                       <button key={v} className={bet === v ? "active" : ""} onClick={() => { setBet(v); setShowQuickBets(false); }}>
-                        {fmtBIF(v)}
+                        {fmtUSD(v)}
                       </button>
                     ))}
                   </div>
@@ -489,7 +489,7 @@ function MinesGame() {
                 className="mines-main-btn bet"
                 onClick={startGame}
                 disabled={bet > balance || bet < minBet}
-                title={phase === "done" ? `Last result: ${fmtBIF(lastPayout)} BIF` : "Place bet"}
+                title={phase === "done" ? `Last result: $${fmtUSD(lastPayout)}` : "Place bet"}
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21" /></svg>
                 BET
@@ -499,7 +499,7 @@ function MinesGame() {
             {phase === "playing" && canCashout && (
               <button className="mines-main-btn cashout" onClick={cashOut}>
                 CASH OUT
-                <span className="mines-cashout-amt">{fmtBIF(cashoutAmount)} BIF</span>
+                <span className="mines-cashout-amt">${fmtUSD(cashoutAmount)}</span>
               </button>
             )}
 

@@ -7,7 +7,7 @@ const PROMOTIONS = [
   {
     id: 1,
     title: "100% First Deposit Bonus",
-    desc: "Get up to BIF 100,000 on your first deposit. Instant credit, no wagering on first bet.",
+    desc: "Get up to $100,000 on your first deposit. Instant credit, no wagering on first bet.",
     badge: "NEW",
     gradient: "linear-gradient(135deg, #d32f2f, #b71c1c)",
     icon: "🎁",
@@ -16,7 +16,7 @@ const PROMOTIONS = [
   {
     id: 2,
     title: "Aviator Free Spins",
-    desc: "Play 50 free rounds on Aviator every Friday. Min deposit BIF 5,000.",
+    desc: "Play 50 free rounds on Aviator every Friday. Min deposit $5,000.",
     badge: "WEEKLY",
     gradient: "linear-gradient(135deg, #1a0533, #0d1b2a)",
     icon: "✈️",
@@ -33,8 +33,8 @@ const PROMOTIONS = [
   },
   {
     id: 4,
-    title: "Refer & Earn BIF 10,000",
-    desc: "Invite friends and earn BIF 1,000 for each friend who deposits.",
+    title: "Refer & Earn $10,000",
+    desc: "Invite friends and earn $1,000 for each friend who deposits.",
     badge: "SOCIAL",
     gradient: "linear-gradient(135deg, #e65100, #bf360c)",
     icon: "🤝",
@@ -43,7 +43,7 @@ const PROMOTIONS = [
   {
     id: 5,
     title: "Cashback Mondays",
-    desc: "Get 10% cashback on all losses every Monday. Up to BIF 5,000.",
+    desc: "Get 10% cashback on all losses every Monday. Up to $5,000.",
     badge: "WEEKLY",
     gradient: "linear-gradient(135deg, #0d47a1, #1565c0)",
     icon: "💰",
@@ -97,9 +97,9 @@ export default function PromotionsPage() {
           <h3>Terms & Conditions</h3>
           <ul>
             <li>All bonuses are subject to wagering requirements</li>
-            <li>Minimum deposit of BIF 100 required for deposit bonuses</li>
+            <li>Minimum deposit of $100 required for deposit bonuses</li>
             <li>Bonus funds must be wagered 5x before withdrawal</li>
-            <li>Maximum bet with bonus funds: BIF 5,000</li>
+            <li>Maximum bet with bonus funds: $5,000</li>
             <li>Bonuses expire after 30 days if not used</li>
             <li>One bonus per household/IP address</li>
             <li>SpinBet reserves the right to modify or cancel promotions at any time</li>

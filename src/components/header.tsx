@@ -96,7 +96,7 @@ export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }
             <div className="d-flex">
               <div className="balance">
                 <span className="amount">{Number(state.userInfo.balance).toLocaleString()}</span>{' '}
-                <span className="currency">BIF</span>
+                <span className="currency">$</span>
               </div>
             </div>
             <div className="header-hamburger" style={{
@@ -142,7 +142,7 @@ export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }
                   />
                 </div>
                 <div style={{ marginBottom: "14px" }}>
-                  <div style={{ color: "#9ea0a3", marginBottom: "6px", fontSize: "12px" }}>Loss Limit (BIF)</div>
+                  <div style={{ color: "#9ea0a3", marginBottom: "6px", fontSize: "12px" }}>Loss Limit ($)</div>
                   <input
                     type="number"
                     value={rgSettings.lossLimit}
@@ -152,7 +152,7 @@ export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }
                   />
                 </div>
                 <div style={{ marginBottom: "14px" }}>
-                  <div style={{ color: "#9ea0a3", marginBottom: "6px", fontSize: "12px" }}>Deposit Limit (BIF)</div>
+                  <div style={{ color: "#9ea0a3", marginBottom: "6px", fontSize: "12px" }}>Deposit Limit ($)</div>
                   <input
                     type="number"
                     value={rgSettings.depositLimit}

@@ -75,7 +75,7 @@ function AdminConsole() {
     const coins = Number(topUp[ex.id]);
     try {
       ordersApi.addFloat(ex.id, coins);
-      toast.success(`Credited ${coins.toLocaleString()} coins to ${ex.displayName}`);
+      toast.success(`Credited $${coins.toLocaleString()} to ${ex.displayName}`);
       setTopUp((t) => ({ ...t, [ex.id]: "" }));
     } catch (err: any) {
       toast.error(err.message || "Failed");
@@ -107,7 +107,7 @@ function AdminConsole() {
               <th>Float</th>
               <th>Escrow</th>
               <th>Orders</th>
-              <th>Add float (coins)</th>
+              <th>Add float ($)</th>
               <th>Controls</th>
             </tr>
           </thead>
@@ -187,11 +187,11 @@ function ConsoleStats() {
         <b className="sc-value">{exchangers.length}</b>
       </div>
       <div className="stat-card">
-        <span className="sc-label">Float coins</span>
+        <span className="sc-label">Float ($)</span>
         <b className="sc-value gold">{Math.floor(floatTotal).toLocaleString()}</b>
       </div>
       <div className="stat-card">
-        <span className="sc-label">Escrow coins</span>
+        <span className="sc-label">Escrow ($)</span>
         <b className="sc-value blue">{escrowTotal.toLocaleString()}</b>
       </div>
       <div className="stat-card">
@@ -318,7 +318,7 @@ function UserFunding() {
     try {
       const next = setBalance(u.uid, coins, "admin", `Admin set balance`);
       toast.success(
-        `${u.displayName || u.email} balance set to ${next.toLocaleString()} coins`
+        `${u.displayName || u.email} balance set to $${next.toLocaleString()}`
       );
       setAmounts((a) => ({ ...a, [u.uid]: "" }));
     } catch (err: any) {
@@ -332,10 +332,10 @@ function UserFunding() {
     try {
       if (sign === 1) {
         credit(u.uid, coins, "admin_topup", "admin", `Admin top-up`);
-        toast.success(`Credited ${coins.toLocaleString()} coins to ${u.displayName || u.email}`);
+        toast.success(`Credited $${coins.toLocaleString()} to ${u.displayName || u.email}`);
       } else {
         debit(u.uid, coins, "admin_debit", "admin", `Admin deduction`);
-        toast.success(`Debited ${coins.toLocaleString()} coins from ${u.displayName || u.email}`);
+        toast.success(`Debited $${coins.toLocaleString()} from ${u.displayName || u.email}`);
       }
       setAmounts((a) => ({ ...a, [u.uid]: "" }));
     } catch (err: any) {
@@ -383,8 +383,8 @@ function UserFunding() {
                         value={amounts[u.uid] || ""}
                         onChange={(e) => setAmounts((a) => ({ ...a, [u.uid]: e.target.value }))}
                       />
-                      <button className="btn-green small" onClick={() => doCredit(u, 1)} title="Add coins to balance">+ Give</button>
-                      <button className="chip-btn danger" onClick={() => doCredit(u, -1)} title="Remove coins from balance">− Take</button>
+                      <button className="btn-green small" onClick={() => doCredit(u, 1)} title="Add funds to balance">+ Give</button>
+                      <button className="chip-btn danger" onClick={() => doCredit(u, -1)} title="Remove funds from balance">− Take</button>
                       <button className="btn-gold small" onClick={() => doSet(u)} title="Overwrite balance with exact amount">Set =</button>
                     </div>
                   </td>

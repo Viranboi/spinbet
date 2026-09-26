@@ -287,7 +287,7 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 								<label>CASHOUT</label>
 								<label className="amount">
 									<span>{Math.round(betAmount * currentTarget)}</span>
-                                    <span className="currency"> BIF</span>
+                                    <span className="currency"> $</span>
 								</label>
 							</span>
 						</button>
@@ -304,7 +304,7 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 								<label>BET</label>
 								<label className="amount">
 									<span>{Math.round(betAmount)}</span>
-                                    <span className="currency"> BIF</span>
+                                    <span className="currency"> $</span>
 								</label>
 							</span>
 						</button>
@@ -431,7 +431,7 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 												</div>
 											</div>}
 									</div>
-									<span >BIF</span>
+									<span >$</span>
 								</div>
 								<div className="content-part">
 									<div className={`input-switch ${inState ? "" : "off"}`}
@@ -467,7 +467,7 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 											</div>
 										</div>}
 									</div>
-									<span >BIF</span>
+									<span >$</span>
 								</div>
 								<div className="content-part">
 									<div className={`input-switch ${single ? "" : "off"}`}
@@ -507,7 +507,7 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 											</div>
 										}
 									</div>
-									<span >BIF</span>
+									<span >$</span>
 								</div>
 							</div>
 							<div className="modal-footer">

@@ -66,7 +66,7 @@ export default function CasinoPage() {
       <div className="casino-inner">
         <div className="casino-hero">
           <h1>Casino</h1>
-          <p>{CASINO_GAMES.length} provably fair games from {PROVIDERS.length} top providers — instant payouts in coins</p>
+          <p>{CASINO_GAMES.length} provably fair games from {PROVIDERS.length} top providers — instant $ payouts</p>
           <div className="casino-search">
             <span className="search-icon">🔍</span>
             <input
@@ -109,7 +109,7 @@ export default function CasinoPage() {
                 ★
               </button>
               <div className="card-art" style={{ background: g.gradient }}>
-                <span className="card-icon">{g.icon}</span>
+                <img className="card-thumb" src={g.thumb} alt={g.name} loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />
                 <span className="card-provider">{g.provider}</span>
                 <span className="card-play">▶ Play now</span>
               </div>
@@ -158,7 +158,7 @@ function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; 
   function creditWin(amount: number, note: string) {
     if (!user) return;
     credit(user.uid, amount, "casino_win", game.id, note);
-    toast.success(`+${amount.toLocaleString()} coins`);
+    toast.success(`+${amount.toLocaleString()}`);
   }
 
   const engineProps = { game, debit, creditWin };
@@ -175,7 +175,7 @@ function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; 
           <div className="gm-login-gate">
             <span>🔒</span>
             <h3>Login required</h3>
-            <p>Log in or create an account to play with your coin balance.</p>
+            <p>Log in or create an account to play with your $ balance.</p>
           </div>
         ) : locked ? (
           <div className="gm-locked">
@@ -183,8 +183,8 @@ function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; 
             <h3>VIP Game Locked</h3>
             <p>
               You have not reached the amount to play this game.<br />
-              Reach a balance of <b>{UNLOCK_THRESHOLD.toLocaleString()} coins</b> to unlock{" "}
-              <b>{game.name}</b> — you currently hold <b>{Math.floor(balance).toLocaleString()} coins</b>.
+              Reach a balance of <b>${UNLOCK_THRESHOLD.toLocaleString()}</b> to unlock{" "}
+              <b>{game.name}</b> — you currently hold <b>${Math.floor(balance).toLocaleString()}</b>.
             </p>
             <p className="lock-hint">Deposit via P2P Trading to top up your balance.</p>
           </div>
@@ -270,7 +270,7 @@ function DiceGame() {
       </div>
       {result && (
         <div className={`dice-result ${result.win ? "win" : "lose"}`}>
-          {result.win ? `🎉 Won ${result.payout.toLocaleString()} coins (${multiplier}×)` : `😢 Rolled ${result.roll.toFixed(2)} — you lost`}
+          {result.win ? `🎉 Won $${result.payout.toLocaleString()} (${multiplier}×)` : `😢 Rolled ${result.roll.toFixed(2)} — you lost`}
         </div>
       )}
       {history.length > 0 && (

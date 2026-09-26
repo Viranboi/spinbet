@@ -13,6 +13,112 @@
   --sb-gold2: #f59e0b;
 }
 
+/* ===== Premium balance / deposit bar (desktop + mobile) ===== */
+.wn-logo, .nav-logo {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 9px !important;
+  text-decoration: none !important;
+}
+.wn-logo::after, .nav-logo::after {
+  content: "SPINBET";
+  font-weight: 900;
+  font-size: 19px;
+  letter-spacing: 1.5px;
+  background: linear-gradient(135deg, #fde68a, #f59e0b);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-shadow: 0 0 22px rgba(251, 191, 36, 0.35);
+  white-space: nowrap;
+}
+.wn-logo img, .nav-logo .logo-img {
+  height: 34px !important;
+  width: 34px !important;
+  object-fit: contain !important;
+  border-radius: 9px !important;
+  background: rgba(168, 85, 247, 0.12);
+  padding: 2px;
+}
+
+/* balance + free bet pill */
+.wn-balance {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  gap: 0 !important;
+  background: linear-gradient(180deg, rgba(36, 26, 75, 0.95), rgba(18, 10, 38, 0.95)) !important;
+  border: 1px solid var(--sb-gold) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+  box-shadow: 0 0 16px rgba(251, 191, 36, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
+}
+.wn-bal-metric {
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  gap: 1px !important;
+  min-width: 86px !important;
+  padding: 5px 13px !important;
+}
+.wn-bal-metric + .wn-bal-metric { border-left: 1px solid rgba(251, 191, 36, 0.3) !important; }
+.wn-bal-metric .lbl {
+  color: var(--sb-muted) !important;
+  font-size: 9px !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1.2px !important;
+}
+.wn-bal-metric strong {
+  color: var(--sb-gold) !important;
+  font-size: 15px !important;
+  font-weight: 900 !important;
+  text-shadow: 0 0 12px rgba(251, 191, 36, 0.45) !important;
+  white-space: nowrap !important;
+}
+
+/* deposit CTA */
+.wn-btn.accent, .wn-btn.join, .nav-deposit-btn, .nav-register-btn {
+  background: linear-gradient(135deg, #fde68a, var(--sb-gold) 45%, var(--sb-gold2)) !important;
+  color: #1a1000 !important;
+  border: none !important;
+  border-radius: 11px !important;
+  font-weight: 900 !important;
+  letter-spacing: 0.6px !important;
+  box-shadow: 0 4px 20px rgba(251, 191, 36, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+  transition: transform 0.15s, box-shadow 0.15s, filter 0.15s !important;
+}
+.wn-btn.accent:hover, .wn-btn.join:hover, .nav-deposit-btn:hover, .nav-register-btn:hover {
+  transform: translateY(-1px) !important;
+  filter: brightness(1.07) !important;
+  box-shadow: 0 6px 26px rgba(251, 191, 36, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.5) !important;
+}
+
+/* layout navbar balance */
+.nav-balance {
+  background: linear-gradient(180deg, rgba(36, 26, 75, 0.95), rgba(18, 10, 38, 0.95)) !important;
+  border: 1px solid var(--sb-gold) !important;
+  border-radius: 11px !important;
+  padding: 4px 14px !important;
+  box-shadow: 0 0 14px rgba(251, 191, 36, 0.25) !important;
+}
+.nav-balance .balance-amount { color: var(--sb-gold) !important; text-shadow: 0 0 10px rgba(251, 191, 36, 0.45); }
+
+/* ---- mobile: keep it cool & compact ---- */
+@media (max-width: 640px) {
+  .wn-logo::after, .nav-logo::after { font-size: 15px !important; letter-spacing: 1px !important; }
+  .wn-logo img, .nav-logo .logo-img { height: 28px !important; width: 28px !important; }
+  .wn-header-right { gap: 8px !important; }
+  .wn-balance { border-radius: 10px !important; }
+  .wn-bal-metric { min-width: 0 !important; padding: 4px 9px !important; }
+  .wn-bal-metric strong { font-size: 12.5px !important; }
+  .wn-bal-metric .lbl { font-size: 8px !important; }
+  .wn-btn.login, .wn-btn.join, .wn-btn.accent { padding: 8px 13px !important; font-size: 11.5px !important; }
+  .nav-balance { padding: 3px 10px !important; }
+  .nav-balance .balance-amount { font-size: 13px !important; }
+  .sb-tool-search input { width: 90px !important; }
+}
+
 html, body, #root {
   background: var(--sb-bg) !important;
   color: var(--sb-text) !important;

@@ -23,7 +23,7 @@ export default function BonusBanner() {
         <div className="bonus-content">
           <div className="bonus-left">
             <span className="bonus-tag">NEW PLAYER BONUS</span>
-            <h2>Get <span className="bonus-highlight">100% up to BIF 100,000</span></h2>
+            <h2>Get <span className="bonus-highlight">100% up to $100,000</span></h2>
             <p>Make your first deposit and we'll match it instantly. Plus 50 free spins on Aviator!</p>
             <div className="bonus-features">
               <span>✓ Instant credit</span>
@@ -36,7 +36,7 @@ export default function BonusBanner() {
               <div className="bonus-claimed">
                 <span className="claimed-icon">✅</span>
                 <span>Bonus Claimed!</span>
-                <span className="claimed-sub">BIF 100,000 added to your account</span>
+                <span className="claimed-sub">$100,000 added to your account</span>
               </div>
             ) : (
               <button className="bonus-claim-btn" onClick={handleClaim} disabled={claiming || !user}>

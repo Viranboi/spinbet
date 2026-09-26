@@ -22,7 +22,7 @@ export interface Exchanger {
   joinedAt: number;
   /** fiat per 1 coin, e.g. 1.02 RWF per coin */
   rateRwf: number;
-  /** fiat per 1 coin, e.g. 2.35 BIF per coin */
+  /** fiat per 1 coin, e.g. 2.$35 per coin */
   rateBif: number;
   minFiatRwf: number;
   maxFiatRwf: number;
@@ -109,14 +109,14 @@ export const CURRENCY_META: Record<
   { symbol: string; label: string; decimals: number; quickAmounts: number[] }
 > = {
   RWF: {
-    symbol: "RWF",
-    label: "African Franc (RWF)",
+    symbol: "$",
+    label: "US Dollar (USD)",
     decimals: 0,
     quickAmounts: [1000, 2000, 5000, 10000, 20000, 50000],
   },
   BIF: {
-    symbol: "BIF",
-    label: "African Franc (BIF)",
+    symbol: "$",
+    label: "US Dollar (USD)",
     decimals: 0,
     quickAmounts: [2000, 5000, 10000, 25000, 50000, 100000],
   },

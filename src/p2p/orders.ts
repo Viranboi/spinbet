@@ -231,7 +231,7 @@ export function markPaid(orderId: string, buyerUid: string, paymentRef: string) 
   order.status = "paid";
   order.paidAt = Date.now();
   order.paymentRef = paymentRef.trim();
-  order.messages.push(sysMsg(`Buyer marked the order as paid.${order.paymentRef ? ` Reference: ${order.paymentRef}` : ""} Waiting for ${order.exchangerName} to release coins.`));
+  order.messages.push(sysMsg(`Buyer marked the order as paid.${order.paymentRef ? ` Reference: ${order.paymentRef}` : ""} Waiting for ${order.exchangerName} to release funds.`));
   writeAll(orders);
 
   if (order.exchangerUid === ADMIN_EXCHANGER_UID) {
@@ -265,7 +265,7 @@ export function releaseCoins(orderId: string, actorUid: string): P2POrder {
   order.status = "completed";
   order.releasedAt = Date.now();
   order.closedAt = order.releasedAt;
-  order.messages.push(sysMsg(`${ex.displayName} released ${order.coinAmount.toLocaleString()} coins. Deposit complete.`));
+  order.messages.push(sysMsg(`${ex.displayName} released $${order.coinAmount.toLocaleString()}. Deposit complete.`));
   writeAll(orders);
   return order;
 }

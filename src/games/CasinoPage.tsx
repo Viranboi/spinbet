@@ -41,7 +41,7 @@ export default function CasinoPage({ onBack, balance }: { onBack: () => void; ba
               {gameEmoji} {gameName}
             </div>
             <div style={{ marginLeft: 'auto', color: '#fff', fontWeight: 700, fontSize: 16 }}>
-              {currentBalance.toLocaleString()} BIF
+              ${currentBalance.toLocaleString()}
             </div>
           </div>
           <GameComponent balance={currentBalance} setBalance={setCurrentBalance} />
@@ -82,7 +82,7 @@ export default function CasinoPage({ onBack, balance }: { onBack: () => void; ba
           Crash Games
         </div>
         <div style={{ marginLeft: 'auto', color: '#fff', fontWeight: 700, fontSize: 16 }}>
-          {currentBalance.toLocaleString()} BIF
+          ${currentBalance.toLocaleString()}
         </div>
       </div>
 

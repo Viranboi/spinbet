@@ -27,7 +27,7 @@ export default function Navbar() {
               <>
                 <div className="nav-balance">
                   <span className="balance-label">Balance</span>
-                  <span className="balance-amount">BIF {balance.toLocaleString()}</span>
+                  <span className="balance-amount">${balance.toLocaleString()}</span>
                 </div>
                 <Link to="/deposit" className="nav-deposit-btn">Deposit</Link>
                 <button className="nav-user-btn">

@@ -73,13 +73,13 @@ function PartnerRegister() {
           <h2>🏢 {profile.displayName}</h2>
           <p className="ok">Your desk is live on the P2P market.</p>
           <div className="status-grid">
-            <div><span>Float available</span><b>{Math.floor(profile.availableCoins).toLocaleString()} coins</b></div>
-            <div><span>In escrow</span><b>{profile.lockedCoins.toLocaleString()} coins</b></div>
+            <div><span>Float available</span><b>${Math.floor(profile.availableCoins).toLocaleString()}</b></div>
+            <div><span>In escrow</span><b>${profile.lockedCoins.toLocaleString()}</b></div>
             <div><span>Status</span><b>{profile.status}</b></div>
             <div><span>Verified</span><b>{profile.verified ? "Yes" : "Pending"}</b></div>
           </div>
           <p className="note">
-            Need more float? Message the admin — coins are credited instantly after confirmation.
+            Need more float? Message the admin — funds are credited instantly after confirmation.
             Manage your desk from the <b>Exchanger Hub</b> tab on the P2P page.
           </p>
         </div>
@@ -115,13 +115,13 @@ function PartnerRegister() {
           🔒 Log in first, then register your exchange desk here.
         </div>
       )}
-      {user && (
+      ${user && (
         <div className="panel-card">
           <div className="panel-head">
             <h2>Become a Certified Exchanger</h2>
             <p>
               Private registration for approved partners. Your desk goes live immediately;
-              the admin credits your starting float ({Number(requestedFloat || 0).toLocaleString()} coins requested).
+              the admin credits your starting float (${Number(requestedFloat || 0).toLocaleString()} requested).
             </p>
           </div>
           <div className="form-grid">
@@ -131,14 +131,14 @@ function PartnerRegister() {
             <label>Airtel Money number<input placeholder="+250 73…" value={airtel} onChange={(e) => setAirtel(e.target.value)} /></label>
             <label>Pricing currency
               <select value={currency} onChange={(e) => setCurrency(e.target.value as FiatCurrency)}>
-                <option value="RWF">RWF — African Franc</option>
-                <option value="BIF">BIF — African Franc</option>
+                <option value="RWF">USD — US Dollar</option>
+                <option value="BIF">USD — US Dollar</option>
               </select>
             </label>
             <label>Rate ({CURRENCY_META[currency].symbol} per coin)<input type="number" step="0.001" value={rate} onChange={(e) => setRate(e.target.value)} /></label>
             <label>Min order ({CURRENCY_META[currency].symbol})<input type="number" value={minFiat} onChange={(e) => setMinFiat(e.target.value)} /></label>
             <label>Max order ({CURRENCY_META[currency].symbol})<input type="number" value={maxFiat} onChange={(e) => setMaxFiat(e.target.value)} /></label>
-            <label>Starting float to request (coins)<input type="number" value={requestedFloat} onChange={(e) => setRequestedFloat(e.target.value)} /></label>
+            <label>Starting float to request ($)<input type="number" value={requestedFloat} onChange={(e) => setRequestedFloat(e.target.value)} /></label>
           </div>
           <button
             className="btn-gold"

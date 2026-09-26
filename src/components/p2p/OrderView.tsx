@@ -49,7 +49,7 @@ export default function OrderView({ order, onDone }: { order: P2POrder; onDone: 
   function confirmPaid() {
     try {
       ordersApi.markPaid(order.id, user!.uid, ref);
-      toast.success("Marked as paid — waiting for the exchanger to release your coins");
+      toast.success("Marked as paid — waiting for the exchanger to release your funds");
     } catch (err: any) {
       toast.error(err.message || "Failed");
     }
@@ -93,7 +93,7 @@ export default function OrderView({ order, onDone }: { order: P2POrder; onDone: 
         <div>
           <h3>Order {order.code}</h3>
           <span className="order-sub">
-            Buy <b>{order.coinAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} coins</b> from{" "}
+            Buy <b>${order.coinAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</b> from{" "}
             <b>{order.exchangerName}</b> · {new Date(order.createdAt).toLocaleString()}
           </span>
         </div>
@@ -127,12 +127,12 @@ export default function OrderView({ order, onDone }: { order: P2POrder; onDone: 
             <div className="await-box">
               <span className="pulse-dot" />
               Payment marked. Waiting for <b>{order.exchangerName}</b> to verify and release{" "}
-              <b>{order.coinAmount.toLocaleString()} coins</b>. You may message them below for a faster release.
+              <b>${order.coinAmount.toLocaleString()}</b>. You may message them below for a faster release.
             </div>
           )}
           {(order.status === "completed") && (
             <div className="success-box">
-              ✅ Deposit complete — <b>{order.coinAmount.toLocaleString()} coins</b> were added to your wallet.
+              ✅ Deposit complete — <b>${order.coinAmount.toLocaleString()}</b> were added to your wallet.
             </div>
           )}
           {["cancelled", "expired", "refunded"].includes(order.status) && (
@@ -200,7 +200,7 @@ export default function OrderView({ order, onDone }: { order: P2POrder; onDone: 
             <h4>Order summary</h4>
             <div className="s-row"><span>Order code</span><b>{order.code}</b></div>
             <div className="s-row"><span>You pay</span><b>{order.fiatAmount.toLocaleString()} {meta.symbol}</b></div>
-            <div className="s-row"><span>You receive</span><b>{order.coinAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })} coins</b></div>
+            <div className="s-row"><span>You receive</span><b>${order.coinAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</b></div>
             <div className="s-row"><span>Rate</span><b>{order.rate.toFixed(3)} {meta.symbol}/coin</b></div>
             {order.paymentRef && <div className="s-row"><span>Payment ref</span><b>{order.paymentRef}</b></div>}
           </div>

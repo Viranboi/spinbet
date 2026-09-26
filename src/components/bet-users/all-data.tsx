@@ -37,15 +37,15 @@ const AllData = ({ pre, setPre, allData, activePlayers, totalBets, totalCashout,
                 }}>
                     <span>{activePlayers.toLocaleString()} / {watcherCount.toLocaleString()} Bets</span>
                     <span style={{ color: "#8be35d", fontWeight: 600 }}>
-                        {totalCashout.toLocaleString(undefined, { maximumFractionDigits: 0 })} Total win BIF
+                        {totalCashout.toLocaleString(undefined, { maximumFractionDigits: 0 })} Total win $
                     </span>
                 </div>
                 <div className="spacer"></div>
                 <div className="legend">
                     <span className="user">Player</span>
-                    <span className="bet">Bet BIF</span>
+                    <span className="bet">Bet $</span>
                     <span>X</span>
-                    <span className="cash-out">Win BIF</span>
+                    <span className="cash-out">Win $</span>
                 </div>
             </div>
             <div className="cdk-virtual-scroll-viewport">
@@ -80,9 +80,9 @@ const AllData = ({ pre, setPre, allData, activePlayers, totalBets, totalCashout,
             </div>}
             {!pre && <div className="bets-live-summary" style={{ marginTop: "2px" }}>
                 <span style={{ color: "#555" }}>Total bets</span>
-                <strong style={{ color: "#9ea0a3" }}>{totalBets.toLocaleString(undefined, { maximumFractionDigits: 0 })} BIF</strong>
+                <strong style={{ color: "#9ea0a3" }}>${totalBets.toLocaleString(undefined, { maximumFractionDigits: 0 })}</strong>
                 <span className="cashout-label">Cashout</span>
-                <strong className="cashout-value">{totalCashout.toLocaleString(undefined, { maximumFractionDigits: 0 })} BIF</strong>
+                <strong className="cashout-value">${totalCashout.toLocaleString(undefined, { maximumFractionDigits: 0 })}</strong>
             </div>}
         </>
     )

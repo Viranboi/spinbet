@@ -141,7 +141,7 @@ function SlotEngine({ game, debit, creditWin }: EngineProps) {
         if (mult > 0) {
           const win = Math.round(amount * mult * 100) / 100;
           creditWin(win, `${game.name} ${mult}x`);
-          setResult(`🎉 ${mult}× — won ${win.toLocaleString()} coins`);
+          setResult(`🎉 ${mult}× — won $${win.toLocaleString()}`);
         } else {
           setResult("No match — try again");
         }
@@ -350,7 +350,7 @@ function MinesEngine({ game, debit, creditWin }: EngineProps) {
         </div>
       )}
       {state === "lost" && <div className="engine-result lose">💥 Hit a mine — lost</div>}
-      {state === "won" && <div className="engine-result win">🎉 Cleared! Won {Math.round(amount * currentMult(picks) * 100) / 100} coins</div>}
+      {state === "won" && <div className="engine-result win">🎉 Cleared! Won ${Math.round(amount * currentMult(picks) * 100) / 100}</div>}
       <BetBox bet={bet} setBet={setBet} disabled={state === "playing"}>
         {state === "playing" ? (
           <button className="btn-green" onClick={() => { if (picks > 0) finish(picks) }} disabled={picks === 0}>
@@ -400,7 +400,7 @@ function WheelEngine({ game, debit, creditWin }: EngineProps) {
       if (seg.mult > 0) {
         const win = Math.round(amount * seg.mult * 100) / 100;
         creditWin(win, `${game.name} ${seg.label}`);
-        setResult(`🎉 ${seg.label} — won ${win.toLocaleString()} coins`);
+        setResult(`🎉 ${seg.label} — won $${win.toLocaleString()}`);
       } else {
         setResult(`Landed on ${seg.label} — try again`);
       }
@@ -464,7 +464,7 @@ function FlipEngine({ game, debit, creditWin }: EngineProps) {
       if (o === choice) {
         const win = Math.round(amount * mult * 100) / 100;
         creditWin(win, `${game.name} win`);
-        setResult(`🎉 You won ${win.toLocaleString()} coins (${mult}×)`);
+        setResult(`🎉 You won $${win.toLocaleString()} (${mult}×)`);
       } else {
         setResult(`It was ${opts.label[o]} — you lost`);
       }
@@ -522,7 +522,7 @@ function PlinkoEngine({ game, debit, creditWin }: EngineProps) {
       if (m >= 1) {
         const win = Math.round(amount * m * 100) / 100;
         creditWin(win, `${game.name} ${m}x`);
-        setResult(`🎉 ${m}× — won ${win.toLocaleString()} coins`);
+        setResult(`🎉 ${m}× — won $${win.toLocaleString()}`);
       } else {
         setResult(`${m}× — try again`);
       }

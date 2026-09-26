@@ -179,14 +179,14 @@ export default function CrashGamesPage() {
             ) : (
               (() => {
                 const engineProps = {
-                  game: { id: launching.id, name: launching.name, cat: "Crash" as const, icon: "🎮", rtp: 97, provider: "Various", gradient: "#1a1a2e", hot: false, new: false, players: 0 },
+                  game: { id: launching.id, name: launching.name, cat: "Crash" as const, icon: "🎮", thumb: "", rtp: 97, provider: "Various", gradient: "#1a1a2e", hot: false, new: false, players: 0 },
                   debit: (amount: number, note: string) => {
                     try { walletDebit(user.uid, amount, "casino_bet", launching.id, note); return true; }
                     catch (err: any) { toast.error(err.message); return false; }
                   },
                   creditWin: (amount: number, note: string) => {
                     credit(user.uid, amount, "casino_win", launching.id, note);
-                    toast.success(`+${amount.toLocaleString()} coins`);
+                    toast.success(`+$${amount.toLocaleString()}`);
                   },
                 };
                 const e = engineFor(engineProps.game);

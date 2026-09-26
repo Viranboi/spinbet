@@ -102,7 +102,7 @@ const TopHistory = ({ openFairModal }: TopHistoryProps) => {
                     <div className="score">
                       <div className="flex">
                         <div className="">
-                            <span>Bet BIF:&nbsp;</span>
+                            <span>Bet $:&nbsp;</span>
                           <span></span>
                         </div>
                         <span className="amount">
@@ -119,7 +119,7 @@ const TopHistory = ({ openFairModal }: TopHistoryProps) => {
                       </div>
                       <div className="flex">
                         <div className="">
-                            <span>Win BIF: &nbsp;</span>
+                            <span>Win $: &nbsp;</span>
                         </div>
                         <span className="amount">
                            {(item.cashoutAt * item.betAmount).toLocaleString(
