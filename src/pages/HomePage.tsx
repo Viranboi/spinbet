@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu as MenuIcon, Search } from "lucide-react";
 import Header from "../components/qwin/Header";
 import { CASINO_GAMES, type CasinoGame } from "./casinoGames";
+import { SportsDataService, type SportMatch } from "../sports/sportsData";
 import "./HomePage.scss";
+import "./SportsPage.scss";
 
 const SIDEBAR: { label: string; icon: string; cat: string }[] = [
   { label: "Providers Spotlight", icon: "🌟", cat: "providers" },
@@ -59,6 +61,15 @@ export default function HomePage() {
   const [sideCat, setSideCat] = useState("all");
   const [query, setQuery] = useState("");
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sportMatches, setSportMatches] = useState<SportMatch[]>([]);
+
+  useEffect(() => {
+    let on = true;
+    SportsDataService.getFixtures().then((ms) => {
+      if (on) setSportMatches(ms);
+    }).catch(() => {});
+    return () => { on = false; };
+  }, []);
 
   function matchTab(g: CasinoGame): boolean {
     switch (activeTab) {
@@ -190,6 +201,49 @@ export default function HomePage() {
                 <span>→</span>
               </button>
             )}
+          </section>
+
+          {/* ===== Top 15 sports matches ===== */}
+          <section className="sb-section">
+            <div className="sb-section-head">
+              <h3>⚽ Sports Matches</h3>
+              <button onClick={() => navigate("/sports")}>View All</button>
+            </div>
+            <div className="sp-grid">
+              {sportMatches.slice(0, 15).map((m) => (
+                <div key={m.id} className={`sp-match${m.isLive ? " is-live" : ""}`} onClick={() => navigate("/sports")} style={{ cursor: "pointer" }}>
+                  <div className="sp-match-head">
+                    <span className="sp-league">{m.flag} {m.league}</span>
+                    {m.isLive ? (
+                      <span className="sp-live-badge"><i />LIVE {m.minute}&prime;</span>
+                    ) : (
+                      <span className="sp-time">{m.date} • {m.time}</span>
+                    )}
+                  </div>
+                  <div className="sp-teams">
+                    <div className="sp-team">
+                      {m.homeLogo && <img src={m.homeLogo} alt="" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                      <span>{m.homeTeam}</span>
+                    </div>
+                    <div className="sp-score">{m.isLive ? `${m.liveScore.home} - ${m.liveScore.away}` : "vs"}</div>
+                    <div className="sp-team right">
+                      <span>{m.awayTeam}</span>
+                      {m.awayLogo && <img src={m.awayLogo} alt="" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                    </div>
+                  </div>
+                  <div className="sp-odds">
+                    <button onClick={(e) => { e.stopPropagation(); navigate("/sports"); }}><i>1</i><em>{m.odds.home.toFixed(2)}</em></button>
+                    <button onClick={(e) => { e.stopPropagation(); navigate("/sports"); }}><i>X</i><em>{m.odds.draw.toFixed(2)}</em></button>
+                    <button onClick={(e) => { e.stopPropagation(); navigate("/sports"); }}><i>2</i><em>{m.odds.away.toFixed(2)}</em></button>
+                  </div>
+                </div>
+              ))}
+            </div>
+            {sportMatches.length === 0 && <div className="sb-empty">Loading matches…</div>}
+            <button className="sb-see-more" onClick={() => navigate("/sports")}>
+              SEE MORE — ALL SPORTS MATCHES
+              <span>→</span>
+            </button>
           </section>
 
           {/* ===== Crash & Instant — Aviator + Mines playable on scroll ===== */}
