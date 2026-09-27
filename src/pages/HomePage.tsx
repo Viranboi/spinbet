@@ -8,6 +8,7 @@ import "./HomePage.scss";
 const SIDEBAR: { label: string; icon: string; cat: string }[] = [
   { label: "Providers Spotlight", icon: "🌟", cat: "providers" },
   { label: "All Games", icon: "🎮", cat: "all" },
+  { label: "Sports Betting", icon: "⚽", cat: "sports" },
   { label: "New Games", icon: "🆕", cat: "new" },
   { label: "Drops and Wins", icon: "💧", cat: "all" },
   { label: "Live Casino", icon: "📹", cat: "live" },
@@ -93,7 +94,9 @@ export default function HomePage() {
   }
 
   function sideClick(item: { label: string; icon: string; tab?: string; to?: string; cat: string }) {
-    if (item.cat === "crash") {
+    if (item.cat === "sports") {
+      navigate("/sports");
+    } else if (item.cat === "crash") {
       document.getElementById("crash-instant")?.scrollIntoView({ behavior: "smooth" });
     } else {
       setSideCat(item.cat);

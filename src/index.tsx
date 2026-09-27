@@ -14,6 +14,7 @@ import AviatorPage from './pages/AviatorPage';
 import PromotionsPage from './pages/PromotionsPage';
 import DepositPage from './pages/DepositPage';
 import CrashGamesPage from './pages/CrashGamesPage';
+import SportsPage from './pages/SportsPage';
 import MinesPage from './pages/MinesPage';
 import SecretMinesPage from './pages/SecretMinesPage';
 import PartnerPage from './pages/PartnerPage';
@@ -50,6 +51,7 @@ createRoot(document.getElementById("root") as HTMLElement).render(
         <Route path="/deposit" element={<Layout><DepositPage /></Layout>} />
         <Route path="/p2p" element={<Layout><DepositPage /></Layout>} />
         <Route path="/crash-games" element={<CrashGamesPage />} />
+        <Route path="/sports" element={<SportsPage />} />
         <Route path="/mines" element={<MinesPage />} />
         <Route path="/secret-mines" element={<SecretMinesPage />} />
         <Route path="/partner" element={<PartnerPage />} />
