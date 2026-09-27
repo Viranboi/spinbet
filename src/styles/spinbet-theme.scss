@@ -353,3 +353,182 @@ input, select {
 /* scrollbar */
 ::-webkit-scrollbar { background: #150e2e !important; }
 ::-webkit-scrollbar-thumb { background: var(--sb-neon2) !important; }
+
+/* ===== Rescue: hero slider (CrashGames page) ===== */
+.wn-slider {
+  position: relative !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  background: linear-gradient(135deg, #241456, #150b30) !important;
+  border: 1px solid var(--sb-line) !important;
+  box-shadow: 0 8px 30px rgba(124, 58, 237, 0.3) !important;
+}
+.wn-slider-track {
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  display: flex !important;
+  height: clamp(150px, 19vw, 250px) !important;
+  transition: transform 0.55s cubic-bezier(0.33, 0.9, 0.25, 1) !important;
+}
+.wn-slide { position: relative !important; flex: 0 0 100% !important; min-width: 100% !important; overflow: hidden !important; }
+.wn-slide .slide-container { display: block !important; position: absolute !important; inset: 0 !important; }
+.wn-slide img { display: block !important; width: 100% !important; height: 100% !important; object-fit: cover !important; }
+.wn-slide-copy {
+  position: absolute !important; z-index: 2 !important; left: 5% !important; top: 50% !important;
+  transform: translateY(-50%) !important; max-width: 60% !important;
+  display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 8px !important;
+}
+.wn-slide-copy h2 {
+  margin: 0 !important; color: var(--sb-gold) !important;
+  font-size: clamp(20px, 2.6vw, 34px) !important; font-weight: 900 !important;
+  text-transform: uppercase !important; line-height: 1.05 !important;
+  text-shadow: 0 2px 14px rgba(0, 0, 0, 0.7) !important;
+}
+.wn-slide-copy p { margin: 0 !important; color: #fff !important; font-size: clamp(12px, 1.3vw, 15px) !important; font-weight: 600 !important; }
+.wn-slide-tag {
+  background: linear-gradient(135deg, var(--sb-gold), var(--sb-gold2)) !important;
+  color: #1a1000 !important; font-size: 10.5px !important; font-weight: 900 !important;
+  letter-spacing: 1px !important; text-transform: uppercase !important;
+  padding: 3px 10px !important; border-radius: 6px !important;
+}
+.wn-slider-arrow {
+  position: absolute !important; z-index: 3 !important; top: 50% !important; transform: translateY(-50%) !important;
+  width: 32px !important; height: 32px !important; border-radius: 50% !important;
+  background: rgba(15, 8, 32, 0.6) !important; border: 1px solid var(--sb-line) !important;
+  color: #fff !important; cursor: pointer !important;
+  display: flex !important; align-items: center !important; justify-content: center !important;
+}
+.wn-slider-arrow:hover { border-color: var(--sb-gold) !important; color: var(--sb-gold) !important; }
+.wn-slider-arrow.left { left: 12px !important; }
+.wn-slider-arrow.right { right: 12px !important; }
+.wn-slider-ind {
+  position: absolute !important; z-index: 2 !important; bottom: 10px !important; left: 50% !important;
+  transform: translateX(-50%) !important; display: flex !important; gap: 6px !important;
+}
+.wn-slider-ind button {
+  width: 8px !important; height: 8px !important; border-radius: 999px !important;
+  border: none !important; background: rgba(255, 255, 255, 0.3) !important; cursor: pointer !important;
+}
+.wn-slider-ind button.on { background: var(--sb-gold) !important; width: 20px !important; }
+
+/* ===== Rescue: mobile drawer / overlay / tabbar ===== */
+.qw-overlay {
+  position: fixed !important; inset: 0 !important;
+  background: rgba(5, 2, 12, 0.7) !important; z-index: 200 !important;
+}
+.qw-drawer {
+  position: fixed !important; top: 0 !important; left: 0 !important; bottom: 0 !important;
+  width: min(300px, 85vw) !important; z-index: 210 !important; overflow-y: auto !important;
+  background: linear-gradient(180deg, #1a0f38, #0d0618) !important;
+  border-right: 1px solid var(--sb-line) !important;
+}
+.qw-drawer-head {
+  display: flex !important; align-items: center !important; justify-content: space-between !important;
+  padding: 16px !important; color: var(--sb-gold) !important;
+  font-weight: 900 !important; font-size: 14px !important;
+  text-transform: uppercase !important; letter-spacing: 1px !important;
+}
+.qw-drawer-head button {
+  background: none !important; border: none !important; color: var(--sb-muted) !important;
+  font-size: 16px !important; cursor: pointer !important;
+}
+.qw-tabbar { display: none !important; }
+@media (max-width: 1023px) {
+  .qw-tabbar {
+    position: fixed !important; bottom: 0 !important; left: 0 !important; right: 0 !important;
+    z-index: 150 !important; display: flex !important; align-items: stretch !important;
+    background: linear-gradient(180deg, #150c30, #0d0618) !important;
+    border-top: 1px solid var(--sb-line) !important;
+    padding: 6px 2px calc(6px + env(safe-area-inset-bottom)) !important;
+  }
+  .qw-tab {
+    position: relative !important; flex: 1 !important;
+    display: flex !important; flex-direction: column !important; align-items: center !important; gap: 3px !important;
+    background: none !important; border: none !important; color: var(--sb-muted) !important;
+    font-size: 10px !important; font-weight: 700 !important; padding: 4px 0 !important; cursor: pointer !important;
+  }
+  .qw-tab.active, .qw-tab.slip { color: var(--sb-gold) !important; }
+  .qw-badge {
+    position: absolute !important; top: -2px !important; right: calc(50% - 22px) !important;
+    background: #ef4444 !important; color: #fff !important;
+    font-size: 9px !important; font-weight: 900 !important;
+    min-width: 15px !important; height: 15px !important; border-radius: 999px !important;
+    display: flex !important; align-items: center !important; justify-content: center !important;
+  }
+}
+
+/* ===== Polish: heroes ===== */
+.casino-hero, .promos-hero {
+  background: linear-gradient(135deg, #2a165e 0%, #150b30 70%) !important;
+  border: 1px solid var(--sb-line) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 30px rgba(124, 58, 237, 0.3) !important;
+}
+.casino-hero h1, .promos-hero h1 {
+  background: linear-gradient(135deg, #fde68a, var(--sb-gold)) !important;
+  -webkit-background-clip: text !important;
+  background-clip: text !important;
+  color: transparent !important;
+}
+
+/* ===== Polish: auth modal ===== */
+.auth-overlay { background: rgba(5, 2, 12, 0.78) !important; backdrop-filter: blur(4px); }
+.auth-modal {
+  background: linear-gradient(180deg, #221647, #120b28) !important;
+  border: 1px solid var(--sb-gold) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6), 0 0 30px rgba(251, 191, 36, 0.15) !important;
+}
+.auth-header h2, .auth-header h3 { color: #fff !important; }
+.auth-close { color: var(--sb-muted) !important; }
+.auth-close:hover { color: var(--sb-gold) !important; }
+
+/* ===== Polish: deposit + promo cards & CTAs ===== */
+.dm-card, .promo-card {
+  background: linear-gradient(180deg, var(--sb-card), var(--sb-bg2)) !important;
+  border: 1px solid var(--sb-line) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 8px 26px rgba(0, 0, 0, 0.4) !important;
+}
+.dm-deposit-btn, .promo-btn {
+  background: linear-gradient(135deg, var(--sb-gold), var(--sb-gold2)) !important;
+  color: #1a1000 !important;
+  border: none !important;
+  font-weight: 900 !important;
+  box-shadow: 0 4px 18px rgba(251, 191, 36, 0.4) !important;
+}
+.promo-badge {
+  background: linear-gradient(135deg, var(--sb-neon), var(--sb-neon2)) !important;
+  color: #fff !important;
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.5) !important;
+}
+
+/* ===== Polish: casino cards + game modal ===== */
+.casino-card { overflow: hidden; transition: transform 0.15s, box-shadow 0.15s !important; }
+.casino-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(124, 58, 237, 0.45) !important; }
+.game-modal-overlay, .cg-modal-overlay { background: rgba(5, 2, 12, 0.8) !important; backdrop-filter: blur(4px); }
+.gm-head, .cg-modal-head {
+  background: linear-gradient(180deg, #2a1a5e, #1a0f38) !important;
+  border-bottom: 1px solid var(--sb-gold) !important;
+}
+.btn-green {
+  background: linear-gradient(135deg, #22c55e, #15803d) !important;
+  box-shadow: 0 4px 16px rgba(34, 197, 94, 0.4) !important;
+}
+
+/* ===== Polish: crash-games grid cards ===== */
+.cg-card {
+  border: 1px solid var(--sb-line) !important;
+  border-radius: 14px !important;
+  overflow: hidden !important;
+  transition: transform 0.15s, box-shadow 0.15s !important;
+}
+.cg-card:hover { transform: translateY(-3px); box-shadow: 0 0 22px rgba(168, 85, 247, 0.5) !important; }
+
+/* ===== Polish: footer ===== */
+.site-footer {
+  background: linear-gradient(180deg, #150c30, #0a0518) !important;
+  border-top: 1px solid var(--sb-line) !important;
+}
+.footer-bottom { border-top: 1px solid var(--sb-line) !important; }
