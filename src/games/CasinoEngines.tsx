@@ -555,6 +555,72 @@ function PlinkoEngine({ game, debit, creditWin }: EngineProps) {
   );
 }
 
+/* ---------------- DRIVE IT ENGINE (3D racing iframe) ---------------- */
+
+function DriveItEngine({ game, debit, creditWin }: EngineProps) {
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [status, setStatus] = useState("Bet $5 inside the game · finish 1st of 5 to win $35");
+  const [statusKind, setStatusKind] = useState<"win" | "lose" | "">("");
+  const debitRef = useRef(debit);
+  const creditRef = useRef(creditWin);
+  debitRef.current = debit;
+  creditRef.current = creditWin;
+
+  useEffect(() => {
+    function send(msg: any) {
+      iframeRef.current?.contentWindow?.postMessage(msg, "*");
+    }
+    function onMsg(e: MessageEvent) {
+      const d = e.data as any;
+      if (!d || typeof d !== "object" || !d.type || !String(d.type).startsWith("DRIVEIT_")) return;
+      if (d.type === "DRIVEIT_READY" || d.type === "DRIVEIT_BALANCE_REQ") {
+        // balance shown live inside game via wallet subscription; just ack
+        send({ type: "DRIVEIT_BALANCE", balance: null });
+      } else if (d.type === "DRIVEIT_BET") {
+        const ok = debitRef.current(5, `${game.name} entry $5 bet`);
+        if (ok) {
+          setStatus("Bet accepted · good luck!");
+          setStatusKind("");
+          send({ type: "DRIVEIT_BET_OK" });
+        } else {
+          setStatus("Insufficient site balance — deposit to play.");
+          setStatusKind("lose");
+          send({ type: "DRIVEIT_BET_FAIL" });
+        }
+      } else if (d.type === "DRIVEIT_WIN") {
+        creditRef.current(35, `${game.name} 1st place win`);
+        setStatus("🏆 1st place! Won $35");
+        setStatusKind("win");
+      } else if (d.type === "DRIVEIT_LOSE") {
+        setStatus("Race finished — you lost. Win 1st to get $35.");
+        setStatusKind("lose");
+      } else if (d.type === "DRIVEIT_REFUND") {
+        creditRef.current(5, `${game.name} cancelled race refund`);
+        setStatus("Bet refunded · $5 back to balance");
+        setStatusKind("");
+      }
+    }
+    window.addEventListener("message", onMsg);
+    return () => window.removeEventListener("message", onMsg);
+  }, [game.name]);
+
+  return (
+    <div className="engine center">
+      <div style={{ width: "100%", maxWidth: 960 }}>
+        <iframe
+          ref={iframeRef}
+          title="DRIVE IT"
+          src="/games/drive-it/index.html?site=1"
+          style={{ width: "100%", height: 600, border: 0, borderRadius: 12, background: "#0a0d14" }}
+          allow="autoplay; fullscreen"
+        />
+      </div>
+      <div className={`engine-result ${statusKind}`}>{status}</div>
+      <div className="paytable">Entry $5 taken from your site balance · 1st place pays $35</div>
+    </div>
+  );
+}
+
 export {
   SlotEngine,
   CrashEngine,
@@ -562,6 +628,7 @@ export {
   WheelEngine,
   FlipEngine,
   PlinkoEngine,
+  DriveItEngine,
   useWager,
   BetBox,
 };

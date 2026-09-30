@@ -29,6 +29,7 @@ const G = (id: string, name: string, cat: CasinoGame["cat"], provider: string, i
 
 export const CASINO_GAMES: CasinoGame[] = [
 
+  G("drive-it", "DRIVE IT", "Virtual", "DriveIt Studios", "🏎️", 97.0, { hot: true, new: true }),
   G("aviator", "Aviator", "Crash", "Spribe", "✈️", 97.0, { hot: true }),
   G("crash-x", "Crash X", "Crash", "Turbo Games", "🚀", 97.0),
   G("jetx", "JetX", "Crash", "SmartSoft", "🛩️", 97.0, { hot: true }),

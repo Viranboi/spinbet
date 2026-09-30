@@ -13,12 +13,18 @@ import {
   WheelEngine,
   FlipEngine,
   PlinkoEngine,
+  DriveItEngine,
 } from "../games/CasinoEngines";
 import "./CasinoPage.scss";
 
 const CATEGORIES = ["All", "Instant", "Crash", "Slots", "Live", "Table", "Card", "Roulette", "Blackjack", "Poker", "Baccarat", "Dice", "Jackpot", "Fishing", "Virtual"];
 const FAV_KEY = "letsbet_fav_games";
 const UNLOCK_THRESHOLD = 10_000;
+const LOW_THRESHOLD = 10;
+
+function isLowMinGame(gameId: string) {
+  return gameId === "aviator" || gameId === "mines" || gameId === "drive-it";
+}
 
 function loadFavs(): string[] {
   try {
@@ -143,7 +149,9 @@ export default function CasinoPage() {
 function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; onClose: () => void }) {
   const { user } = useAuth();
   const { balance } = useWallet();
-  const locked = index >= 50 && balance < UNLOCK_THRESHOLD;
+  const lowGame = isLowMinGame(game.id);
+  const required = lowGame ? LOW_THRESHOLD : UNLOCK_THRESHOLD;
+  const locked = balance < required;
 
   function debit(amount: number, note: string): boolean {
     if (!user) return false;
@@ -181,14 +189,18 @@ function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; 
         ) : locked ? (
           <div className="gm-locked">
             <span>🔒</span>
-            <h3>VIP Game Locked</h3>
+            <h3>{lowGame ? "Minimum $10 Required" : "VIP Game Locked"}</h3>
             <p>
-              You have not reached the amount to play this game.<br />
-              Reach a balance of <b>${UNLOCK_THRESHOLD.toLocaleString()}</b> to unlock{" "}
-              <b>{game.name}</b> — you currently hold <b>${Math.floor(balance).toLocaleString()}</b>.
+              {lowGame ? (
+                <>You need at least <b>$10</b> to play <b>{game.name}</b> — you currently hold <b>${Math.floor(balance).toLocaleString()}</b>.</>
+              ) : (
+                <>You need at least <b>${UNLOCK_THRESHOLD.toLocaleString()}</b> to play <b>{game.name}</b> — you currently hold <b>${Math.floor(balance).toLocaleString()}</b>.</>
+              )}
             </p>
-            <p className="lock-hint">Deposit via P2P Trading to top up your balance.</p>
+            <p className="lock-hint">Deposit via Crypto to top up your balance.</p>
           </div>
+        ) : game.id === "drive-it" ? (
+          <DriveItEngine {...engineProps} />
         ) : engineFor(game) === "slot" ? (
           <SlotEngine {...engineProps} />
         ) : engineFor(game) === "crash" ? (
