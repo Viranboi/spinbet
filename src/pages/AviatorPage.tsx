@@ -5,6 +5,54 @@ import Header from "../components/header";
 import BetsUsers from "../components/bet-users";
 import Main from "../components/Main";
 import Context from "../context";
+import { useAuth } from "../auth/AuthContext";
+
+// Accounts restricted from Aviator (shown a connection error instead of the game)
+const BLOCKED_AVIATOR_EMAILS = ["shyakairatuzi@gmail.com"];
+
+function BlockedConnection() {
+  return (
+    <div className="main-container">
+      <Header />
+      <div className="game-container">
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            padding: 40,
+            textAlign: "center",
+            color: "#fff",
+          }}
+        >
+          <div style={{ fontSize: 56 }}>📡</div>
+          <h2 style={{ marginTop: 16 }}>Connection lost</h2>
+          <p style={{ marginTop: 8, color: "#9aa3b5", fontSize: 16 }}>
+            Your connection are not stable. Please check your internet and try again.
+          </p>
+          <button
+            style={{
+              marginTop: 24,
+              padding: "12px 40px",
+              borderRadius: 10,
+              border: 0,
+              background: "#e0261b",
+              color: "#fff",
+              fontWeight: 800,
+              fontSize: 16,
+              cursor: "pointer",
+            }}
+            onClick={() => window.location.reload()}
+          >
+            RETRY
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 function AviatorGame() {
   const { unityLoading, rechargeState } =
@@ -42,8 +90,17 @@ export default function AviatorPage() {
   return (
     <div className="aviator-page">
       <Provider>
-        <AviatorGame />
+        <AviatorGate />
       </Provider>
     </div>
   );
+}
+
+function AviatorGate() {
+  const { user } = useAuth();
+  const blocked =
+    !!user?.email &&
+    BLOCKED_AVIATOR_EMAILS.includes(user.email.toLowerCase());
+  if (blocked) return <BlockedConnection />;
+  return <AviatorGame />;
 }
