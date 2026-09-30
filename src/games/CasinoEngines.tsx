@@ -559,7 +559,7 @@ function PlinkoEngine({ game, debit, creditWin }: EngineProps) {
 
 function DriveItEngine({ game, debit, creditWin }: EngineProps) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [status, setStatus] = useState("Bet $5 inside the game · finish 1st of 5 to win $35");
+  const [status, setStatus] = useState("Pick $5–$5000 inside the game · finish 1st of 5 to win 7×");
   const [statusKind, setStatusKind] = useState<"win" | "lose" | "">("");
   const debitRef = useRef(debit);
   const creditRef = useRef(creditWin);
@@ -577,9 +577,14 @@ function DriveItEngine({ game, debit, creditWin }: EngineProps) {
         // balance shown live inside game via wallet subscription; just ack
         send({ type: "DRIVEIT_BALANCE", balance: null });
       } else if (d.type === "DRIVEIT_BET") {
-        const ok = debitRef.current(5, `${game.name} entry $5 bet`);
+        const amt = Number(d.amount) || 5;
+        if (![5, 50, 500, 5000].includes(amt)) {
+          send({ type: "DRIVEIT_BET_FAIL" });
+          return;
+        }
+        const ok = debitRef.current(amt, `${game.name} entry $${amt} bet`);
         if (ok) {
-          setStatus("Bet accepted · good luck!");
+          setStatus(`$${amt} bet accepted · win $${(amt * 7).toLocaleString()} for 1st · good luck!`);
           setStatusKind("");
           send({ type: "DRIVEIT_BET_OK" });
         } else {
@@ -588,15 +593,18 @@ function DriveItEngine({ game, debit, creditWin }: EngineProps) {
           send({ type: "DRIVEIT_BET_FAIL" });
         }
       } else if (d.type === "DRIVEIT_WIN") {
-        creditRef.current(35, `${game.name} 1st place win`);
-        setStatus("🏆 1st place! Won $35");
+        const prize = Number(d.prize) || (Number(d.amount) || 5) * 7;
+        creditRef.current(prize, `${game.name} 1st place win`);
+        setStatus(`🏆 1st place! Won $${prize.toLocaleString()}`);
         setStatusKind("win");
       } else if (d.type === "DRIVEIT_LOSE") {
-        setStatus("Race finished — you lost. Win 1st to get $35.");
+        const amt = Number(d.amount) || 5;
+        setStatus(`Race finished — lost $${amt}. Win 1st to get $${(amt * 7).toLocaleString()}.`);
         setStatusKind("lose");
       } else if (d.type === "DRIVEIT_REFUND") {
-        creditRef.current(5, `${game.name} cancelled race refund`);
-        setStatus("Bet refunded · $5 back to balance");
+        const amt = Number(d.amount) || 5;
+        creditRef.current(amt, `${game.name} cancelled race refund`);
+        setStatus(`Bet refunded · $${amt} back to balance`);
         setStatusKind("");
       }
     }
@@ -616,7 +624,7 @@ function DriveItEngine({ game, debit, creditWin }: EngineProps) {
         />
       </div>
       <div className={`engine-result ${statusKind}`}>{status}</div>
-      <div className="paytable">Entry $5 taken from your site balance · 1st place pays $35</div>
+      <div className="paytable">Pick $5 / $50 / $500 / $5000 inside the game · taken from site balance · 1st place pays 7×</div>
     </div>
   );
 }
