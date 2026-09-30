@@ -557,14 +557,21 @@ function PlinkoEngine({ game, debit, creditWin }: EngineProps) {
 
 /* ---------------- DRIVE IT ENGINE (3D racing iframe) ---------------- */
 
-function DriveItEngine({ game, debit, creditWin }: EngineProps) {
+function DriveItEngine({ game, debit, creditWin, siteBalance }: EngineProps & { siteBalance: number }) {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [status, setStatus] = useState("Pick $5–$5000 inside the game · finish 1st of 5 to win 7×");
   const [statusKind, setStatusKind] = useState<"win" | "lose" | "">("");
   const debitRef = useRef(debit);
   const creditRef = useRef(creditWin);
+  const balanceRef = useRef(siteBalance);
   debitRef.current = debit;
   creditRef.current = creditWin;
+  balanceRef.current = siteBalance;
+
+  // push live site balance into the game whenever it changes
+  useEffect(() => {
+    iframeRef.current?.contentWindow?.postMessage({ type: "DRIVEIT_BALANCE", balance: siteBalance }, "*");
+  }, [siteBalance]);
 
   useEffect(() => {
     function send(msg: any) {
@@ -574,8 +581,7 @@ function DriveItEngine({ game, debit, creditWin }: EngineProps) {
       const d = e.data as any;
       if (!d || typeof d !== "object" || !d.type || !String(d.type).startsWith("DRIVEIT_")) return;
       if (d.type === "DRIVEIT_READY" || d.type === "DRIVEIT_BALANCE_REQ") {
-        // balance shown live inside game via wallet subscription; just ack
-        send({ type: "DRIVEIT_BALANCE", balance: null });
+        send({ type: "DRIVEIT_BALANCE", balance: balanceRef.current });
       } else if (d.type === "DRIVEIT_BET") {
         const amt = Number(d.amount) || 5;
         if (![5, 50, 500, 5000].includes(amt)) {

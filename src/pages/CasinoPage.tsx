@@ -200,7 +200,7 @@ function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; 
             <p className="lock-hint">Deposit via Crypto to top up your balance.</p>
           </div>
         ) : game.id === "drive-it" ? (
-          <DriveItEngine {...engineProps} />
+          <DriveItEngine {...engineProps} siteBalance={balance} />
         ) : engineFor(game) === "slot" ? (
           <SlotEngine {...engineProps} />
         ) : engineFor(game) === "crash" ? (
