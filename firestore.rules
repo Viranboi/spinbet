@@ -21,6 +21,16 @@ service cloud.firestore {
       allow get, list: if true;
       allow create, update, delete: if isAdmin();
     }
+    // pixcrate.store vendor applications: anyone can apply, only admin reviews.
+    match /pixcrate_applications/{id} {
+      allow create: if true;
+      allow get, list, update, delete: if isAdmin();
+    }
+    // pixcrate.store refund requests: anyone can request, only admin reviews.
+    match /pixcrate_refunds/{id} {
+      allow create: if true;
+      allow get, list, update, delete: if isAdmin();
+    }
     match /{document=**} {
       allow read, write: if false;
     }
