@@ -31,6 +31,31 @@ service cloud.firestore {
       allow create: if true;
       allow get, list, update, delete: if isAdmin();
     }
+    // pixcrate.store reviews: public reads + writes, admin moderates.
+    // (Admin can also post reviews under any buyer name from the panel.)
+    match /pixcrate_reviews/{id} {
+      allow get, list: if true;
+      allow create: if request.resource.data.keys().hasOnly(
+          ["productSlug", "userName", "rating", "text", "createdAt"])
+        && request.resource.data.productSlug is string
+        && request.resource.data.userName is string
+        && request.resource.data.userName.size() >= 2
+        && request.resource.data.userName.size() <= 40
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 3
+        && request.resource.data.text.size() <= 1000;
+      allow update, delete: if isAdmin();
+    }
+    // pixcrate.store product stats: public counters, admin sets sales.
+    match /pixcrate_stats/{id} {
+      allow get, list: if true;
+      allow create: if request.resource.data.keys().hasOnly(["views", "clicks", "sales"]);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(["views", "clicks", "sales"]);
+      allow delete: if isAdmin();
+    }
     match /{document=**} {
       allow read, write: if false;
     }
