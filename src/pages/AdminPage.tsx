@@ -410,12 +410,18 @@ function UserFunding() {
   }, []);
 
   // Merge local + remote by uid so admin sees users from other countries/phones too.
+  // Remote fills any gaps (phone, name) missing on the local copy.
   const merged: PlatformUser[] = React.useMemo(() => {
     const map = new Map<string, PlatformUser>();
-    for (const u of users) map.set(u.uid, u);
+    for (const u of users) map.set(u.uid, { ...u });
     for (const r of remote) {
-      if (!map.has(r.uid)) {
+      const cur = map.get(r.uid);
+      if (!cur) {
         map.set(r.uid, { uid: r.uid, email: r.email || "(remote user)", displayName: r.displayName || "Player", phone: r.phone });
+      } else {
+        if (!cur.phone && r.phone) cur.phone = r.phone;
+        if ((!cur.displayName || cur.displayName === "Player") && r.displayName) cur.displayName = r.displayName;
+        if ((!cur.email || cur.email === "(remote user)") && r.email) cur.email = r.email;
       }
     }
     return Array.from(map.values());
@@ -438,6 +444,7 @@ function UserFunding() {
       !q ||
       u.email.toLowerCase().includes(q) ||
       (u.displayName || "").toLowerCase().includes(q) ||
+      (u.phone || "").toLowerCase().includes(q) ||
       u.uid.toLowerCase().includes(q)
   );
 
@@ -521,6 +528,7 @@ function UserFunding() {
               <tr>
                 <th>User</th>
                 <th>Email</th>
+                <th>Phone</th>
                 <th>UID</th>
                 <th>Balance</th>
                 <th>Status</th>
@@ -532,6 +540,7 @@ function UserFunding() {
                 <tr key={u.uid}>
                   <td><b>{u.displayName || "Player"}</b></td>
                   <td>{u.email}</td>
+                  <td className="mono">{u.phone || "—"}</td>
                   <td className="mono">{u.uid}</td>
                   <td className="bal" style={isBlocked(u.uid) ? { opacity: 0.55 } : undefined}>
                     {isBlocked(u.uid) ? "🔒 " : ""}{(remoteBal.has(u.uid) ? remoteBal.get(u.uid)! : getBalance(u.uid)).toLocaleString()} 🪙
