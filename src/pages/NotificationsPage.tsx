@@ -24,7 +24,7 @@ export default function NotificationsPage() {
             {loading
               ? "Loading…"
               : unread > 0
-                ? `You have ${unread} unread message${unread === 1 ? "" : "s"} from admin`
+                ? `You have ${unread} unread message${unread === 1 ? "" : "s"} from Support`
                 : "You're all caught up"}
           </p>
         </div>
@@ -49,7 +49,7 @@ export default function NotificationsPage() {
         <div className="notif-empty">
           <span>📭</span>
           <b>{tab === "unread" ? "No unread notifications" : "No notifications yet"}</b>
-          <p>Admin messages about bonuses, deposits and account updates will appear here.</p>
+          <p>Support messages about bonuses, deposits and account updates will appear here.</p>
           <Link to="/">Back to games</Link>
         </div>
       ) : (

@@ -79,7 +79,7 @@ function PartnerRegister() {
             <div><span>Verified</span><b>{profile.verified ? "Yes" : "Pending"}</b></div>
           </div>
           <p className="note">
-            Need more float? Message the admin — funds are credited instantly after confirmation.
+            Need more float? Message Support — funds are credited instantly after confirmation.
             Manage your desk from the <b>Exchanger Hub</b> tab on the P2P page.
           </p>
         </div>
@@ -102,7 +102,7 @@ function PartnerRegister() {
         maxFiat: Number(maxFiat),
         floatCoins: 0,
       });
-      toast.success("Application submitted! The admin will credit your starting float.");
+      toast.success("Application submitted! Support will credit your starting float.");
     } catch (err: any) {
       toast.error(err.message || "Could not submit application");
     }
@@ -121,7 +121,7 @@ function PartnerRegister() {
             <h2>Become a Certified Exchanger</h2>
             <p>
               Private registration for approved partners. Your desk goes live immediately;
-              the admin credits your starting float (${Number(requestedFloat || 0).toLocaleString()} requested).
+              Support credits your starting float (${Number(requestedFloat || 0).toLocaleString()} requested).
             </p>
           </div>
           <div className="form-grid">
