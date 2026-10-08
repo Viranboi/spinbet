@@ -4,7 +4,26 @@ import { UnityContext } from "react-unity-webgl";
 import { toast } from "react-toastify";
 import { generateFakePlayers, generateWatcherCount } from "./gameEngine";
 import { crashTimeFor, fetchRoundState } from "./upcomingOdds";
-import { ensureWallet } from "./p2p/wallet";
+import {
+  ensureWallet,
+  getBalance,
+  setBalance as persistSetBalance,
+  credit as walletCredit,
+  debit as walletDebit,
+  subscribeBalance,
+} from "./p2p/wallet";
+import { isBlocked } from "./p2p/restrictions";
+
+function getCurrentUid(): string | null {
+  try {
+    const saved = localStorage.getItem("letsbet_current_user");
+    if (!saved) return null;
+    const u = JSON.parse(saved);
+    return u?.uid || null;
+  } catch {
+    return null;
+  }
+}
 
 export interface ResponsibleGamingState {
   sessionMinutes: number;
@@ -259,7 +278,7 @@ export const Provider = ({ children }: any) => {
   });
   const [rechargeState] = React.useState(false);
   const [currentTarget, setCurrentTarget] = React.useState(0);
-  const [betLimit] = React.useState<GameBetLimit>({ maxBet: 90000, minBet: 100 });
+  const [betLimit] = React.useState<GameBetLimit>({ maxBet: 90000, minBet: 10 });
   const [watcherCount, setWatcherCount] = React.useState(0);
   const [totalBets, setTotalBets] = React.useState(0);
   const [totalCashout, setTotalCashout] = React.useState(0);
@@ -277,17 +296,92 @@ export const Provider = ({ children }: any) => {
   const betStateRef = React.useRef(userBetState);
   const gameActiveRef = React.useRef(true);
   const sessionStartRef = React.useRef(Date.now());
+  const uidRef = React.useRef<string | null>(getCurrentUid());
+  const demoRef = React.useRef(false);
 
   stateRef.current = state;
   betStateRef.current = userBetState;
+  demoRef.current = isDemoMode;
+
+  function persistBalanceDelta(uid: string, oldBal: number, newBal: number) {
+    if (!uid || demoRef.current) return;
+    const o = Math.round(oldBal * 100) / 100;
+    const n = Math.round(newBal * 100) / 100;
+    if (o === n) return;
+    try {
+      if (n > o) {
+        walletCredit(uid, Math.round((n - o) * 100) / 100, "casino_win", "aviator-sync", "Game win sync");
+      } else {
+        try {
+          walletDebit(uid, Math.round((o - n) * 100) / 100, "casino_bet", "aviator-sync", "Game bet sync");
+        } catch {
+          persistSetBalance(uid, n, "sync", "Balance sync");
+        }
+      }
+    } catch {
+      /* storage unavailable — keep in-memory only */
+    }
+  }
+
+  // Track login/logout/user-switch and pull the correct wallet balance.
+  React.useEffect(() => {
+    const syncUid = () => {
+      const uid = getCurrentUid();
+      if (uid !== uidRef.current) {
+        uidRef.current = uid;
+        if (!uid) {
+          setState((prev) => ({ ...prev, userInfo: { ...prev.userInfo, balance: 0 } }));
+        } else if (!demoRef.current) {
+          const bal = ensureWallet(uid);
+          setState((prev) =>
+            prev.userInfo.balance === bal ? prev : { ...prev, userInfo: { ...prev.userInfo, balance: bal } }
+          );
+        }
+      }
+    };
+    syncUid();
+    const iv = setInterval(syncUid, 1000);
+    const onStorage = (e: StorageEvent) => {
+      if (!e.key || e.key === "letsbet_current_user") syncUid();
+    };
+    const onFocus = () => syncUid();
+    window.addEventListener("storage", onStorage);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(iv);
+      window.removeEventListener("storage", onStorage);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, []);
+
+  // Pull external wallet changes (deposit, admin top-up, other games) into Aviator/Mines view.
+  React.useEffect(() => {
+    return subscribeBalance(() => {
+      const uid = uidRef.current;
+      if (!uid || demoRef.current) return;
+      const walletBal = getBalance(uid);
+      setState((prev) =>
+        Math.round(prev.userInfo.balance * 100) / 100 === Math.round(walletBal * 100) / 100
+          ? prev
+          : { ...prev, userInfo: { ...prev.userInfo, balance: walletBal } }
+      );
+    });
+  }, []);
 
   const setDemoMode = (val: boolean) => {
     setIsDemoMode(val);
+    demoRef.current = val;
     if (val) {
       const s = { ...stateRef.current };
       s.userInfo.balance = 100000;
       s.userInfo.userName = "Demo Player";
       setState(s);
+    } else {
+      const uid = uidRef.current;
+      if (uid) {
+        const bal = ensureWallet(uid);
+        setState((prev) => ({ ...prev, userInfo: { ...prev.userInfo, balance: bal } }));
+      }
     }
   };
 
@@ -300,6 +394,17 @@ export const Provider = ({ children }: any) => {
   };
 
   const update = (attrs: Partial<ContextDataType>) => {
+    // Persist any balance change coming from Mines or other context consumers.
+    if (attrs.userInfo && typeof attrs.userInfo.balance === "number") {
+      const uid = uidRef.current;
+      const newBal = attrs.userInfo.balance;
+      if (uid && !demoRef.current) {
+        const oldBal = stateRef.current.userInfo.balance;
+        if (Math.round(oldBal * 100) / 100 !== Math.round(newBal * 100) / 100) {
+          persistBalanceDelta(uid, oldBal, newBal);
+        }
+      }
+    }
     setState((prev) => ({ ...prev, ...attrs }));
   };
 
@@ -339,14 +444,18 @@ export const Provider = ({ children }: any) => {
       if (bet.cashouted) return;
 
       const payout = bet.betAmount * at;
+      const oldBal = s.userInfo.balance;
       s.userInfo = { ...s.userInfo, [index]: bet };
-      s.userInfo.balance += payout;
+      s.userInfo.balance = Math.round((oldBal + payout) * 100) / 100;
       bet.cashouted = true;
       bet.cashAmount = payout;
       bet.betted = false;
       s.userInfo = { ...s.userInfo, [index]: bet };
       b[`${index}betted`] = false;
       b[`${index}betState`] = false;
+
+      const uid = uidRef.current;
+      if (uid) persistBalanceDelta(uid, oldBal, s.userInfo.balance);
 
       setState(s);
       setUserBetState(b);
@@ -582,6 +691,18 @@ export const Provider = ({ children }: any) => {
       }
     }
 
+    // Locked accounts cannot place new bets — balance is frozen.
+    const lockUid = uidRef.current;
+    if (lockUid && isBlocked(lockUid)) {
+      if (betStatus.fbetState || betStatus.sbetState) {
+        toast.error("Account locked — please contact Support to unlock.");
+      }
+      betStatus.fbetState = false;
+      betStatus.sbetState = false;
+      setUserBetState({ ...betStatus });
+      return;
+    }
+
     if (gameState.GameState === "BET") {
       if (betStatus.fbetState) {
         if (s.userInfo.f.auto) {
@@ -595,6 +716,22 @@ export const Provider = ({ children }: any) => {
             return;
           }
         }
+        if (s.userInfo.f.betAmount < 10) {
+          toast.error("Minimum bet on Aviator is $10");
+          betStatus.fbetState = false;
+          betStatus.fbetted = false;
+          setState({ ...s });
+          setUserBetState({ ...betStatus });
+          return;
+        }
+        if (s.userInfo.balance < 10) {
+          toast.error("You need at least $10 to play Aviator");
+          betStatus.fbetState = false;
+          betStatus.fbetted = false;
+          setState({ ...s });
+          setUserBetState({ ...betStatus });
+          return;
+        }
         if (s.userInfo.balance - s.userInfo.f.betAmount < 0) {
           toast.error("Your balance is not enough");
           betStatus.fbetState = false;
@@ -603,7 +740,12 @@ export const Provider = ({ children }: any) => {
           setUserBetState({ ...betStatus });
           return;
         }
-        s.userInfo.balance -= s.userInfo.f.betAmount;
+        {
+          const oldBal = s.userInfo.balance;
+          s.userInfo.balance = Math.round((oldBal - s.userInfo.f.betAmount) * 100) / 100;
+          const uid = uidRef.current;
+          if (uid) persistBalanceDelta(uid, oldBal, s.userInfo.balance);
+        }
         s.userInfo.f.betted = true;
         betStatus.fbetState = false;
         betStatus.fbetted = true;
@@ -622,6 +764,22 @@ export const Provider = ({ children }: any) => {
             return;
           }
         }
+        if (s.userInfo.s.betAmount < 10) {
+          toast.error("Minimum bet on Aviator is $10");
+          betStatus.sbetState = false;
+          betStatus.sbetted = false;
+          setState({ ...s });
+          setUserBetState({ ...betStatus });
+          return;
+        }
+        if (s.userInfo.balance < 10) {
+          toast.error("You need at least $10 to play Aviator");
+          betStatus.sbetState = false;
+          betStatus.sbetted = false;
+          setState({ ...s });
+          setUserBetState({ ...betStatus });
+          return;
+        }
         if (s.userInfo.balance - s.userInfo.s.betAmount < 0) {
           toast.error("Your balance is not enough");
           betStatus.sbetState = false;
@@ -630,7 +788,12 @@ export const Provider = ({ children }: any) => {
           setUserBetState({ ...betStatus });
           return;
         }
-        s.userInfo.balance -= s.userInfo.s.betAmount;
+        {
+          const oldBal = s.userInfo.balance;
+          s.userInfo.balance = Math.round((oldBal - s.userInfo.s.betAmount) * 100) / 100;
+          const uid = uidRef.current;
+          if (uid) persistBalanceDelta(uid, oldBal, s.userInfo.balance);
+        }
         s.userInfo.s.betted = true;
         betStatus.sbetState = false;
         betStatus.sbetted = true;

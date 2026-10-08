@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import Context, { Provider } from "../context";
 import "./MinesPage.scss";
 import { playGemSound, playMineExplodeSound, playCashoutSoundMines } from "../sounds";
+import { useBlocked } from "../p2p/hooks";
+import { openSupportChat } from "../components/SupportChat";
 
 const GRID = 25;
 const QUICK_BETS = [0.20, 0.30, 0.50, 1, 2, 3, 5, 8, 12, 20, 50, 100];
@@ -45,7 +47,7 @@ function MinesGame() {
   }, [balance, state.userInfo, update]);
   const navigate = useNavigate();
   const [loadStage, setLoadStage] = useState<1 | 2 | 0>(1);
-  const [bet, setBet] = useState(100);
+  const [bet, setBet] = useState(10);
   const [mineCount, setMineCount] = useState(3);
   const [phase, setPhase] = useState<Phase>("idle");
   const [mineSet, setMineSet] = useState<Set<number> | null>(null);
@@ -57,7 +59,7 @@ function MinesGame() {
   const [showMenu, setShowMenu] = useState(false);
   const [showQuickBets, setShowQuickBets] = useState(false);
   const [lastPayout, setLastPayout] = useState(0);
-  const minBet = 100;
+  const minBet = 10;
   const betStep = 10;
   const gems = revealed.length;
   const currentMult = calcMultiplier(gems, mineCount);
@@ -67,7 +69,7 @@ function MinesGame() {
   const safeTotal = GRID - mineCount;
   const safeFound = revealed.length - (exploded !== null ? 1 : 0);
   const progressPct = safeTotal > 0 ? Math.min(100, Math.max(0, (safeFound / safeTotal) * 100)) : 0;
-  const quickBetValues = QUICK_BETS.map((v) => Math.max(100, Math.round(v * 1000)));
+  const quickBetValues = QUICK_BETS.map((v) => Math.max(10, Math.round(v * 1000)));
 
   function toggleFullscreen() {
     try {
@@ -99,7 +101,9 @@ function MinesGame() {
   }, [mineSet, mineCount, revealed, phase]);
 
    function startGame() {
-     if (bet > balance || bet < minBet) return;
+     if (balance < 10) { toast.error("You need at least $10 to play Mines"); return; }
+     if (bet < minBet) { toast.error("Minimum bet on Mines is $10"); return; }
+     if (bet > balance) { toast.error("Your balance is not enough"); return; }
      setBalance((b) => b - bet);
      setMineSet(placeMines(mineCount));
      setRevealed([]);
@@ -537,7 +541,29 @@ function MinesGame() {
 export default function MinesPage() {
   return (
     <Provider>
-      <MinesGame />
+      <MinesGate />
     </Provider>
   );
+}
+
+function MinesGate() {
+  const blocked = useBlocked();
+  if (blocked) {
+    return (
+      <div className="mines-page locked">
+        <div className="mines-locked-card">
+          <div style={{ fontSize: 52 }}>🔒</div>
+          <h2>Balance locked</h2>
+          <p>
+            Your balance was temporarily locked after our system flagged unusual
+            activity. To unlock it, verify your account with Support.
+          </p>
+          <button className="mines-main-btn bet" onClick={openSupportChat}>
+            CONTACT SUPPORT
+          </button>
+        </div>
+      </div>
+    );
+  }
+  return <MinesGame />;
 }

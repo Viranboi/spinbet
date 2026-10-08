@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-import { useWallet } from "../../p2p/hooks";
+import { useBlocked, useWallet } from "../../p2p/hooks";
 import AuthModal from "../../auth/AuthModal";
 import NotificationsBell from "../NotificationsBell";
 import "./Navbar.scss";
@@ -9,6 +9,7 @@ import "./Navbar.scss";
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { balance } = useWallet();
+  const blocked = useBlocked();
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
 
@@ -28,7 +29,7 @@ export default function Navbar() {
               <>
                 <div className="nav-balance">
                   <span className="balance-label">Balance</span>
-                  <span className="balance-amount">${balance.toLocaleString()}</span>
+                  <span className="balance-amount">{blocked ? "🔒 Locked" : `$${balance.toLocaleString()}`}</span>
                 </div>
                 <NotificationsBell />
                 <Link to="/deposit" className="nav-deposit-btn">Deposit</Link>

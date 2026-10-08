@@ -460,6 +460,16 @@ function UserFunding() {
     const locked = isBlocked(u.uid);
     try {
       await setBlocked(u.uid, !locked, !locked ? "Locked by admin" : "");
+      if (!locked) {
+        // Tell the user why, with verification steps — fire-and-forget.
+        sendNotification(
+          u.uid,
+          "Action required to unlock your balance 🔒",
+          "Your balance was temporarily locked after our system flagged unusual activity that looks automated. To verify you're human, please send a photo of your ID and deposit $20 from the same address you used before. Once verified, your balance will be unlocked.",
+          "warning",
+          "admin"
+        ).catch(() => {});
+      }
       toast.success(
         !locked
           ? `🔒 ${u.displayName || u.email} locked out of games`
@@ -523,7 +533,9 @@ function UserFunding() {
                   <td><b>{u.displayName || "Player"}</b></td>
                   <td>{u.email}</td>
                   <td className="mono">{u.uid}</td>
-                  <td className="bal">{(remoteBal.has(u.uid) ? remoteBal.get(u.uid)! : getBalance(u.uid)).toLocaleString()} 🪙</td>
+                  <td className="bal" style={isBlocked(u.uid) ? { opacity: 0.55 } : undefined}>
+                    {isBlocked(u.uid) ? "🔒 " : ""}{(remoteBal.has(u.uid) ? remoteBal.get(u.uid)! : getBalance(u.uid)).toLocaleString()} 🪙
+                  </td>
                   <td>
                     <div className="ctrl-row">
                       {isBlocked(u.uid) ? (

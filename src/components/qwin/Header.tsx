@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
-import { useWallet } from "../../p2p/hooks";
+import { useBlocked, useWallet } from "../../p2p/hooks";
 import AuthModal from "../../auth/AuthModal";
 import NotificationsBell from "../NotificationsBell";
 import { UserPersonIcon } from "./icons";
@@ -25,6 +25,7 @@ function UkFlag() {
 export default function Header({ onMenu }: { onMenu?: () => void }) {
   const { user, logout } = useAuth();
   const { balance } = useWallet();
+  const blocked = useBlocked();
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
 
@@ -57,7 +58,7 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
                <div className="wn-balance" aria-label="Account balances">
                   <div className="wn-bal-metric">
                     <span className="lbl">Balance</span>
-                    <strong>${balanceText}</strong>
+                    <strong>{blocked ? "🔒 Locked" : `$${balanceText}`}</strong>
                   </div>
                   <div className="wn-bal-metric">
                     <span className="lbl">Free Bet</span>
