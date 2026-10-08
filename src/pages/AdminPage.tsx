@@ -21,6 +21,7 @@ import {
   fetchRecentNotifications,
   sendNotification,
 } from "../p2p/notifications";
+import { isBlocked, setBlocked, subscribeRestrictions } from "../p2p/restrictions";
 import "./AdminPage.scss";
 
 import { useAuth } from "../auth/AuthContext";
@@ -128,6 +129,7 @@ export default function AdminPage() {
 }
 
 function AdminConsole() {
+  const { logout } = useAuth();
   const exchangers = useExchangers();
   const [topUp, setTopUp] = useState<Record<string, string>>({});
 
@@ -152,7 +154,16 @@ function AdminConsole() {
             <p>Floats, balances, support &amp; platform orders</p>
           </div>
         </div>
-        <span className="env-pill">PRODUCTION</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <span className="env-pill">PRODUCTION</span>
+          <button
+            className="console-lock-btn"
+            onClick={() => logout()}
+            title="Lock console and sign out"
+          >
+            🔒 Lock
+          </button>
+        </div>
       </div>
 
       <ConsoleStats />
@@ -374,6 +385,7 @@ function UserFunding() {
   const [, force] = useState(0);
 
   React.useEffect(() => subscribeBalance(() => force((n) => n + 1)), []);
+  React.useEffect(() => subscribeRestrictions(() => force((n) => n + 1)), []);
 
   React.useEffect(() => {
     let alive = true;
@@ -444,8 +456,22 @@ function UserFunding() {
     }
   }
 
-  function doCredit(u: PlatformUser, sign: 1 | -1) {
-    const coins = Number(amounts[u.uid]);
+  async function doLock(u: PlatformUser) {
+    const locked = isBlocked(u.uid);
+    try {
+      await setBlocked(u.uid, !locked, !locked ? "Locked by admin" : "");
+      toast.success(
+        !locked
+          ? `🔒 ${u.displayName || u.email} locked out of games`
+          : `🔓 ${u.displayName || u.email} unlocked`
+      );
+      force((n) => n + 1);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update lock");
+    }
+  }
+
+  function doCredit(u: PlatformUser, sign: 1 | -1) {    const coins = Number(amounts[u.uid]);
     if (!coins || coins <= 0) return toast.error("Enter an amount");
     try {
       if (sign === 1) {
@@ -487,6 +513,7 @@ function UserFunding() {
                 <th>Email</th>
                 <th>UID</th>
                 <th>Balance</th>
+                <th>Status</th>
                 <th>Balance controls</th>
               </tr>
             </thead>
@@ -497,6 +524,22 @@ function UserFunding() {
                   <td>{u.email}</td>
                   <td className="mono">{u.uid}</td>
                   <td className="bal">{(remoteBal.has(u.uid) ? remoteBal.get(u.uid)! : getBalance(u.uid)).toLocaleString()} 🪙</td>
+                  <td>
+                    <div className="ctrl-row">
+                      {isBlocked(u.uid) ? (
+                        <span className="status-badge s-disputed">🔒 locked</span>
+                      ) : (
+                        <span className="status-badge s-completed">active</span>
+                      )}
+                      <button
+                        className={`chip-btn ${isBlocked(u.uid) ? "go" : "danger"}`}
+                        onClick={() => doLock(u)}
+                        title={isBlocked(u.uid) ? "Unlock this user" : "Lock this user out of games"}
+                      >
+                        {isBlocked(u.uid) ? "🔓 Unlock" : "🔒 Lock"}
+                      </button>
+                    </div>
+                  </td>
                   <td>
                     <div className="topup-row">
                       <input

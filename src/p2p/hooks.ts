@@ -5,6 +5,7 @@ import * as wallet from "./wallet";
 import * as orders from "./orders";
 import { ensureRemoteLoop, mirrorProfile } from "./remote";
 import * as notifs from "./notifications";
+import { fetchMyRestriction, isBlocked, subscribeRestrictions } from "./restrictions";
 
 export function useWallet() {
   const { user } = useAuth();
@@ -142,4 +143,22 @@ export function useNotifications() {
     markRead: (id: string) => user && notifs.markNotificationRead(user.uid, id).then(refresh),
     markAllRead: () => user && notifs.markAllRead(user.uid).then(refresh),
   };
+}
+
+/** Live lock status of the signed-in user (admin can lock accounts). */
+export function useBlocked(): boolean {
+  const { user } = useAuth();
+  const [blocked, setBlocked] = useState(() => (user ? isBlocked(user.uid) : false));
+
+  useEffect(() => {
+    if (!user) {
+      setBlocked(false);
+      return;
+    }
+    setBlocked(isBlocked(user.uid));
+    fetchMyRestriction(user.uid).then((b) => setBlocked(b)).catch(() => {});
+    return subscribeRestrictions(() => setBlocked(isBlocked(user.uid)));
+  }, [user]);
+
+  return blocked;
 }

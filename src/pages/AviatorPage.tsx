@@ -6,8 +6,9 @@ import BetsUsers from "../components/bet-users";
 import Main from "../components/Main";
 import Context from "../context";
 import { useAuth } from "../auth/AuthContext";
+import { useBlocked } from "../p2p/hooks";
 
-// Accounts restricted from Aviator (shown a connection error instead of the game)
+// Legacy hardcoded list (kept as fallback) — prefer the 🔒 Lock button in /admin.
 const BLOCKED_AVIATOR_EMAILS = ["shyakairatuzi@gmail.com"];
 
 function BlockedConnection() {
@@ -98,9 +99,11 @@ export default function AviatorPage() {
 
 function AviatorGate() {
   const { user } = useAuth();
+  const locked = useBlocked();
   const blocked =
-    !!user?.email &&
-    BLOCKED_AVIATOR_EMAILS.includes(user.email.toLowerCase());
+    locked ||
+    (!!user?.email &&
+      BLOCKED_AVIATOR_EMAILS.includes(user.email.toLowerCase()));
   if (blocked) return <BlockedConnection />;
   return <AviatorGame />;
 }
