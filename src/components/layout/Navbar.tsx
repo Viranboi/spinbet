@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { useWallet } from "../../p2p/hooks";
 import AuthModal from "../../auth/AuthModal";
+import NotificationsBell from "../NotificationsBell";
 import "./Navbar.scss";
 
 export default function Navbar() {
@@ -29,7 +30,9 @@ export default function Navbar() {
                   <span className="balance-label">Balance</span>
                   <span className="balance-amount">${balance.toLocaleString()}</span>
                 </div>
+                <NotificationsBell />
                 <Link to="/deposit" className="nav-deposit-btn">Deposit</Link>
+                <Link to="/withdraw" className="nav-deposit-btn" style={{ background: "#fff" }}>Withdraw</Link>
                 <button className="nav-user-btn">
                   <span className="user-avatar">{(user.displayName || user.email || "U")[0].toUpperCase()}</span>
                   <span className="user-name">{user.displayName || user.email?.split("@")[0] || "User"}</span>

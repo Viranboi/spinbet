@@ -7,12 +7,14 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.scss';
 import './styles/mobile.scss';
 import './styles/spinbet-theme.scss';
+import './styles/responsive-fix.scss';
 import { AuthProvider } from './auth/AuthContext';
 import HomePage from './pages/HomePage';
 import CasinoPage from './pages/CasinoPage';
 import AviatorPage from './pages/AviatorPage';
 import PromotionsPage from './pages/PromotionsPage';
 import DepositPage from './pages/DepositPage';
+import WithdrawPage from './pages/WithdrawPage';
 import CrashGamesPage from './pages/CrashGamesPage';
 import SportsPage from './pages/SportsPage';
 import MinesPage from './pages/MinesPage';
@@ -20,6 +22,7 @@ import SecretMinesPage from './pages/SecretMinesPage';
 import PartnerPage from './pages/PartnerPage';
 import AdminPage from './pages/AdminPage';
 import OddsPage from './pages/OddsPage';
+import NotificationsPage from './pages/NotificationsPage';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
 import { initAudio } from './sounds';
@@ -49,12 +52,14 @@ createRoot(document.getElementById("root") as HTMLElement).render(
         <Route path="/secret-odds" element={<OddsPage />} />
         <Route path="/promotions" element={<Layout><PromotionsPage /></Layout>} />
         <Route path="/deposit" element={<Layout><DepositPage /></Layout>} />
+        <Route path="/withdraw" element={<Layout><WithdrawPage /></Layout>} />
         <Route path="/p2p" element={<Layout><DepositPage /></Layout>} />
         <Route path="/crash-games" element={<CrashGamesPage />} />
         <Route path="/sports" element={<SportsPage />} />
         <Route path="/mines" element={<MinesPage />} />
         <Route path="/secret-mines" element={<SecretMinesPage />} />
         <Route path="/partner" element={<PartnerPage />} />
+        <Route path="/notifications" element={<Layout><NotificationsPage /></Layout>} />
         <Route path="/admin" element={<AdminPage />} />
         <Route path="*" element={<Layout><HomePage /></Layout>} />
       </Routes>

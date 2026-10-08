@@ -12,6 +12,13 @@ import {
   sendMessage,
   subscribeThreads,
 } from "../p2p/support";
+import {
+  AppNotification,
+  NotificationKind,
+  deleteNotification,
+  fetchRecentNotifications,
+  sendNotification,
+} from "../p2p/notifications";
 import "./AdminPage.scss";
 
 import { useAuth } from "../auth/AuthContext";
@@ -209,6 +216,8 @@ function AdminConsole() {
       </div>
 
       <UserFunding />
+
+      <NotificationSender />
 
       <SupportInbox />
 
@@ -444,7 +453,7 @@ function UserFunding() {
   return (
     <>
       <h3 className="section-title">
-        Users ({filtered.length} / local {users.length} + remote {remote.length})
+        💰 Users &amp; Balances ({filtered.length} / local {users.length} + remote {remote.length})
         <input
           className="user-search"
           placeholder="Search email, name or UID…"
@@ -490,6 +499,149 @@ function UserFunding() {
                       <button className="btn-gold small" onClick={() => doSet(u)} title="Overwrite balance with exact amount">Set =</button>
                     </div>
                   </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </>
+  );
+}
+
+function NotificationSender() {
+  const [users, setUsers] = useState<PlatformUser[]>(() => loadPlatformUsers());
+  const [remote, setRemote] = useState<RemoteUser[]>([]);
+  const [target, setTarget] = useState("all");
+  const [kind, setKind] = useState<NotificationKind>("info");
+  const [title, setTitle] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [recent, setRecent] = useState<AppNotification[]>([]);
+
+  React.useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const list = await fetchRemoteUsers();
+        if (alive) setRemote(list);
+      } catch {}
+      try {
+        const r = await fetchRecentNotifications(20);
+        if (alive) setRecent(r);
+      } catch {}
+    })();
+    return () => { alive = false; };
+  }, []);
+
+  const merged: PlatformUser[] = React.useMemo(() => {
+    const map = new Map<string, PlatformUser>();
+    for (const u of users) map.set(u.uid, u);
+    for (const r of remote) {
+      if (!map.has(r.uid)) {
+        map.set(r.uid, { uid: r.uid, email: r.email || "(remote user)", displayName: r.displayName || "Player", phone: r.phone });
+      }
+    }
+    return Array.from(map.values()).sort((a, b) =>
+      (a.displayName || a.email).localeCompare(b.displayName || b.email)
+    );
+  }, [users, remote]);
+
+  async function handleSend() {
+    setBusy(true);
+    try {
+      await sendNotification(target, title, message, kind, "admin");
+      toast.success(target === "all" ? "Broadcast sent to all users 🔔" : "Notification sent to user 🔔");
+      setTitle("");
+      setMessage("");
+      setUsers(loadPlatformUsers());
+      const r = await fetchRecentNotifications(20).catch(() => [] as AppNotification[]);
+      setRecent(r);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to send");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function handleDelete(id: string) {
+    try {
+      await deleteNotification(id);
+      setRecent((r) => r.filter((n) => n.id !== id));
+      toast.info("Notification deleted");
+    } catch {
+      toast.error("Delete failed");
+    }
+  }
+
+  return (
+    <>
+      <h3 className="section-title">🔔 Send notification</h3>
+      <div className="form-card">
+        <div className="form-grid">
+          <label>
+            Recipient
+            <select value={target} onChange={(e) => setTarget(e.target.value)}>
+              <option value="all">📢 All users (broadcast)</option>
+              {merged.map((u) => (
+                <option key={u.uid} value={u.uid}>
+                  {u.displayName || "Player"} — {u.email} ({u.uid.slice(0, 8)}…)
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Type
+            <select value={kind} onChange={(e) => setKind(e.target.value as NotificationKind)}>
+              <option value="info">🔔 Info</option>
+              <option value="bonus">🎁 Bonus / credit</option>
+              <option value="promo">🔥 Promotion</option>
+              <option value="warning">⚠️ Warning / account</option>
+            </select>
+          </label>
+        </div>
+        <div className="form-grid">
+          <label>
+            Title
+            <input
+              placeholder="e.g. Bonus credited 🎁"
+              value={title}
+              maxLength={120}
+              onChange={(e) => setTitle(e.target.value)}
+            />
+          </label>
+          <label>
+            Message
+            <input
+              placeholder="e.g. We added $5,000 to your balance. Good luck!"
+              value={message}
+              maxLength={1000}
+              onChange={(e) => setMessage(e.target.value)}
+            />
+          </label>
+        </div>
+        <button className="btn-gold" onClick={handleSend} disabled={busy || !title.trim() || !message.trim()}>
+          {busy ? "Sending…" : target === "all" ? "📢 Broadcast to all users" : "Send to user"}
+        </button>
+      </div>
+
+      <h3 className="section-title">Recent notifications ({recent.length})</h3>
+      <div className="admin-table-wrap">
+        {recent.length === 0 ? (
+          <div className="empty-note">No notifications sent yet.</div>
+        ) : (
+          <table className="admin-table">
+            <thead>
+              <tr><th>To</th><th>Title</th><th>Message</th><th>When</th><th></th></tr>
+            </thead>
+            <tbody>
+              {recent.map((n) => (
+                <tr key={n.id}>
+                  <td className="mono">{n.uid === "all" ? "📢 ALL" : n.uid.slice(0, 10) + "…"}</td>
+                  <td><b>{n.title}</b></td>
+                  <td style={{ maxWidth: 320, whiteSpace: "normal" }}>{n.message}</td>
+                  <td className="mono">{n.ts ? new Date(n.ts).toLocaleString() : "—"}</td>
+                  <td><button className="chip-btn danger" onClick={() => handleDelete(n.id)}>Delete</button></td>
                 </tr>
               ))}
             </tbody>

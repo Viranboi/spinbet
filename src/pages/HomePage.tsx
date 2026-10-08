@@ -290,7 +290,7 @@ export default function HomePage() {
         <button className="qw-tab active" type="button" onClick={() => navigate("/")}><MenuIcon size={20} /><span>Home</span></button>
         <button className="qw-tab" type="button" onClick={() => navigate("/casino")}><span>🎰</span><span>Casino</span></button>
         <button className="qw-tab" type="button" onClick={() => navigate("/aviator")}><span>✈️</span><span>Aviator</span></button>
-        <button className="qw-tab" type="button" onClick={() => navigate("/mines")}><span>💣</span><span>Mines</span></button>
+        <button className="qw-tab" type="button" onClick={() => navigate("/notifications")}><span>🔔</span><span>Alerts</span></button>
         <button className="qw-tab" type="button" onClick={() => setDrawerOpen(true)}><MenuIcon size={20} /><span>Menu</span></button>
       </nav>
     </div>

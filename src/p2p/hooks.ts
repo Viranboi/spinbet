@@ -3,6 +3,8 @@ import { useAuth } from "../auth/AuthContext";
 import { Exchanger, LedgerEntry, P2POrder } from "./types";
 import * as wallet from "./wallet";
 import * as orders from "./orders";
+import { ensureRemoteLoop, mirrorProfile } from "./remote";
+import * as notifs from "./notifications";
 
 export function useWallet() {
   const { user } = useAuth();
@@ -20,9 +22,11 @@ export function useWallet() {
   }, [user]);
 
   useEffect(() => {
+    ensureRemoteLoop();
+    if (user) mirrorProfile(user);
     refresh();
     return wallet.subscribeBalance(refresh);
-  }, [refresh]);
+  }, [refresh, user]);
 
   return { balance, ledger, refresh };
 }
@@ -100,4 +104,42 @@ export function useIncomingOrders() {
   }, [refresh]);
 
   return incoming;
+}
+
+export function useNotifications() {
+  const { user } = useAuth();
+  const [list, setList] = useState<notifs.AppNotification[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  const refresh = useCallback(() => {
+    if (!user) {
+      setList([]);
+      setLoading(false);
+      return;
+    }
+    setList(notifs.getCachedNotifications(user.uid));
+    setLoading(false);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) {
+      setList([]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    notifs.fetchMyNotifications(user.uid).then(() => refresh()).catch(() => refresh());
+    return notifs.subscribeMyNotifications(user.uid, refresh);
+  }, [user, refresh]);
+
+  const unread = list.filter((n) => !n.read).length;
+
+  return {
+    list,
+    unread,
+    loading,
+    refresh,
+    markRead: (id: string) => user && notifs.markNotificationRead(user.uid, id).then(refresh),
+    markAllRead: () => user && notifs.markAllRead(user.uid).then(refresh),
+  };
 }

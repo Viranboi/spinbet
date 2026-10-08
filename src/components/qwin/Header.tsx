@@ -4,6 +4,7 @@ import { ChevronDown } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
 import { useWallet } from "../../p2p/hooks";
 import AuthModal from "../../auth/AuthModal";
+import NotificationsBell from "../NotificationsBell";
 import { UserPersonIcon } from "./icons";
 
 function UkFlag() {
@@ -64,6 +65,7 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
                   </div>
                 </div>
               <Link to="/deposit" className="wn-btn accent">Deposit</Link>
+              <NotificationsBell dark />
               <button className="wn-avatar" onClick={logout} title="Logout">
                 <UserPersonIcon size={22} />
                 <i className="dot" />
