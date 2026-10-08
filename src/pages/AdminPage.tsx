@@ -4,6 +4,7 @@ import * as ordersApi from "../p2p/orders";
 import { useExchangers } from "../p2p/hooks";
 import { Exchanger } from "../p2p/types";
 import { credit, debit, getBalance, setBalance, subscribeBalance } from "../p2p/wallet";
+import { fetchRemoteUsers, RemoteUser } from "../p2p/remote";
 import {
   SupportThread,
   getAllThreads,
@@ -13,7 +14,9 @@ import {
 } from "../p2p/support";
 import "./AdminPage.scss";
 
-const ADMIN_PASSCODE = "letsbet-admin-2026";
+import { useAuth } from "../auth/AuthContext";
+
+const ADMIN_EMAILS = ["blackviran@gmail.com", "freelancerviran@gmail.com"];
 
 interface PlatformUser {
   uid: string;
@@ -32,39 +35,87 @@ function loadPlatformUsers(): PlatformUser[] {
 }
 
 export default function AdminPage() {
-  const [pass, setPass] = useState("");
-  const [unlocked, setUnlocked] = useState(
-    () => sessionStorage.getItem("lb_admin_ok") === "1"
-  );
+  const { user, login, logout } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState("");
+  const isAdminEmail =
+    !!user?.email && ADMIN_EMAILS.includes(user.email.toLowerCase());
 
-  if (!unlocked) {
+  async function handleLogin(e?: React.FormEvent) {
+    e?.preventDefault();
+    setErr("");
+    setBusy(true);
+    try {
+      await login(email.trim(), password);
+    } catch (e: any) {
+      setErr(e?.message || "Invalid email or password");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  // 1) Not signed in -> email + password login only (no passcode)
+  if (!user) {
     return (
       <div className="admin-page">
         <div className="gate-card">
           <span className="gate-icon">🛡️</span>
           <h2>Admin Console</h2>
-          <p>Restricted area. Enter the admin passcode.</p>
-          <input
-            type="password"
-            placeholder="Admin passcode"
-            value={pass}
-            onChange={(e) => setPass(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && tryUnlock()}
-          />
-          <button className="btn-gold" onClick={tryUnlock}>Unlock console</button>
+          <p>Restricted area. Sign in with your admin email and password.</p>
+          <form onSubmit={handleLogin}>
+            <input
+              type="email"
+              placeholder="Admin email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="email"
+              style={{ letterSpacing: "normal", textAlign: "left" }}
+            />
+            <input
+              type="password"
+              placeholder="Password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleLogin()}
+              required
+            />
+            {err && (
+              <p className="mono" style={{ color: "#f6465d", fontSize: 12 }}>
+                {err}
+              </p>
+            )}
+            <button className="btn-gold" type="submit" disabled={busy}>
+              {busy ? "Signing in..." : "Sign in"}
+            </button>
+          </form>
+        </div>
+      </div>
+    );
+  }
+
+  // 2) Signed in but not admin email
+  if (!isAdminEmail) {
+    return (
+      <div className="admin-page">
+        <div className="gate-card">
+          <span className="gate-icon">⛔</span>
+          <h2>Admins only</h2>
+          <p>
+            Signed in as {user?.email || "(not signed in)"}. This console is
+            restricted to {ADMIN_EMAILS.join(", ")}.
+          </p>
+          <button className="btn-gold" onClick={() => logout()}>
+            Sign out
+          </button>
         </div>
       </div>
     );
   }
 
   return <AdminConsole />;
-
-  function tryUnlock() {
-    if (pass === ADMIN_PASSCODE) {
-      sessionStorage.setItem("lb_admin_ok", "1");
-      setUnlocked(true);
-    } else toast.error("Wrong passcode");
-  }
 }
 
 function AdminConsole() {
@@ -295,15 +346,62 @@ function SupportInbox() {
 }
 
 function UserFunding() {
-  const [users] = useState<PlatformUser[]>(() => loadPlatformUsers());
+  const [users, setUsers] = useState<PlatformUser[]>(() => loadPlatformUsers());
+  const [remote, setRemote] = useState<RemoteUser[]>([]);
+  const [remoteOk, setRemoteOk] = useState<boolean | null>(null);
   const [query, setQuery] = useState("");
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [, force] = useState(0);
 
   React.useEffect(() => subscribeBalance(() => force((n) => n + 1)), []);
 
+  React.useEffect(() => {
+    let alive = true;
+    (async () => {
+      const list = await fetchRemoteUsers();
+      if (!alive) return;
+      setRemote(list);
+      // null = unknown yet; true if we got data OR Firestore reachable (empty is still ok after first sync).
+      // We treat fetch success (even empty) as reachable; failure returns [] too, so probe again on next mount.
+      setRemoteOk(true);
+      if (list.length === 0) {
+        // Could be genuinely empty (no user has opened the new version yet) — keep local list visible.
+      }
+    })().catch(() => alive && setRemoteOk(false));
+    const iv = setInterval(async () => {
+      try {
+        const list = await fetchRemoteUsers();
+        if (alive) { setRemote(list); setRemoteOk(true); }
+      } catch { /* keep last list */ }
+    }, 8000);
+    return () => { alive = false; clearInterval(iv); };
+  }, []);
+
+  // Merge local + remote by uid so admin sees users from other countries/phones too.
+  const merged: PlatformUser[] = React.useMemo(() => {
+    const map = new Map<string, PlatformUser>();
+    for (const u of users) map.set(u.uid, u);
+    for (const r of remote) {
+      if (!map.has(r.uid)) {
+        map.set(r.uid, { uid: r.uid, email: r.email || "(remote user)", displayName: r.displayName || "Player", phone: r.phone });
+      }
+    }
+    return Array.from(map.values());
+  }, [users, remote]);
+
+  const remoteBal = React.useMemo(() => {
+    const m = new Map<string, number>();
+    for (const r of remote) m.set(r.uid, r.balance);
+    return m;
+  }, [remote]);
+
+  function refreshLocal() {
+    setUsers(loadPlatformUsers());
+    force((n) => n + 1);
+  }
+
   const q = query.trim().toLowerCase();
-  const filtered = users.filter(
+  const filtered = merged.filter(
     (u) =>
       !q ||
       u.email.toLowerCase().includes(q) ||
@@ -346,14 +444,18 @@ function UserFunding() {
   return (
     <>
       <h3 className="section-title">
-        Users ({users.length})
+        Users ({filtered.length} / local {users.length} + remote {remote.length})
         <input
           className="user-search"
           placeholder="Search email, name or UID…"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
+        <button className="chip-btn" onClick={refreshLocal} title="Reload local users">↻</button>
       </h3>
+      {remoteOk === false && (
+        <div className="empty-note">Remote DB unreachable — showing local users only. Enable Firestore + allow read/write on `users` to sync across countries.</div>
+      )}
       <div className="admin-table-wrap">
         {filtered.length === 0 ? (
           <div className="empty-note">No registered users found.</div>
@@ -374,7 +476,7 @@ function UserFunding() {
                   <td><b>{u.displayName || "Player"}</b></td>
                   <td>{u.email}</td>
                   <td className="mono">{u.uid}</td>
-                  <td className="bal">{getBalance(u.uid).toLocaleString()} 🪙</td>
+                  <td className="bal">{(remoteBal.has(u.uid) ? remoteBal.get(u.uid)! : getBalance(u.uid)).toLocaleString()} 🪙</td>
                   <td>
                     <div className="topup-row">
                       <input
