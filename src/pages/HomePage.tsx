@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Menu as MenuIcon, Search } from "lucide-react";
 import Header from "../components/qwin/Header";
+import { openSupportChat } from "../components/SupportChat";
 import { CASINO_GAMES, type CasinoGame } from "./casinoGames";
 import { SportsDataService, type SportMatch } from "../sports/sportsData";
 import "./HomePage.scss";
@@ -105,6 +106,11 @@ export default function HomePage() {
   }
 
   function sideClick(item: { label: string; icon: string; tab?: string; to?: string; cat: string }) {
+    if (item.label === "Support") {
+      openSupportChat();
+      setDrawerOpen(false);
+      return;
+    }
     if (item.cat === "sports") {
       navigate("/sports");
     } else if (item.cat === "crash") {

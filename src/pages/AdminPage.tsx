@@ -7,9 +7,11 @@ import { credit, debit, getBalance, setBalance, subscribeBalance } from "../p2p/
 import { fetchRemoteUsers, RemoteUser } from "../p2p/remote";
 import {
   SupportThread,
+  fetchAllThreadsRemote,
   getAllThreads,
   markRead,
   sendMessage,
+  startAdminSync,
   subscribeThreads,
 } from "../p2p/support";
 import {
@@ -266,14 +268,21 @@ function SupportInbox() {
   const [threads, setThreads] = useState<SupportThread[]>(() => getAllThreads());
   const [openUid, setOpenUid] = useState<string | null>(null);
   const [draft, setDraft] = useState("");
+  const [live, setLive] = useState(false);
 
-  React.useEffect(
-    () =>
-      subscribeThreads(() => {
-        setThreads(getAllThreads());
-      }),
-    []
-  );
+  React.useEffect(() => {
+    fetchAllThreadsRemote().then((t) => setThreads(t)).catch(() => {});
+    const stopLive = startAdminSync();
+    setLive(true);
+    const stopLocal = subscribeThreads(() => {
+      setThreads(getAllThreads());
+    });
+    return () => {
+      stopLocal();
+      stopLive();
+      setLive(false);
+    };
+  }, []);
 
   const active = threads.find((t) => t.userUid === openUid) || null;
 
@@ -293,7 +302,9 @@ function SupportInbox() {
 
   return (
     <>
-      <h3 className="section-title">💬 Support inbox</h3>
+      <h3 className="section-title">
+        💬 Support inbox {live && <span className="off-tag" style={{ color: "#0ecb81", borderColor: "rgba(14,203,129,.4)" }}>● live</span>}
+      </h3>
       <div className="support-layout">
         <div className="thread-list">
           {threads.length === 0 ? (

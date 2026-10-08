@@ -1,0 +1,51 @@
+@keyframes ntfPop {
+  0% { transform: scale(0.4); }
+  60% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+
+@keyframes ntfBadgePulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(246, 70, 93, 0.55); }
+  50% { box-shadow: 0 0 0 6px rgba(246, 70, 93, 0); }
+}
+
+@keyframes ntfDropIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes ntfBellRing {
+  0%, 100% { transform: rotate(0); }
+  20% { transform: rotate(14deg); }
+  40% { transform: rotate(-12deg); }
+  60% { transform: rotate(7deg); }
+  80% { transform: rotate(-5deg); }
+}
+
+.ntf-bell-btn {
+  transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(252, 213, 53, 0.35) !important;
+  }
+
+  &.has-unread {
+    border-color: rgba(252, 213, 53, 0.55) !important;
+    animation: ntfPop 0.35s ease;
+  }
+}
+
+.ntf-bell-badge {
+  animation: ntfBadgePulse 1.8s ease-out infinite, ntfPop 0.35s ease !important;
+}
+
+.ntf-drop {
+  animation: ntfDropIn 0.2s ease !important;
+}
+
+.ntf-drop-item {
+  transition: background 0.13s ease !important;
+
+  &:hover { background: rgba(252, 213, 53, 0.1) !important; }
+}

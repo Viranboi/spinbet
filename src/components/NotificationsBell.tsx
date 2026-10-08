@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useNotifications } from "../p2p/hooks";
+import "./NotificationsBell.scss";
 
 const KIND_ICON: Record<string, string> = {
   info: "🔔",
@@ -20,9 +21,12 @@ export default function NotificationsBell({ dark = false }: { dark?: boolean }) 
         onClick={() => setOpen((o) => !o)}
         title="Notifications"
         aria-label="Notifications"
+        className={`ntf-bell-btn${unread > 0 ? " has-unread" : ""}`}
         style={{
           position: "relative",
-          background: dark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.08)",
+          background: unread > 0
+            ? "linear-gradient(135deg,rgba(252,213,53,.25),rgba(240,165,0,.18))"
+            : dark ? "rgba(255,255,255,0.12)" : "rgba(255,255,255,0.08)",
           border: "1px solid rgba(255,255,255,0.12)",
           color: "#fff",
           width: 36,
@@ -38,6 +42,7 @@ export default function NotificationsBell({ dark = false }: { dark?: boolean }) 
         🔔
         {unread > 0 && (
           <span
+            className="ntf-bell-badge"
             style={{
               position: "absolute",
               top: -6,
@@ -68,6 +73,7 @@ export default function NotificationsBell({ dark = false }: { dark?: boolean }) 
             style={{ position: "fixed", inset: 0, zIndex: 9998 }}
           />
           <div
+            className="ntf-drop"
             style={{
               position: "absolute",
               right: 0,
@@ -116,6 +122,7 @@ export default function NotificationsBell({ dark = false }: { dark?: boolean }) 
                 recent.map((n) => (
                   <button
                     key={n.id}
+                    className="ntf-drop-item"
                     onClick={() => markRead(n.id)}
                     style={{
                       width: "100%",

@@ -25,6 +25,7 @@ import OddsPage from './pages/OddsPage';
 import NotificationsPage from './pages/NotificationsPage';
 import Navbar from './components/layout/Navbar';
 import Footer from './components/layout/Footer';
+import SupportChat from './components/SupportChat';
 import { initAudio } from './sounds';
 
 initAudio();
@@ -64,6 +65,7 @@ createRoot(document.getElementById("root") as HTMLElement).render(
         <Route path="*" element={<Layout><HomePage /></Layout>} />
       </Routes>
       <ToastContainer position="top-center" theme="dark" />
+      <SupportChat />
     </AuthProvider>
   </BrowserRouter>
 );
