@@ -75,17 +75,21 @@ export function findCrashTime(crashPoint: number): number {
   return (lo + hi) / 2;
 }
 
-// Fixed flight duration (ms). Every round lasts exactly this long so the
-// plane/multiplier always moves at the same speed — the pace reveals nothing
-// about the crash point. Must stay below the server PLAY window (10000ms).
-export const FLIGHT_MS = 8000;
+// Constant growth rate (log-space per second). IDENTICAL on every round:
+// the multiplier always climbs at the same speed no matter the crash point.
+// Flight duration varies instead (like real Spribe): ~2s for 2x, ~15s for 200x.
+export const GROWTH_K = 0.35;
 
-// Multiplier from flight progress p (0..1): 1.00 -> crashPoint.
-// Same relative growth rate on every round (constant speed in log-space).
-export function multiplierAtProgress(crashPoint: number, p: number): number {
-  const t = Math.min(1, Math.max(0, p));
-  if (!(crashPoint > 1)) return 1;
-  return Math.pow(crashPoint, t);
+// Real seconds the flight lasts for a given crash point.
+export function flightSecondsFor(crashPoint: number): number {
+  if (!(crashPoint > 1)) return 0;
+  return Math.log(crashPoint) / GROWTH_K;
+}
+
+// Multiplier after elapsedSec seconds of flight, capped at the crash point.
+export function multiplierAtElapsed(crashPoint: number, elapsedSec: number): number {
+  const m = Math.exp(GROWTH_K * Math.max(0, elapsedSec));
+  return Math.min(m, crashPoint);
 }
 
 function randomHex(len: number): string {

@@ -3,7 +3,7 @@ import React from "react";
 import "./crash.scss";
 import Unity from "react-unity-webgl";
 import Context from "../../context";
-import { FLIGHT_MS, multiplierAtProgress } from "../../gameEngine";
+import { multiplierAtElapsed } from "../../gameEngine";
 import { playCrashSound, playWaitingTick, startRoundMusic, fadeOutMusic } from "../../sounds";
 
 let currentFlag = 0;
@@ -62,10 +62,11 @@ export default function WebGLStarter() {
       let startTime = Date.now() - time;
       const crash = currentNum;
       const getCurrentTime = (e) => {
-        // Constant speed: multiplier follows fixed-duration progress curve,
-        // identical pace on every round regardless of crash point.
-        const p = Math.min(1, (Date.now() - startTime) / FLIGHT_MS);
-        const currentMult = multiplierAtProgress(crash, p);
+        // Constant speed: same shared exponential curve in real time on every
+        // round. 2x ends after ~2s, 200x after ~15s — identical climb, pace
+        // reveals nothing about the crash point.
+        const elapsedSec = (Date.now() - startTime) / 1000;
+        const currentMult = multiplierAtElapsed(crash, elapsedSec);
 
         const drop = Math.floor((currentMult - 1) * 800);
         setLivePlayers(Math.min(5000, Math.max(800, basePlayers.current - drop)));

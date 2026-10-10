@@ -2,7 +2,7 @@
 import React, { useEffect } from "react";
 import { UnityContext } from "react-unity-webgl";
 import { toast } from "react-toastify";
-import { generateFakePlayers, generateWatcherCount, FLIGHT_MS } from "./gameEngine";
+import { generateFakePlayers, generateWatcherCount, flightSecondsFor } from "./gameEngine";
 import { fetchRoundState } from "./upcomingOdds";
 import {
   ensureWallet,
@@ -553,8 +553,11 @@ export const Provider = ({ children }: any) => {
 
         if (!(await waitUntilLocal(betEndLocal))) break;
 
-        // Fixed flight duration: every round flies at the same speed so the
-        // pace reveals nothing about the crash point.
+        // Constant speed: flight lasts exactly as long as the shared growth
+        // curve needs to reach this round's crash point (like real Spribe).
+        // Pace is identical every round; only duration varies.
+        const flightMs = Math.max(0, flightSecondsFor(crashPoint) * 1000);
+
         setGameState({
           GameState: "PLAYING",
           currentNum: crashPoint,
@@ -563,7 +566,7 @@ export const Provider = ({ children }: any) => {
           speed: 1,
         });
 
-        await delay(Math.min(FLIGHT_MS, st.playMs));
+        await delay(flightMs);
         if (!gameActiveRef.current || cancelled) break;
 
         setGameState({
