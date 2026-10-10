@@ -3,12 +3,13 @@ import React from "react";
 import "./crash.scss";
 import Unity from "react-unity-webgl";
 import Context from "../../context";
+import { FLIGHT_MS, multiplierAtProgress } from "../../gameEngine";
 import { playCrashSound, playWaitingTick, startRoundMusic, fadeOutMusic } from "../../sounds";
 
 let currentFlag = 0;
 
 export default function WebGLStarter() {
-  const { GameState, currentNum, time, speed, unityState, myUnityContext, setCurrentTarget } =
+  const { GameState, currentNum, time, unityState, myUnityContext, setCurrentTarget } =
     React.useContext(Context);
   const [target, setTarget] = React.useState(1);
   const [waiting, setWaiting] = React.useState(0);
@@ -59,16 +60,12 @@ export default function WebGLStarter() {
       }
 
       let startTime = Date.now() - time;
-      let currentTime;
-      let currentMult;
+      const crash = currentNum;
       const getCurrentTime = (e) => {
-        currentTime = ((Date.now() - startTime) / 1000) * (speed || 1);
-        currentMult =
-          1 +
-          0.06 * currentTime +
-          Math.pow(0.06 * currentTime, 2) -
-          Math.pow(0.04 * currentTime, 3) +
-          Math.pow(0.04 * currentTime, 4);
+        // Constant speed: multiplier follows fixed-duration progress curve,
+        // identical pace on every round regardless of crash point.
+        const p = Math.min(1, (Date.now() - startTime) / FLIGHT_MS);
+        const currentMult = multiplierAtProgress(crash, p);
 
         const drop = Math.floor((currentMult - 1) * 800);
         setLivePlayers(Math.min(5000, Math.max(800, basePlayers.current - drop)));
@@ -114,7 +111,7 @@ export default function WebGLStarter() {
       }, 20);
     }
     return () => clearInterval(myInterval);
-  }, [GameState, unityState, speed]);
+  }, [GameState, unityState]);
 
   React.useEffect(() => {
     myUnityContext?.send("GameManager", "RequestToken", JSON.stringify({

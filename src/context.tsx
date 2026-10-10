@@ -2,8 +2,8 @@
 import React, { useEffect } from "react";
 import { UnityContext } from "react-unity-webgl";
 import { toast } from "react-toastify";
-import { generateFakePlayers, generateWatcherCount } from "./gameEngine";
-import { crashTimeFor, fetchRoundState } from "./upcomingOdds";
+import { generateFakePlayers, generateWatcherCount, FLIGHT_MS } from "./gameEngine";
+import { fetchRoundState } from "./upcomingOdds";
 import {
   ensureWallet,
   getBalance,
@@ -553,20 +553,17 @@ export const Provider = ({ children }: any) => {
 
         if (!(await waitUntilLocal(betEndLocal))) break;
 
-        // Calculate speed - consistent and smooth
-        const crashSec = crashTimeFor(crashPoint);
-        const targetDuration = Math.max(4, Math.min(crashSec * 1.3, 8));
-        const speed = crashSec / targetDuration;
-
+        // Fixed flight duration: every round flies at the same speed so the
+        // pace reveals nothing about the crash point.
         setGameState({
           GameState: "PLAYING",
           currentNum: crashPoint,
           currentSecondNum: 0,
           time: 0,
-          speed,
+          speed: 1,
         });
 
-        await delay(Math.min(targetDuration * 1000, st.playMs));
+        await delay(Math.min(FLIGHT_MS, st.playMs));
         if (!gameActiveRef.current || cancelled) break;
 
         setGameState({

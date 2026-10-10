@@ -75,6 +75,19 @@ export function findCrashTime(crashPoint: number): number {
   return (lo + hi) / 2;
 }
 
+// Fixed flight duration (ms). Every round lasts exactly this long so the
+// plane/multiplier always moves at the same speed — the pace reveals nothing
+// about the crash point. Must stay below the server PLAY window (10000ms).
+export const FLIGHT_MS = 8000;
+
+// Multiplier from flight progress p (0..1): 1.00 -> crashPoint.
+// Same relative growth rate on every round (constant speed in log-space).
+export function multiplierAtProgress(crashPoint: number, p: number): number {
+  const t = Math.min(1, Math.max(0, p));
+  if (!(crashPoint > 1)) return 1;
+  return Math.pow(crashPoint, t);
+}
+
 function randomHex(len: number): string {
   const chars = "0123456789abcdef";
   let result = "";
