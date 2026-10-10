@@ -79,18 +79,22 @@ export function findCrashTime(crashPoint: number): number {
 // then every additional +1x takes 1s (3x at 9s, 4x at 10s, Nx at N+6s).
 // Identical on every round — pace reveals nothing about the crash point.
 export function flightSecondsFor(crashPoint: number): number {
-  if (!(crashPoint > 0)) return 0;
+  if (!Number.isFinite(crashPoint) || crashPoint <= 0) return 0;
   return crashPoint <= 2 ? crashPoint * 4 : crashPoint + 6;
 }
 
 // Multiplier after elapsedSec seconds of flight, capped at the crash point.
+// FIX 1: never below 1.00x — without this floor, cashing out during the
+// first 4s paid LESS than the stake (e.g. 0.5x at t=2s).
+// FIX 2: non-finite crash input can no longer produce a NaN multiplier.
 export function multiplierAtElapsed(crashPoint: number, elapsedSec: number): number {
+  if (!Number.isFinite(crashPoint) || crashPoint <= 0) return 1;
   const t = Math.max(0, elapsedSec);
   let m: number;
   if (t <= 4) m = t / 4;
   else if (t <= 8) m = 1 + (t - 4) / 4;
   else m = t - 6;
-  return Math.min(m, crashPoint);
+  return Math.min(Math.max(m, 1), crashPoint);
 }
 
 function randomHex(len: number): string {
