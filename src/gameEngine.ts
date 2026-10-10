@@ -75,20 +75,21 @@ export function findCrashTime(crashPoint: number): number {
   return (lo + hi) / 2;
 }
 
-// Constant growth rate (log-space per second). IDENTICAL on every round:
-// the multiplier always climbs at the same speed no matter the crash point.
-// Flight duration varies instead (like real Spribe): ~2s for 2x, ~15s for 200x.
-export const GROWTH_K = 0.35;
-
-// Real seconds the flight lasts for a given crash point.
+// Custom pacing (spec): 0x -> 1x takes 4s, 1x -> 2x takes 4s,
+// then every additional +1x takes 1s (3x at 9s, 4x at 10s, Nx at N+6s).
+// Identical on every round — pace reveals nothing about the crash point.
 export function flightSecondsFor(crashPoint: number): number {
-  if (!(crashPoint > 1)) return 0;
-  return Math.log(crashPoint) / GROWTH_K;
+  if (!(crashPoint > 0)) return 0;
+  return crashPoint <= 2 ? crashPoint * 4 : crashPoint + 6;
 }
 
 // Multiplier after elapsedSec seconds of flight, capped at the crash point.
 export function multiplierAtElapsed(crashPoint: number, elapsedSec: number): number {
-  const m = Math.exp(GROWTH_K * Math.max(0, elapsedSec));
+  const t = Math.max(0, elapsedSec);
+  let m: number;
+  if (t <= 4) m = t / 4;
+  else if (t <= 8) m = 1 + (t - 4) / 4;
+  else m = t - 6;
   return Math.min(m, crashPoint);
 }
 
