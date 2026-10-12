@@ -565,6 +565,205 @@ $gold: #fcd535;
   p { color: $text-sub; font-size: 13px; }
 }
 
+/* ========== CRYPTO DEPOSIT (NOWPayments) ========== */
+.crypto-deposit {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  width: 100%;
+
+  .login-gate {
+    text-align: center;
+    padding: 40px 20px;
+    .big { font-size: 44px; }
+    h2 { font-size: 18px; margin: 10px 0 6px; color: $text; }
+    p { color: $text-sub; font-size: 13px; }
+  }
+
+  .cd-pending {
+    background: rgba($gold, 0.1);
+    border: 1px solid rgba($gold, 0.4);
+    color: $gold;
+    border-radius: 8px;
+    padding: 12px 14px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cd-spinner {
+    width: 18px; height: 18px; flex-shrink: 0;
+    border: 2px solid rgba($gold, 0.3);
+    border-top-color: $gold;
+    border-radius: 50%;
+    animation: cd-spin 0.9s linear infinite;
+  }
+  .cd-step {
+    display: flex;
+    gap: 12px;
+    background: #222;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 16px;
+  }
+  .cd-num {
+    width: 28px; height: 28px; flex-shrink: 0;
+    border-radius: 50%;
+    background: $gold;
+    color: #000;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cd-step-body {
+    flex: 1;
+    h3 { font-size: 15px; margin: 0 0 10px; color: $text; }
+  }
+  .cd-presets {
+    display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+  }
+  .cd-chip {
+    background: transparent;
+    border: 1.5px solid $gold;
+    color: $gold;
+    font-weight: 700;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    &.on { background: $gold; color: #000; }
+  }
+  .cd-custom {
+    display: flex; align-items: center; gap: 6px;
+    background: $input-bg;
+    border: 1px solid $border;
+    border-radius: 6px;
+    padding: 8px 12px;
+    color: $text;
+    input {
+      background: none; border: none; outline: none;
+      color: $text; width: 90px; font-weight: 700; font-size: 14px;
+    }
+  }
+  .cd-coins {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+  }
+  .cd-coin {
+    background: #2a2a2a;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    padding: 10px 12px;
+    cursor: pointer;
+    text-align: left;
+    display: flex; flex-direction: column; gap: 2px;
+    b { color: $text; font-size: 13px; }
+    span { color: $text-sub; font-size: 12px; }
+    &.on { border-color: $gold; background: rgba($gold, 0.08); }
+  }
+  .cd-note { color: $text-sub; font-size: 13px; line-height: 1.5; margin: 0 0 12px; }
+  .cd-pay-btn {
+    width: 100%;
+    background: $gold;
+    color: #000;
+    border: none;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 14px;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    &:disabled { opacity: 0.5; cursor: not-allowed; }
+    &:hover:not(:disabled) { filter: brightness(1.08); }
+  }
+}
+@keyframes cd-spin { to { transform: rotate(360deg); } }
+
+/* ========== OTHER PAYMENT METHODS (1000+ unavailable) ========== */
+.dm-card--alt { margin-top: 16px; }
+.opm-wrap {
+  width: 100%;
+  display: flex; flex-direction: column; gap: 14px;
+  .opm-head h3 { margin: 0; font-size: 16px; color: $text; }
+  .opm-count {
+    background: #333; color: $gold; font-size: 12px;
+    padding: 2px 8px; border-radius: 20px; margin-left: 6px;
+  }
+  .opm-sub { color: $text-sub; font-size: 13px; margin: 6px 0 10px; }
+  .opm-search {
+    width: 100%; box-sizing: border-box;
+    background: $input-bg; border: 1px solid $border; border-radius: 6px;
+    color: $text; padding: 12px 14px; font-size: 14px; outline: none;
+    &:focus { border-color: $gold; }
+    &::placeholder { color: $text-sub; }
+  }
+  .opm-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 10px;
+    max-height: 560px;
+    overflow-y: auto;
+    padding-right: 2px;
+  }
+  .opm-card {
+    position: relative;
+    background: #242424;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 12px 10px 10px;
+    cursor: not-allowed;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    opacity: 0.85;
+    transition: border-color 0.12s, transform 0.12s;
+    &:hover { border-color: #555; transform: translateY(-1px); }
+  }
+  .opm-ico { font-size: 24px; }
+  .opm-name { color: $text; font-size: 12px; font-weight: 700; text-align: center; line-height: 1.3; }
+  .opm-cat { color: $text-sub; font-size: 11px; }
+  .opm-badge {
+    margin-top: 4px;
+    font-size: 10px; font-weight: 800; letter-spacing: 0.04em; text-transform: uppercase;
+    background: rgba(255, 80, 80, 0.14); color: #ff8080;
+    border: 1px solid rgba(255, 80, 80, 0.35);
+    padding: 2px 8px; border-radius: 20px;
+  }
+  .opm-empty { color: $text-sub; font-size: 13px; text-align: center; }
+  .opm-more {
+    background: transparent; border: 1.5px solid $gold; color: $gold;
+    border-radius: 6px; padding: 10px; font-weight: 700; cursor: pointer;
+    &:hover { background: rgba($gold, 0.1); }
+  }
+}
+
+/* ========== WITHDRAW ========== */
+.wd-bal {
+  display: flex; justify-content: space-between; align-items: center;
+  background: #222; border: 1px solid #333; border-radius: 10px; padding: 14px 16px;
+  span { color: $text-sub; font-size: 13px; }
+  b { color: $gold; font-size: 20px; }
+}
+.wd-blocked {
+  text-align: center; padding: 28px 16px;
+  .wd-lock { font-size: 40px; }
+  h3 { color: $text; margin: 10px 0 8px; }
+  p { color: $text-sub; font-size: 13px; line-height: 1.6; b { color: $text; } }
+}
+.wd-actions { display: flex; flex-direction: column; gap: 10px; }
+.wd-back {
+  background: transparent; border: 1px solid $border; color: $text;
+  border-radius: 6px; padding: 10px; cursor: pointer;
+  &:hover { border-color: $gold; }
+}
+.wd-history {
+  h4 { color: $text; font-size: 14px; margin: 6px 0 8px; }
+  .wd-row {
+    display: flex; justify-content: space-between; gap: 10px;
+    background: #222; border: 1px solid #333; border-radius: 8px;
+    padding: 10px 12px; font-size: 13px; color: $text; margin-bottom: 8px;
+    .wd-status { color: $gold; font-size: 12px; }
+  }
+}
+
 /* ========== RESPONSIVE ========== */
 @media (max-width: 900px) {
   .dm-topnav-items { display: none; }
@@ -582,3 +781,556 @@ $gold: #fcd535;
   .dm-quick-btn { padding: 8px 14px; min-width: 60px; font-size: 13px; }
   .dm-view-phone-row { flex-direction: column; gap: 8px; }
 }
+
+/* ============================================================
+   1WIN CASHIER (Deposit) — navy page, white cashier card,
+   left method rail + right amount form, green pay button.
+   Legacy .dm-* classes above are kept for /withdraw.
+   ============================================================ */
+
+$w1-navy: #0a0f33;
+$w1-navy-2: #10164a;
+$w1-blue: #095bff;
+$w1-green: #00a651;
+$w1-green-2: #00c46a;
+$w1-ink: #11142b;
+$w1-sub: #6b7194;
+$w1-line: #e4e7f0;
+$w1-rail: #f3f5fa;
+$w1-card: #ffffff;
+
+.w1-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 380px at 50% -120px, rgba(9, 91, 255, 0.28), transparent 70%),
+    linear-gradient(180deg, $w1-navy-2 0%, $w1-navy 100%);
+  color: $w1-ink;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- top cashier bar ---- */
+.w1-topbar {
+  background: rgba(8, 11, 38, 0.92);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  backdrop-filter: blur(8px);
+}
+.w1-topbar-inner {
+  max-width: 1040px;
+  margin: 0 auto;
+  height: 60px;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.w1-back {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font-size: 22px;
+  line-height: 1;
+  cursor: pointer;
+  &:hover { background: rgba(255, 255, 255, 0.12); }
+}
+.w1-logo { height: 26px; }
+.w1-tabs {
+  display: flex;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 3px;
+  margin-left: 6px;
+}
+.w1-tab {
+  border: 0;
+  background: transparent;
+  color: #c3c8e8;
+  font-size: 13px;
+  font-weight: 800;
+  padding: 8px 18px;
+  border-radius: 9px;
+  cursor: pointer;
+  text-decoration: none;
+  &.on { background: #fff; color: $w1-ink; }
+}
+.w1-top-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.w1-balance {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 6px 12px;
+  i { font-style: normal; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: #9aa1c7; }
+  b { color: #fff; font-size: 15px; }
+}
+.w1-deposit-pill {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 0;
+  background: linear-gradient(180deg, $w1-green-2, $w1-green);
+  color: #fff;
+  font-size: 20px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+/* ---- cashier card ---- */
+.w1-wrap {
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 22px 16px 40px;
+  flex: 1;
+}
+.w1-cashier {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  background: $w1-card;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(2, 6, 30, 0.55);
+  min-height: 560px;
+}
+.w1-disclaimer {
+  text-align: center;
+  color: #8f96c2;
+  font-size: 12px;
+  margin: 14px 0 0;
+}
+
+/* ---- left rail ---- */
+.w1-rail {
+  background: $w1-rail;
+  border-right: 1px solid $w1-line;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.w1-rail-head {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: $w1-sub;
+  padding: 18px 16px 10px;
+}
+.w1-rail-search {
+  margin: 0 12px 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff;
+  border: 1px solid $w1-line;
+  border-radius: 10px;
+  padding: 9px 12px;
+  span { color: #9aa1c7; }
+  input { border: 0; outline: 0; background: none; width: 100%; font-size: 13px; color: $w1-ink; }
+}
+.w1-methods {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 8px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 560px;
+}
+.w1-method {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  padding: 9px 10px;
+  cursor: pointer;
+  &:hover { background: #fff; }
+  &.on {
+    background: #fff;
+    border-color: rgba(9, 91, 255, 0.35);
+    box-shadow: 0 4px 14px rgba(9, 91, 255, 0.12);
+    &::before {
+      content: "";
+      position: absolute;
+      left: -8px;
+      top: 10px;
+      bottom: 10px;
+      width: 4px;
+      border-radius: 4px;
+      background: $w1-blue;
+    }
+  }
+}
+.w1-method-text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  b { font-size: 13.5px; color: $w1-ink; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  small { font-size: 11.5px; color: $w1-sub; }
+}
+.w1-chev { color: #b8bed9; font-size: 18px; }
+.w1-rail-foot {
+  padding: 12px 16px 16px;
+  border-top: 1px solid $w1-line;
+}
+.w1-secure { font-size: 12px; color: $w1-sub; font-weight: 600; }
+
+/* ---- method badges (CSS payment logos) ---- */
+.w1-badge {
+  width: 46px;
+  height: 34px;
+  border-radius: 8px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: #fff;
+  &.lg { width: 60px; height: 44px; font-size: 15px; border-radius: 10px; }
+}
+.b-mtn { background: linear-gradient(135deg, #ffcc00, #f5a300); color: #111; }
+.b-airtel { background: linear-gradient(135deg, #ff3838, #c80000); font-style: italic; font-size: 10px; }
+.b-visa { background: linear-gradient(135deg, #1a2f7a, #0d1b4c); font-style: italic; }
+.b-mc { background: linear-gradient(135deg, #eb001b 50%, #f79e1b 50%); }
+.b-btc { background: linear-gradient(135deg, #f7931a, #d97a06); }
+.b-usdt { background: linear-gradient(135deg, #26a17b, #127a5c); }
+.b-eth { background: linear-gradient(135deg, #627eea, #3c55c4); }
+.b-ltc { background: linear-gradient(135deg, #a6b9d0, #7d93ad); }
+.b-doge { background: linear-gradient(135deg, #d3bda1, #b8955a); color: #4a3b1d; }
+.b-more { background: linear-gradient(135deg, #4b587c, #232946); }
+
+/* ---- right form ---- */
+.w1-main { padding: 26px 28px 30px; background: #fff; }
+.w1-form { display: flex; flex-direction: column; max-width: 560px; }
+.w1-method-head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+  h2 { margin: 0; font-size: 21px; color: $w1-ink; }
+  p { margin: 3px 0 0; font-size: 13px; color: $w1-sub; }
+}
+.w1-instant {
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 800;
+  color: $w1-green;
+  background: rgba(0, 166, 81, 0.1);
+  border: 1px solid rgba(0, 166, 81, 0.3);
+  padding: 5px 12px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+.w1-pending {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #eef4ff;
+  border: 1px solid rgba(9, 91, 255, 0.35);
+  color: #1e3a9e;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+.w1-spinner {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  border: 2px solid rgba(9, 91, 255, 0.3);
+  border-top-color: $w1-blue;
+  border-radius: 50%;
+  animation: w1-spin 0.9s linear infinite;
+}
+@keyframes w1-spin { to { transform: rotate(360deg); } }
+
+.w1-label {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: $w1-ink;
+  margin: 14px 0 8px;
+  i { font-weight: 400; color: $w1-sub; font-style: normal; }
+}
+.w1-amount {
+  display: flex;
+  align-items: center;
+  background: #f3f5fa;
+  border: 2px solid $w1-line;
+  border-radius: 12px;
+  height: 56px;
+  padding: 0 8px 0 0;
+  transition: border-color 0.15s;
+  &:focus-within { border-color: $w1-blue; background: #fff; }
+  &.err { border-color: #ef4444; }
+}
+.w1-cur {
+  background: $w1-ink;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 800;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-left: 8px;
+  white-space: nowrap;
+}
+.w1-amount input {
+  flex: 1;
+  min-width: 0;
+  background: none;
+  border: 0;
+  outline: 0;
+  font-size: 20px;
+  font-weight: 800;
+  color: $w1-ink;
+  padding: 0 12px;
+  &::-webkit-outer-spin-button, &::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+}
+.w1-clear {
+  border: 0;
+  background: #e4e7f0;
+  color: #6b7194;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 12px;
+  margin-right: 8px;
+}
+.w1-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+.w1-chip {
+  border: 1px solid $w1-line;
+  background: #f3f5fa;
+  color: $w1-ink;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: 9px;
+  padding: 8px 16px;
+  cursor: pointer;
+  &.on { background: $w1-blue; border-color: $w1-blue; color: #fff; }
+  &:hover:not(.on) { border-color: $w1-blue; color: $w1-blue; }
+}
+.w1-limits { font-size: 12px; color: $w1-sub; margin-top: 8px; }
+
+.w1-promo {
+  display: flex;
+  gap: 8px;
+  input {
+    flex: 1;
+    min-width: 0;
+    background: #f3f5fa;
+    border: 1px solid $w1-line;
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-size: 14px;
+    outline: 0;
+    color: $w1-ink;
+    &:focus { border-color: $w1-blue; background: #fff; }
+  }
+  button {
+    border: 1px solid $w1-blue;
+    background: #fff;
+    color: $w1-blue;
+    font-weight: 800;
+    font-size: 13px;
+    border-radius: 10px;
+    padding: 0 20px;
+    cursor: pointer;
+    &:hover { background: $w1-blue; color: #fff; }
+  }
+}
+
+.w1-pay { margin-top: 18px; }
+/* PataLink modal injects its own button — force it into 1win green */
+.w1-pay > div { width: 100%; }
+.w1-pay button {
+  width: 100% !important;
+  border-radius: 12px !important;
+  font-weight: 800 !important;
+  font-size: 16px !important;
+  padding: 16px !important;
+}
+.w1-submit {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  background: linear-gradient(180deg, $w1-green-2, $w1-green);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  padding: 16px;
+  cursor: pointer;
+  letter-spacing: 0.02em;
+  box-shadow: 0 8px 20px rgba(0, 166, 81, 0.35);
+  transition: filter 0.15s, transform 0.05s;
+  &:hover:not(:disabled) { filter: brightness(1.06); }
+  &:active:not(:disabled) { transform: translateY(1px); }
+  &:disabled { opacity: 0.55; cursor: not-allowed; box-shadow: none; }
+  &.sm { width: auto; padding: 12px 22px; font-size: 14px; }
+}
+.w1-ghost {
+  border: 1.5px solid $w1-line;
+  background: #fff;
+  color: $w1-ink;
+  font-weight: 800;
+  font-size: 14px;
+  border-radius: 12px;
+  padding: 12px 22px;
+  cursor: pointer;
+  &:hover { border-color: $w1-blue; color: $w1-blue; }
+  &.sm { width: auto; }
+}
+.w1-err { color: #dc2626; font-size: 12.5px; font-weight: 600; margin-top: 8px; }
+
+.w1-steps {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 16px;
+  background: #f8f9fd;
+  border: 1px solid $w1-line;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  li { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #3c4270; }
+  b {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: $w1-ink;
+    color: #fff;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+.w1-recheck {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: $w1-sub;
+  input {
+    flex: 1;
+    min-width: 0;
+    border: 1px solid $w1-line;
+    border-radius: 8px;
+    padding: 8px 10px;
+    font-size: 12.5px;
+    outline: 0;
+    &:focus { border-color: $w1-blue; }
+  }
+  button {
+    border: 1px solid $w1-line;
+    background: #fff;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    &:hover { border-color: $w1-blue; color: $w1-blue; }
+  }
+}
+
+/* ---- coin grid ---- */
+.w1-coins {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.w1-coin {
+  border: 1.5px solid $w1-line;
+  background: #f8f9fd;
+  border-radius: 10px;
+  padding: 10px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  b { font-size: 12.5px; color: $w1-ink; }
+  span { font-size: 11px; color: $w1-sub; }
+  &.on { border-color: $w1-blue; background: #eef4ff; }
+}
+
+/* ---- unavailable + directory ---- */
+.w1-unavail {
+  background: #f8f9fd;
+  border: 1px dashed $w1-line;
+  border-radius: 12px;
+  padding: 20px;
+  p { font-size: 13.5px; color: #3c4270; line-height: 1.6; margin: 0 0 14px; }
+}
+.w1-unavail-row { display: flex; gap: 10px; flex-wrap: wrap; }
+.w1-all-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.w1-all-card {
+  background: #f8f9fd;
+  border: 1px solid $w1-line;
+  border-radius: 10px;
+  padding: 12px 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  &:hover { border-color: $w1-blue; }
+}
+.w1-all-ico { font-size: 24px; }
+.w1-all-name { font-size: 12px; font-weight: 700; color: $w1-ink; text-align: center; }
+.w1-all-cat { font-size: 11px; color: $w1-sub; }
+.w1-all-badge {
+  margin-top: 4px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(239, 68, 68, 0.1);
+  color: #dc2626;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+.w1-empty { color: $w1-sub; font-size: 13px; padding: 12px 8px; }
+.w1-gate {
+  text-align: center;
+  padding: 70px 20px;
+  .w1-gate-icon { font-size: 48px; }
+  h2 { color: $w1-ink; margin: 12px 0 6px; }
+  p { color: $w1-sub; font-size: 13.5px; }
+}
+
+/* ---- responsive: rail becomes top strip like 1win mobile ---- */
+@media (max-width: 860px) {
+  .w1-cashier { grid-template-columns: 1fr; }
+  .w1-rail { border-right: 0; border-bottom: 1px solid $w1-line; }
+  .w1-methods { flex-direction: row; overflow-x: auto; max-height: none; padding: 0 12px 12px; }
+  .w1-method { min-width: 210px; background: #fff; border-color: $w1-line; }
+  .w1-rail-foot { display: none; }
+  .w1-main { padding: 20px 16px 24px; }
+  .w1-coins { grid-template-columns: repeat(2, 1fr); }
+  .w1-logo { display: none; }
+}
+
