@@ -41,6 +41,7 @@ export default function CasinoPage() {
   const [provider, setProvider] = useState("All");
   const [favs, setFavs] = useState<string[]>(loadFavs);
   const [launching, setLaunching] = useState<CasinoGame | null>(null);
+  const [visibleCount, setVisibleCount] = useState(60);
 
   const filtered = useMemo(
     () =>
@@ -52,6 +53,13 @@ export default function CasinoPage() {
       }),
     [activeCat, searchQuery, provider]
   );
+
+  // Reset pagination whenever the filter changes
+  React.useEffect(() => {
+    setVisibleCount(60);
+  }, [activeCat, searchQuery, provider]);
+
+  const visible = filtered.slice(0, visibleCount);
 
   function toggleFav(id: string) {
     const next = favs.includes(id) ? favs.filter((f) => f !== id) : [...favs, id];
@@ -103,7 +111,7 @@ export default function CasinoPage() {
         <div className="casino-count">Showing {filtered.length} of {CASINO_GAMES.length} games</div>
 
         <div className="casino-grid">
-          {filtered.map((g) => (
+          {visible.map((g) => (
             <div key={g.id} className={`casino-card ${g.hot ? "is-hot" : ""}`} onClick={() => openGame(g)}>
               {g.hot && <span className="hot-tag">HOT</span>}
               {g.new && <span className="new-tag">NEW</span>}
@@ -134,6 +142,13 @@ export default function CasinoPage() {
 
         {filtered.length === 0 && (
           <div className="casino-empty"><span>No games found matching your search.</span></div>
+        )}
+
+        {visible.length < filtered.length && (
+          <button className="casino-more" onClick={() => setVisibleCount((c) => c + 60)}>
+            Show more ({filtered.length - visible.length} remaining)
+            <span>→</span>
+          </button>
         )}
       </div>
 

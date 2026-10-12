@@ -183,6 +183,27 @@
     color: #4a4d52;
     font-size: 15px;
   }
+
+  .casino-more {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    margin: 22px 0 8px;
+    padding: 14px;
+    background: #1a1d22;
+    border: 1px solid #2c3038;
+    border-radius: 12px;
+    color: #fcd535;
+    font-size: 14px;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    &:hover { border-color: #fcd535; background: #22262e; }
+    span { font-size: 16px; }
+  }
 }
 
 @media (max-width: 768px) {
