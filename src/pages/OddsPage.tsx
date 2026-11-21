@@ -156,8 +156,8 @@ export default function OddsPage() {
           <div className="contact-title">▸ CONTACT US</div>
           <p className="contact-sub">Need help, predictions or support? Reach out anytime.</p>
           <div className="contact-actions">
-            <a className="contact-btn tg" href="https://t.me/aviatorgenius2" target="_blank" rel="noreferrer">
-              ✈ Telegram @aviatorgenius2
+            <a className="contact-btn tg" href="https://t.me/aviatorgeniu2" target="_blank" rel="noreferrer">
+              ✈ Telegram @aviatorgeniu2
             </a>
             <a className="contact-btn call" href="tel:+15205805442">
               📞 Call +1 (520) 580-5442
@@ -265,8 +265,8 @@ export default function OddsPage() {
         <div className="contact-title">▸ CONTACT US</div>
         <p className="contact-sub">Need help, predictions or support? Reach out anytime.</p>
         <div className="contact-actions">
-          <a className="contact-btn tg" href="https://t.me/aviatorgenius2" target="_blank" rel="noreferrer">
-            ✈ Telegram @aviatorgenius2
+          <a className="contact-btn tg" href="https://t.me/aviatorgeniu2" target="_blank" rel="noreferrer">
+            ✈ Telegram @aviatorgeniu2
           </a>
           <a className="contact-btn call" href="tel:+15205805442">
             📞 Call +1 (520) 580-5442
