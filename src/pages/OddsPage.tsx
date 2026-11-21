@@ -1,6 +1,8 @@
 import React from "react";
 import "./OddsPage.scss";
 import { getUpcomingOdds } from "../upcomingOdds";
+import { db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 const LAST_KEY = "letsbet_last_finished_odd";
 
@@ -36,6 +38,8 @@ export default function OddsPage() {
   const [currentOdd, setCurrentOdd] = React.useState<number | null>(null);
   const [nextOdd, setNextOdd] = React.useState<number | null>(null);
   const [running, setRunning] = React.useState(true);
+  const [allowed, setAllowed] = React.useState(false);
+  const [adminMessage, setAdminMessage] = React.useState("");
   const [logs, setLogs] = React.useState<LogEntry[]>([]);
   const [history, setHistory] = React.useState<number[]>([]);
   const runningRef = React.useRef(true);
@@ -84,16 +88,86 @@ export default function OddsPage() {
   }, []);
 
   React.useEffect(() => {
+    let cancelled = false;
+    const tick = async () => {
+      try {
+        const snap = await getDoc(doc(db, "settings", "secretOdds"));
+        if (cancelled) return;
+        if (snap.exists()) {
+          const d: any = snap.data();
+          setAllowed(!!d.enabled);
+          setAdminMessage(d.message || "");
+        } else {
+          setAllowed(false);
+          setAdminMessage("");
+        }
+      } catch {
+        /* ignore */
+      }
+    };
+    tick();
+    const id = setInterval(tick, 3000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
+  React.useEffect(() => {
+    if (!allowed) return;
     fetchOdds();
     const id = setInterval(() => {
       if (runningRef.current) fetchOdds();
     }, 500);
     return () => clearInterval(id);
-  }, [fetchOdds]);
+  }, [fetchOdds, allowed]);
 
   React.useEffect(() => {
     logEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [logs]);
+
+  if (!allowed) {
+    return (
+      <div className="terminal-page">
+        <div className="terminal-window">
+          <div className="terminal-titlebar">
+            <div className="terminal-dots">
+              <span className="dot red" />
+              <span className="dot yellow" />
+              <span className="dot green" />
+            </div>
+            <span className="terminal-title">secret-odds@aviator:~</span>
+          </div>
+          <div className="terminal-body" style={{ textAlign: "center", padding: 40 }}>
+            <h2 style={{ color: "#fcd535", marginBottom: 16 }}>⏳ Waiting for admin approval</h2>
+            <p style={{ color: "#9aa3b5", fontSize: 16, lineHeight: 1.6 }}>
+              Odds are not available yet. Please wait for the admin to approve showing odds.
+            </p>
+            {adminMessage && (
+              <div style={{ marginTop: 24, padding: 16, background: "#1a1d24", borderRadius: 8, color: "#fff" }}>
+                <div style={{ color: "#9aa3b5", fontSize: 12, marginBottom: 6 }}>Admin message:</div>
+                <div style={{ fontSize: 15 }}>{adminMessage}</div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        <div className="terminal-contact">
+          <div className="contact-title">▸ CONTACT US</div>
+          <p className="contact-sub">Need help, predictions or support? Reach out anytime.</p>
+          <div className="contact-actions">
+            <a className="contact-btn tg" href="https://t.me/aviatorgeniu2" target="_blank" rel="noreferrer">
+              ✈ Telegram @aviatorgeniu2
+            </a>
+            <a className="contact-btn call" href="tel:+15205805442">
+              📞 Call +1 (520) 580-5442
+            </a>
+          </div>
+          <div className="contact-alt">Telegram (number): +1 (520) 580-5442</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="terminal-page">
@@ -187,6 +261,19 @@ export default function OddsPage() {
         </div>
       </div>
 
+      <div className="terminal-contact">
+        <div className="contact-title">▸ CONTACT US</div>
+        <p className="contact-sub">Need help, predictions or support? Reach out anytime.</p>
+        <div className="contact-actions">
+          <a className="contact-btn tg" href="https://t.me/aviatorgeniu2" target="_blank" rel="noreferrer">
+            ✈ Telegram @aviatorgeniu2
+          </a>
+          <a className="contact-btn call" href="tel:+15205805442">
+            📞 Call +1 (520) 580-5442
+          </a>
+        </div>
+        <div className="contact-alt">Telegram (number): +1 (520) 580-5442</div>
+      </div>
       <div className="scanlines" />
     </div>
   );
