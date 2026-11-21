@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { toast } from "react-toastify";
+import { db } from "../firebase";
+import { collection, getDocs, doc, updateDoc, getDoc, setDoc } from "firebase/firestore";
 import * as ordersApi from "../p2p/orders";
 import { useExchangers } from "../p2p/hooks";
 import { Exchanger } from "../p2p/types";
@@ -33,6 +35,7 @@ interface PlatformUser {
   email: string;
   displayName: string;
   phone?: string;
+  suspended?: boolean;
 }
 
 function loadPlatformUsers(): PlatformUser[] {
@@ -128,6 +131,102 @@ export default function AdminPage() {
   return <AdminConsole />;
 }
 
+function SecretOddsControl() {
+  const [enabled, setEnabled] = React.useState(false);
+  const [message, setMessage] = React.useState("");
+  const [busy, setBusy] = React.useState(false);
+  const [loaded, setLoaded] = React.useState(false);
+
+  const load = React.useCallback(async () => {
+    try {
+      const snap = await getDoc(doc(db, "settings", "secretOdds"));
+      if (snap.exists()) {
+        const d: any = snap.data();
+        setEnabled(!!d.enabled);
+        setMessage(d.message || "");
+      } else {
+        setEnabled(false);
+        setMessage("");
+      }
+    } catch {
+      /* ignore */
+    } finally {
+      setLoaded(true);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    load();
+    const id = setInterval(load, 5000);
+    return () => clearInterval(id);
+  }, [load]);
+
+  async function toggle() {
+    const next = !enabled;
+    setBusy(true);
+    try {
+      await setDoc(
+        doc(db, "settings", "secretOdds"),
+        { enabled: next, message, updatedAt: Date.now() },
+        { merge: true }
+      );
+      setEnabled(next);
+      toast.success(next ? "Odds page unlocked for users" : "Odds page locked");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to update odds visibility");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function saveMessage() {
+    setBusy(true);
+    try {
+      await setDoc(
+        doc(db, "settings", "secretOdds"),
+        { message, updatedAt: Date.now() },
+        { merge: true }
+      );
+      toast.success("Message saved");
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to save message");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <>
+      <h3 className="section-title">🔐 Secret odds access</h3>
+      <div className="form-card">
+        <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 12 }}>
+          <span style={{ color: "#9aa3b5" }}>Status:</span>
+          <span style={{ color: enabled ? "#0ecb81" : "#f6465d", fontWeight: 700 }}>
+            {loaded ? (enabled ? "UNLOCKED (users can see odds)" : "LOCKED (users see wait screen)") : "Loading..."}
+          </span>
+        </div>
+        <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+          <button className={enabled ? "btn-danger small" : "btn-green small"} onClick={toggle} disabled={busy || !loaded}>
+            {busy ? "Saving..." : enabled ? "🔒 Lock odds page" : "🔓 Unlock odds page"}
+          </button>
+        </div>
+        <label style={{ display: "block", marginBottom: 8 }}>
+          Message to users on locked page
+          <input
+            placeholder="e.g. Odds will be available at 8 PM. Come back later."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            style={{ width: "100%", marginTop: 4 }}
+          />
+        </label>
+        <button className="btn-gold small" onClick={saveMessage} disabled={busy}>
+          Save message
+        </button>
+      </div>
+    </>
+  );
+}
+
 function AdminConsole() {
   const { logout } = useAuth();
   const exchangers = useExchangers();
@@ -167,6 +266,8 @@ function AdminConsole() {
       </div>
 
       <ConsoleStats />
+
+      <SecretOddsControl />
 
       <h3 className="section-title">Exchangers ({exchangers.length})</h3>
       <div className="admin-table-wrap">
@@ -228,13 +329,17 @@ function AdminConsole() {
         </table>
       </div>
 
-      <UserFunding />
+       <UserFunding />
 
-      <NotificationSender />
+       <DepositRequests />
+
+       <NotificationSender />
 
       <SupportInbox />
 
       <RecentOrders />
+
+      <WithdrawRequests />
     </div>
   );
 }
@@ -272,6 +377,89 @@ function ConsoleStats() {
         <b className="sc-value red">{pendingOrders}</b>
       </div>
     </div>
+  );
+}
+
+function WithdrawRequests() {
+  const [list, setList] = React.useState<any[]>([]);
+  const [visible, setVisible] = React.useState(10);
+  const [loadErr, setLoadErr] = React.useState("");
+  const refresh = React.useCallback(async () => {
+    try {
+      const snap = await getDocs(collection(db, "withdrawals"));
+      const arr: any[] = [];
+      snap.forEach((d) => arr.push({ id: d.id, ...d.data() }));
+      arr.sort((a, b) => (b.ts || 0) - (a.ts || 0));
+      setList(arr);
+      setLoadErr("");
+    } catch (e: any) {
+      setLoadErr(`Couldn't load withdrawal requests: ${e?.message || e}`);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    refresh();
+    const iv = setInterval(refresh, 8000);
+    return () => clearInterval(iv);
+  }, [refresh]);
+
+  async function markDone(id: string) {
+    try {
+      await updateDoc(doc(db, "withdrawals", id), { status: "completed", completedAt: Date.now() });
+      toast.success("Marked completed");
+      refresh();
+    } catch {
+      toast.error("Failed");
+    }
+  }
+
+  return (
+    <>
+      <h3 className="section-title">💸 Withdraw requests ({list.length})</h3>
+      <div className="admin-table-wrap">
+        {loadErr && <div className="empty-note" style={{ color: "#f6465d" }}>{loadErr}</div>}
+        {list.length === 0 && !loadErr && (
+          <div className="empty-note">No withdraw requests yet.</div>
+        )}
+        {list.length > 0 && (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Amount</th>
+                <th>Status</th>
+                <th>When</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.slice(0, visible).map((r) => (
+                <tr key={r.id}>
+                  <td><b>{r.userName || "Player"}</b></td>
+                  <td>{r.email || "—"}</td>
+                  <td className="mono">{r.phone || "—"}</td>
+                  <td>${Number(r.amount || 0).toLocaleString()}</td>
+                  <td><span className={`status-badge s-${r.status === "completed" ? "completed" : "pending"}`}>{r.status || "pending"}</span></td>
+                  <td className="mono">{r.ts ? new Date(r.ts).toLocaleString() : "—"}</td>
+                  <td>
+                    {r.status !== "completed" && (
+                      <button className="btn-green small" onClick={() => markDone(r.id)}>Mark paid</button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {visible < list.length && (
+          <button className="chip-btn" onClick={() => setVisible((v) => v + 10)} style={{ marginTop: 8 }}>
+            View more ({list.length - visible} remaining)
+          </button>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -380,7 +568,9 @@ function UserFunding() {
   const [users, setUsers] = useState<PlatformUser[]>(() => loadPlatformUsers());
   const [remote, setRemote] = useState<RemoteUser[]>([]);
   const [remoteOk, setRemoteOk] = useState<boolean | null>(null);
+  const [threads, setThreads] = useState<SupportThread[]>(() => getAllThreads());
   const [query, setQuery] = useState("");
+  const [visibleUsers, setVisibleUsers] = useState(10);
   const [amounts, setAmounts] = useState<Record<string, string>>({});
   const [, force] = useState(0);
 
@@ -393,12 +583,7 @@ function UserFunding() {
       const list = await fetchRemoteUsers();
       if (!alive) return;
       setRemote(list);
-      // null = unknown yet; true if we got data OR Firestore reachable (empty is still ok after first sync).
-      // We treat fetch success (even empty) as reachable; failure returns [] too, so probe again on next mount.
       setRemoteOk(true);
-      if (list.length === 0) {
-        // Could be genuinely empty (no user has opened the new version yet) — keep local list visible.
-      }
     })().catch(() => alive && setRemoteOk(false));
     const iv = setInterval(async () => {
       try {
@@ -409,6 +594,16 @@ function UserFunding() {
     return () => { alive = false; clearInterval(iv); };
   }, []);
 
+  React.useEffect(() => {
+    let alive = true;
+    fetchAllThreadsRemote().then((t) => { if (alive) setThreads(t); }).catch(() => {});
+    const stopLocal = subscribeThreads(() => setThreads(getAllThreads()));
+    const iv = setInterval(() => {
+      fetchAllThreadsRemote().then((t) => { if (alive) setThreads(t); }).catch(() => {});
+    }, 8000);
+    return () => { alive = false; stopLocal(); clearInterval(iv); };
+  }, []);
+
   // Merge local + remote by uid so admin sees users from other countries/phones too.
   // Remote fills any gaps (phone, name) missing on the local copy.
   const merged: PlatformUser[] = React.useMemo(() => {
@@ -417,15 +612,26 @@ function UserFunding() {
     for (const r of remote) {
       const cur = map.get(r.uid);
       if (!cur) {
-        map.set(r.uid, { uid: r.uid, email: r.email || "(remote user)", displayName: r.displayName || "Player", phone: r.phone });
+        map.set(r.uid, { uid: r.uid, email: r.email || "(remote user)", displayName: r.displayName || "Player", phone: r.phone, suspended: r.suspended });
       } else {
         if (!cur.phone && r.phone) cur.phone = r.phone;
         if ((!cur.displayName || cur.displayName === "Player") && r.displayName) cur.displayName = r.displayName;
         if ((!cur.email || cur.email === "(remote user)") && r.email) cur.email = r.email;
+        cur.suspended = r.suspended;
+      }
+    }
+    for (const t of threads) {
+      if (!t.userUid) continue;
+      if (!map.has(t.userUid)) {
+        map.set(t.userUid, { uid: t.userUid, email: t.userEmail || "(support user)", displayName: t.userName || "Player" });
+      } else {
+        const cur = map.get(t.userUid)!;
+        if ((!cur.email || cur.email === "(remote user)" || cur.email === "(support user)") && t.userEmail) cur.email = t.userEmail;
+        if ((!cur.displayName || cur.displayName === "Player") && t.userName) cur.displayName = t.userName;
       }
     }
     return Array.from(map.values());
-  }, [users, remote]);
+  }, [users, remote, threads]);
 
   const remoteBal = React.useMemo(() => {
     const m = new Map<string, number>();
@@ -471,8 +677,8 @@ function UserFunding() {
         // Tell the user why, with verification steps — fire-and-forget.
         sendNotification(
           u.uid,
-          "Action required to unlock your balance 🔒",
-          "Your balance was temporarily locked after our system flagged unusual activity that looks automated. To verify you're human, please send a photo of your ID and deposit $20 from the same address you used before. Once verified, your balance will be unlocked.",
+          "Account banned 🚫",
+          "Your account has been permanently banned. Access has been revoked.",
           "warning",
           "admin"
         ).catch(() => {});
@@ -485,6 +691,23 @@ function UserFunding() {
       force((n) => n + 1);
     } catch (err: any) {
       toast.error(err?.message || "Failed to update lock");
+    }
+  }
+
+  async function doBan(u: PlatformUser) {
+    const next = !u.suspended;
+    try {
+      await setDoc(doc(db, "users", u.uid), { suspended: next, updatedAt: Date.now() }, { merge: true });
+      if (next) {
+        try { await setBlocked(u.uid, true, "Banned by admin"); } catch {}
+        sendNotification(u.uid, "Account banned 🚫", "Your account has been banned by the admin. Contact support for more info.", "warning", "admin").catch(() => {});
+      } else {
+        try { await setBlocked(u.uid, false, ""); } catch {}
+      }
+      toast.success(next ? `🚫 ${u.displayName || u.email} banned` : `✅ ${u.displayName || u.email} unbanned`);
+      force((n) => n + 1);
+    } catch (err: any) {
+      toast.error(err?.message || "Failed to update ban");
     }
   }
 
@@ -536,7 +759,7 @@ function UserFunding() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((u) => (
+              {filtered.slice(0, visibleUsers).map((u) => (
                 <tr key={u.uid}>
                   <td><b>{u.displayName || "Player"}</b></td>
                   <td>{u.email}</td>
@@ -547,7 +770,9 @@ function UserFunding() {
                   </td>
                   <td>
                     <div className="ctrl-row">
-                      {isBlocked(u.uid) ? (
+                      {u.suspended ? (
+                        <span className="status-badge s-disputed">🚫 banned</span>
+                      ) : isBlocked(u.uid) ? (
                         <span className="status-badge s-disputed">🔒 locked</span>
                       ) : (
                         <span className="status-badge s-completed">active</span>
@@ -558,6 +783,13 @@ function UserFunding() {
                         title={isBlocked(u.uid) ? "Unlock this user" : "Lock this user out of games"}
                       >
                         {isBlocked(u.uid) ? "🔓 Unlock" : "🔒 Lock"}
+                      </button>
+                      <button
+                        className={`chip-btn ${u.suspended ? "go" : "danger"}`}
+                        onClick={() => doBan(u)}
+                        title={u.suspended ? "Unban this user" : "Ban this user from the platform"}
+                      >
+                        {u.suspended ? "✅ Unban" : "🚫 Ban"}
                       </button>
                     </div>
                   </td>
@@ -578,6 +810,11 @@ function UserFunding() {
               ))}
             </tbody>
           </table>
+        )}
+        {visibleUsers < filtered.length && (
+          <button className="chip-btn" onClick={() => setVisibleUsers((v) => v + 10)} style={{ marginTop: 8 }}>
+            View more ({filtered.length - visibleUsers} remaining)
+          </button>
         )}
       </div>
     </>
@@ -721,6 +958,153 @@ function NotificationSender() {
               ))}
             </tbody>
           </table>
+        )}
+      </div>
+    </>
+  );
+}
+
+function DepositRequests() {
+  const { user: adminUser } = useAuth();
+  const [list, setList] = React.useState<any[]>([]);
+  const [visible, setVisible] = React.useState(10);
+  const [loadErr, setLoadErr] = React.useState("");
+  const [busyId, setBusyId] = React.useState<string | null>(null);
+
+  const refresh = React.useCallback(async () => {
+    try {
+      const snap = await getDocs(collection(db, "topups"));
+      const arr: any[] = [];
+      snap.forEach((d) => arr.push({ id: d.id, ...d.data() }));
+      arr.sort((a, b) => (b.ts || b.createdAt || 0) - (a.ts || a.createdAt || 0));
+      setList(arr);
+      setLoadErr("");
+    } catch (e: any) {
+      setLoadErr(`Couldn't load deposit requests: ${e?.message || e}`);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    refresh();
+    const iv = setInterval(refresh, 8000);
+    return () => clearInterval(iv);
+  }, [refresh]);
+
+  async function approve(r: any) {
+    const uid = r.userId || r.uid;
+    const amount = Number(r.amount || 0);
+    if (!uid) return toast.error("Missing user id");
+    if (!Number.isFinite(amount) || amount <= 0) return toast.error("Invalid amount");
+    setBusyId(r.id);
+    try {
+      if (r.status === "pending") {
+        credit(uid, amount, "admin_topup", `topup-${r.id}`, "Deposit approved by admin");
+      }
+      await updateDoc(doc(db, "topups", r.id), {
+        status: "approved",
+        approvedAt: Date.now(),
+      });
+      toast.success(`Approved $${amount.toLocaleString()} for ${r.userName || r.email || uid}`);
+      refresh();
+    } catch (e: any) {
+      toast.error(e?.message || "Approve failed");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function cancel(r: any) {
+    setBusyId(r.id);
+    try {
+      await updateDoc(doc(db, "topups", r.id), {
+        status: "cancelled",
+        cancelledAt: Date.now(),
+      });
+      toast.info("Deposit request cancelled");
+      refresh();
+    } catch (e: any) {
+      toast.error(e?.message || "Cancel failed");
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function seedExamples() {
+    const samples = [
+      { id: "sample-pending-1", userName: "John Doe", email: "john@example.com", phone: "0781234567", amount: 50, method: "MTN MoMo", reference: "TXN-001", status: "pending" },
+      { id: "sample-completed-1", userName: "Jane Smith", email: "jane@example.com", phone: "0789876543", amount: 100, method: "Crypto (NOWPayments)", reference: "NP-ABC123", status: "completed" },
+      { id: "sample-pending-2", userName: "Bob Wilson", email: "bob@example.com", phone: "0791112222", amount: 25, method: "Bank transfer", reference: "BANK-999", status: "pending" },
+    ];
+    const uid = adminUser?.uid || "sample-user";
+    try {
+      for (const s of samples) {
+        await setDoc(doc(db, "topups", s.id), {
+          ...s,
+          userId: uid,
+          uid,
+          ts: Date.now(),
+          createdAt: Date.now(),
+        }, { merge: true });
+      }
+      toast.success("Sample deposits added");
+      refresh();
+    } catch (e: any) {
+      toast.error(e?.message || "Failed to add samples");
+    }
+  }
+
+  return (
+    <>
+      <h3 className="section-title">💳 Deposits ({list.length})</h3>
+      <button className="chip-btn" onClick={seedExamples}>Add sample deposits</button>
+      <div className="admin-table-wrap">
+        {loadErr && <div className="empty-note" style={{ color: "#f6465d" }}>{loadErr}</div>}
+        {list.length === 0 && !loadErr && (
+          <div className="empty-note">No deposit requests yet.</div>
+        )}
+        {list.length > 0 && (
+          <table className="admin-table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Reference</th>
+                <th>Status</th>
+                <th>When</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {list.slice(0, visible).map((r) => (
+                <tr key={r.id}>
+                  <td><b>{r.userName || "Player"}</b></td>
+                  <td>{r.email || "—"}</td>
+                  <td className="mono">{r.phone || "—"}</td>
+                  <td>${Number(r.amount || 0).toLocaleString()}</td>
+                  <td>{r.method || "—"}</td>
+                  <td className="mono">{r.reference || r.txId || "—"}</td>
+                  <td><span className={`status-badge s-${r.status === "approved" || r.status === "completed" ? "completed" : r.status === "cancelled" || r.status === "rejected" ? "cancelled" : "pending"}`}>{r.status || "pending"}</span></td>
+                  <td className="mono">{r.ts || r.createdAt ? new Date(r.ts || r.createdAt).toLocaleString() : "—"}</td>
+                  <td>
+                    {(r.status === "pending" || !r.status) && (
+                      <div className="ctrl-row">
+                        <button className="btn-green small" disabled={busyId === r.id} onClick={() => approve(r)}>Approve</button>
+                        <button className="chip-btn danger" disabled={busyId === r.id} onClick={() => cancel(r)}>Cancel</button>
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+        {visible < list.length && (
+          <button className="chip-btn" onClick={() => setVisible((v) => v + 10)} style={{ marginTop: 8 }}>
+            View more ({list.length - visible} remaining)
+          </button>
         )}
       </div>
     </>

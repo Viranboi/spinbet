@@ -9,7 +9,7 @@ import {
   subscribeThreads,
   totalUnreadForUser,
 } from "../p2p/support";
-import "./SupportChat.scss";
+import { isBlocked } from "../p2p/restrictions";
 
 export const OPEN_SUPPORT_EVENT = "open-support";
 
@@ -78,7 +78,7 @@ export default function SupportChat() {
     }
   }
 
-  if (!user) return null;
+  if (!user || isBlocked(user.uid)) return null;
 
   const thread = getThread(user.uid);
   const messages = thread?.messages || [];
