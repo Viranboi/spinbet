@@ -6,9 +6,9 @@ import "./MinesPage.scss";
 import { playGemSound, playMineExplodeSound, playCashoutSoundMines } from "../sounds";
 import { useBlocked } from "../p2p/hooks";
 import { openSupportChat } from "../components/SupportChat";
+import { useCurrency } from "../currency";
 
 const GRID = 25;
-const QUICK_BETS = [0.20, 0.30, 0.50, 1, 2, 3, 5, 8, 12, 20, 50, 100];
 
 function placeMines(count: number) {
   const positions = new Set<number>();
@@ -32,14 +32,12 @@ function calcNextMultiplier(gems: number, mines: number) {
   return calcMultiplier(gems + 1, mines);
 }
 
-function fmtUSD(n: number) {
-  return Math.round(n).toLocaleString("en-US");
-}
 
 type Phase = "idle" | "playing" | "done";
 
 function MinesGame() {
   const { state, update } = useContext(Context);
+  const { num, symbol, fmt, disp, usd, rate } = useCurrency();
   const balance = state.userInfo?.balance || 0;
   const setBalance = useCallback((value: number | ((prev: number) => number)) => {
     const newBal = typeof value === 'function' ? (value as Function)(balance) : value;
@@ -47,7 +45,16 @@ function MinesGame() {
   }, [balance, state.userInfo, update]);
   const navigate = useNavigate();
   const [loadStage, setLoadStage] = useState<1 | 2 | 0>(1);
-  const [bet, setBet] = useState(10);
+
+  // Bets are stored in USD internally but configured/displayed in RWF.
+  const MIN_BET_RWF = 1000;
+  const BET_STEP_RWF = 1000;
+  const minBet = usd(MIN_BET_RWF);
+  const betStep = usd(BET_STEP_RWF);
+  const QUICK_BETS_RWF = [1000, 2000, 3000, 5000, 8000, 10000, 15000, 20000, 30000, 50000, 100000];
+  const quickBetValues = QUICK_BETS_RWF.map((v) => usd(v));
+
+  const [bet, setBet] = useState(minBet);
   const [mineCount, setMineCount] = useState(3);
   const [phase, setPhase] = useState<Phase>("idle");
   const [mineSet, setMineSet] = useState<Set<number> | null>(null);
@@ -59,8 +66,6 @@ function MinesGame() {
   const [showMenu, setShowMenu] = useState(false);
   const [showQuickBets, setShowQuickBets] = useState(false);
   const [lastPayout, setLastPayout] = useState(0);
-  const minBet = 10;
-  const betStep = 10;
   const gems = revealed.length;
   const currentMult = calcMultiplier(gems, mineCount);
   const nextMult = calcNextMultiplier(gems, mineCount);
@@ -69,7 +74,6 @@ function MinesGame() {
   const safeTotal = GRID - mineCount;
   const safeFound = revealed.length - (exploded !== null ? 1 : 0);
   const progressPct = safeTotal > 0 ? Math.min(100, Math.max(0, (safeFound / safeTotal) * 100)) : 0;
-  const quickBetValues = QUICK_BETS.map((v) => Math.max(10, Math.round(v * 1000)));
 
   function toggleFullscreen() {
     try {
@@ -101,8 +105,8 @@ function MinesGame() {
   }, [mineSet, mineCount, revealed, phase]);
 
    function startGame() {
-     if (balance < 10) { toast.error("You need at least $10 to play Mines"); return; }
-     if (bet < minBet) { toast.error("Minimum bet on Mines is $10"); return; }
+     if (balance < 10) { toast.error(`You need at least ${fmt(10)} to play Mines`); return; }
+     if (bet < minBet) { toast.error(`Minimum bet on Mines is ${fmt(minBet)}`); return; }
      if (bet > balance) { toast.error("Your balance is not enough"); return; }
      setBalance((b) => b - bet);
      setMineSet(placeMines(mineCount));
@@ -136,10 +140,10 @@ function MinesGame() {
         setBalance((b) => parseFloat((b + payout).toFixed(2)));
         setLastPayout(payout);
         setPhase("done");
-        toast.success(`All gems found! +$${fmtUSD(payout)}`);
+        toast.success(`All gems found! +${fmt(payout)}`);
       }
     }
-  }, [phase, revealed, cashedOut, mineSet, bet, mineCount, setBalance]);
+  }, [phase, revealed, cashedOut, mineSet, bet, mineCount, setBalance, fmt]);
 
   const cashOut = useCallback(() => {
     if (!canCashout) return;
@@ -149,8 +153,8 @@ function MinesGame() {
     setLastPayout(payout);
     setCashedOut(true);
     setPhase("done");
-    toast.success(`Cashed out ${currentMult}x — +$${fmtUSD(payout)}`);
-  }, [canCashout, bet, currentMult, setBalance]);
+    toast.success(`Cashed out ${currentMult}x — +${fmt(payout)}`);
+  }, [canCashout, bet, currentMult, setBalance, fmt]);
 
   useEffect(() => {
     if (autoGame && phase === "playing" && !cashedOut) {
@@ -239,7 +243,7 @@ function MinesGame() {
           <span className="mines-lobby-arrow">‹</span> <span>Lobby</span>
         </button>
         <div className="mines-sitebar-right">
-          <span className="mines-sitebar-bal">${fmtUSD(balance)}</span>
+          <span className="mines-sitebar-bal">{fmt(balance)}</span>
           <button className="mines-deposit-btn" onClick={() => navigate("/deposit")}>
             Deposit
           </button>
@@ -443,14 +447,14 @@ function MinesGame() {
               <div className="mines-bet-controls pill">
                 <div className="mines-bet-amount-col">
                   <div className="mines-bet-label">
-                    Bet $
+                    Bet {symbol}
                   </div>
                   <input
                     type="number"
-                    step={betStep}
-                    min={minBet}
-                    value={bet}
-                    onChange={(e) => setBet(Math.max(minBet, Math.round(Number(e.target.value) || 0)))}
+                    step={betStep * rate}
+                    min={disp(minBet)}
+                    value={disp(bet)}
+                    onChange={(e) => setBet(Math.max(minBet, usd(Math.round(Number(e.target.value) || 0))))}
                     disabled={phase === "playing"}
                     className="mines-bet-input"
                   />
@@ -469,7 +473,7 @@ function MinesGame() {
                   <div className="mines-quickbets">
                     {quickBetValues.map((v) => (
                       <button key={v} className={bet === v ? "active" : ""} onClick={() => { setBet(v); setShowQuickBets(false); }}>
-                        {fmtUSD(v)}
+                        {num(v)}
                       </button>
                     ))}
                   </div>
@@ -493,7 +497,7 @@ function MinesGame() {
                 className="mines-main-btn bet"
                 onClick={startGame}
                 disabled={bet > balance || bet < minBet}
-                title={phase === "done" ? `Last result: $${fmtUSD(lastPayout)}` : "Place bet"}
+                title={phase === "done" ? `Last result: ${fmt(lastPayout)}` : "Place bet"}
               >
                 <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21" /></svg>
                 BET
@@ -503,7 +507,7 @@ function MinesGame() {
             {phase === "playing" && canCashout && (
               <button className="mines-main-btn cashout" onClick={cashOut}>
                 CASH OUT
-                <span className="mines-cashout-amt">${fmtUSD(cashoutAmount)}</span>
+                <span className="mines-cashout-amt">{fmt(cashoutAmount)}</span>
               </button>
             )}
 
