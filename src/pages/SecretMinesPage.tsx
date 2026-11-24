@@ -65,8 +65,7 @@ export default function SecretMinesPage() {
           : "⏳ Waiting — open /mines in another tab and press BET…";
 
   return (
-    <div className="mines-page secret-page">
-      <div className="secret-demo-banner">⚠️ THIS IS DEMO — NOT FOR REAL MONEY ⚠️</div>
+      <div className="mines-page secret-page">
 
       <div className="mines-sitebar">
         <button className="mines-lobby-btn" onClick={() => navigate("/")}>
