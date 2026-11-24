@@ -1,4 +1,5 @@
 import React from 'react';
+import { useCurrency } from '../../currency';
 
 export default function GameLayout({ title, emoji, color = '#7C3AED', children, sidebar }: {
   title: string;
@@ -60,6 +61,7 @@ export function BetInput({ bet, setBet, onHalf, onDouble, disabled }: {
   onDouble: () => void;
   disabled: boolean;
 }) {
+  const { disp, usd } = useCurrency();
   return (
     <div style={{ marginBottom: 16 }}>
       <label style={{ fontSize: 13, fontWeight: 600, color: '#9ea0a3', display: 'block', marginBottom: 8 }}>
@@ -67,8 +69,8 @@ export function BetInput({ bet, setBet, onHalf, onDouble, disabled }: {
       </label>
       <div style={{ display: 'flex', gap: 8 }}>
         <input
-          type="number" min="1" value={bet}
-          onChange={e => setBet(Math.max(1, Number(e.target.value)))}
+          type="number" min="1" value={disp(bet)}
+          onChange={e => setBet(Math.max(1, usd(Number(e.target.value))))}
           disabled={disabled}
           style={{
             flex: 1, padding: '10px 14px', borderRadius: 10,

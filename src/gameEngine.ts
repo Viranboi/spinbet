@@ -75,11 +75,7 @@ export function findCrashTime(crashPoint: number): number {
   return (lo + hi) / 2;
 }
 
-// Custom pacing (spec): 2x at 8s, then +1x per 1s (3x at 9s, Nx at N+6s).
-// The visible multiplier starts at 1.00x and moves from the first frame —
-// 1.00 -> 2.00 over 8s, then +1x/s. (The 0 -> 1 "takeoff" can't display
-// below 1.00x, so the climb starts at 1.00 instead of freezing there.)
-// Identical on every round — pace reveals nothing about the crash point.
+// Spribe-like pacing: 2x at 8s, then +1x per second.
 export function flightSecondsFor(crashPoint: number): number {
   if (!Number.isFinite(crashPoint) || crashPoint <= 0) return 0;
   if (crashPoint <= 1) return 0;
@@ -87,7 +83,6 @@ export function flightSecondsFor(crashPoint: number): number {
 }
 
 // Multiplier after elapsedSec seconds of flight, capped at the crash point.
-// Never below 1.00x (early cashout returns the stake, never less).
 export function multiplierAtElapsed(crashPoint: number, elapsedSec: number): number {
   if (!Number.isFinite(crashPoint) || crashPoint <= 0) return 1;
   const t = Math.max(0, elapsedSec);
@@ -134,7 +129,7 @@ export async function computeCrashPoint(
 }
 
 export function generateFakePlayers(crashPoint: number): FakePlayer[] {
-  const count = Math.floor(Math.random() * 251) + 1050;
+  const count = Math.floor(Math.random() * 21) + 20;
   const users: FakePlayer[] = [];
   const usedNames = new Set<string>();
   for (let i = 0; i < count; i++) {

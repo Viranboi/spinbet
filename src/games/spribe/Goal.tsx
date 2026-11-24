@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import GameLayout, { Panel, BetInput, ActionButton } from './GameLayout';
+import { useCurrency } from '../../currency';
 
 const COLOR = '#059669';
 const COLS = 5;
@@ -12,6 +13,7 @@ function generateKeepers() {
 const COL_MULTS = [1.4, 2.0, 3.0, 5.0, 10.0];
 
 export default function Goal({ balance, setBalance }: { balance: number; setBalance: (b: number | ((prev: number) => number)) => void }) {
+  const { fmt } = useCurrency();
   const [bet, setBet] = useState(10);
   const [phase, setPhase] = useState<'idle' | 'playing' | 'done'>('idle');
   const [keepers, setKeepers] = useState<number[] | null>(null);
@@ -20,7 +22,7 @@ export default function Goal({ balance, setBalance }: { balance: number; setBala
   const [revealed, setRevealed] = useState<number[]>([]);
   const [message, setMessage] = useState<{ text: string; win: boolean } | null>(null);
   const [cashedOut, setCashedOut] = useState(false);
-  const [currentMult, setCurrentMult] = useState(1);
+  const [, setCurrentMult] = useState(1);
 
   function startGame() {
     if (bet > balance) return;
@@ -48,7 +50,7 @@ export default function Goal({ balance, setBalance }: { balance: number; setBala
     if (hit) {
       const allKeepers = keepers!.map((kr, c) => c * ROWS + kr);
       setRevealed(allKeepers);
-      setMessage({ text: `Goalkeeper blocked it! Lost $${bet.toFixed(2)}`, win: false });
+      setMessage({ text: `Goalkeeper blocked it! Lost ${fmt(bet)}`, win: false });
       setPhase('done');
     } else {
       const nextCol = col + 1;
@@ -57,7 +59,7 @@ export default function Goal({ balance, setBalance }: { balance: number; setBala
       if (nextCol >= COLS) {
         const payout = parseFloat((bet * COL_MULTS[COLS - 1]).toFixed(2));
         setBalance(b => parseFloat((b + payout).toFixed(2)));
-        setMessage({ text: `FULL SCORE! Won $${payout.toFixed(2)}!`, win: true });
+        setMessage({ text: `FULL SCORE! Won ${fmt(payout)}!`, win: true });
         setPhase('done');
         const allKeepers = keepers!.map((kr, c) => c * ROWS + kr);
         setRevealed(allKeepers);
@@ -73,7 +75,7 @@ export default function Goal({ balance, setBalance }: { balance: number; setBala
     const payout = parseFloat((bet * mult).toFixed(2));
     setBalance(b => parseFloat((b + payout).toFixed(2)));
     setCashedOut(true);
-    setMessage({ text: `Cashed out ${mult}× — Won $${payout.toFixed(2)}!`, win: true });
+    setMessage({ text: `Cashed out ${mult}× — Won ${fmt(payout)}!`, win: true });
     const allKeepers = keepers!.map((kr, c) => c * ROWS + kr);
     setRevealed(allKeepers);
     setPhase('done');
@@ -109,7 +111,7 @@ export default function Goal({ balance, setBalance }: { balance: number; setBala
                 padding: '10px 14px', borderRadius: 10, fontWeight: 700, fontSize: 16,
                 background: '#D1FAE533', border: '1.5px solid #6EE7B7', color: COLOR, marginBottom: 10,
               }}>
-                ${(bet * COL_MULTS[currentCol - 1]).toFixed(2)} ({COL_MULTS[currentCol - 1]}×)
+                {fmt(bet * COL_MULTS[currentCol - 1])} ({COL_MULTS[currentCol - 1]}×)
               </div>
               <ActionButton onClick={cashOut} color={COLOR} variant="secondary" disabled={cashedOut}>
                 Cash Out Now
@@ -188,7 +190,7 @@ export default function Goal({ balance, setBalance }: { balance: number; setBala
             {Array.from({ length: COLS }).map((_, col) => (
               <div key={col} style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 10 }}>
                 {Array.from({ length: ROWS }).map((_, row) => {
-                  const { isKeeper, isGoal, isRevealed } = getCellState(col, row);
+                  const { isKeeper, isGoal } = getCellState(col, row);
                   const isActive = phasePlaying && col === currentCol;
                   const isPast = col < currentCol || phase === 'done';
 

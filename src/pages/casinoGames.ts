@@ -31,6 +31,11 @@ export const CASINO_GAMES: CasinoGame[] = [
 
   G("drive-it", "DRIVE IT", "Virtual", "DriveIt Studios", "🏎️", 97.0, { hot: true, new: true }),
   G("aviator", "Aviator", "Crash", "Spribe", "✈️", 97.0, { hot: true }),
+  G("aviator-pixi", "Aviator Pixi", "Crash", "BollyGaming", "✈️", 97.0, { new: true }),
+  G("telegram-crash", "Telegram Crash", "Crash", "TON Crash", "💎", 97.0, { new: true }),
+  G("aviator-socket", "Aviator Socket", "Crash", "Akash Studio", "🛩️", 97.0),
+  G("crash-example", "Crash Example", "Crash", "Immutal", "📈", 97.0),
+  G("igaming-crash", "iGaming Crash", "Crash", "iGaming Sys", "🎲", 97.0, { new: true }),
   G("crash-x", "Crash X", "Crash", "Turbo Games", "🚀", 97.0),
   G("jetx", "JetX", "Crash", "SmartSoft", "🛩️", 97.0, { hot: true }),
   G("limbo", "Limbo", "Crash", "Spribe", "🔮", 97.0),

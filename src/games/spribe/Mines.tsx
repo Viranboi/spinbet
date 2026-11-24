@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { toast } from 'react-toastify';
 import GameLayout, { Panel, BetInput, ActionButton } from './GameLayout';
 import { playBetSound, playGemSound, playMineExplodeSound, playCashoutSoundMines } from '../../sounds';
+import { useCurrency } from '../../currency';
 
 const GRID = 25;
 const QUICK_BETS = [0.20, 0.30, 0.50, 1, 2, 3, 5, 8, 12, 20, 50, 100];
@@ -27,6 +28,7 @@ function calcMultiplier(gems: number, mines: number) {
 const MINE_COUNTS = [1, 3, 5, 10, 15, 20, 24];
 
 export default function Mines({ balance, setBalance }: { balance: number; setBalance: (b: number | ((prev: number) => number)) => void }) {
+  const { fmt } = useCurrency();
   const [loadStage, setLoadStage] = useState<1 | 2 | 0>(1);
   const [bet, setBet] = useState(10);
   const [mineCount, setMineCount] = useState(5);
@@ -69,7 +71,7 @@ export default function Mines({ balance, setBalance }: { balance: number; setBal
     if (mineSet!.has(idx)) {
       playMineExplodeSound();
       setExploded(idx);
-      setMessage({ text: `Mine! You lost $${bet.toFixed(2)}`, win: false });
+      setMessage({ text: `Mine! You lost ${fmt(bet)}`, win: false });
       setPhase('done');
       setRevealed([...revealed, idx]);
       setAutoGame(false);
@@ -82,14 +84,14 @@ export default function Mines({ balance, setBalance }: { balance: number; setBal
       if (newGems >= safe) {
         const payout = parseFloat((bet * calcMultiplier(newGems, mineCount)).toFixed(2));
         setBalance(b => parseFloat((b + payout).toFixed(2)));
-        setMessage({ text: `All gems found! ${calcMultiplier(newGems, mineCount)}× — $${payout.toFixed(2)}! 🏆`, win: true });
+        setMessage({ text: `All gems found! ${calcMultiplier(newGems, mineCount)}× — ${fmt(payout)}! 🏆`, win: true });
         setPhase('done');
         setAutoGame(false);
       } else {
         setMessage({ text: `Gem! +${calcMultiplier(newGems, mineCount)}× so far`, win: true });
       }
     }
-  }, [phase, revealed, cashedOut, mineSet, bet, mineCount]);
+  }, [phase, revealed, cashedOut, mineSet, bet, mineCount, setBalance, fmt]);
 
   useEffect(() => {
     if (autoGame && phase === 'playing' && !cashedOut && message && message.win) {
@@ -114,7 +116,7 @@ export default function Mines({ balance, setBalance }: { balance: number; setBal
     setCashedOut(true);
     setPhase('done');
     setAutoGame(false);
-    toast.success(`Cashed out ${currentMult}× — +$${payout.toFixed(2)}`);
+    toast.success(`Cashed out ${currentMult}× — +${fmt(payout)}`);
   }
 
   function resetGame() {
@@ -253,7 +255,7 @@ export default function Mines({ balance, setBalance }: { balance: number; setBal
                   padding: '10px 14px', borderRadius: 10, fontWeight: 700, fontSize: 15,
                   background: '#D1FAE533', border: '1.5px solid #6EE7B7', color: '#059669', marginBottom: 10,
                 }}>
-                  ${(bet * currentMult).toFixed(2)} ({currentMult}×)
+                  {fmt(bet * currentMult)} ({currentMult}×)
                 </div>
                 <ActionButton onClick={cashOut} color="#059669" variant="secondary" disabled={cashedOut}>
                   Cash Out
@@ -312,7 +314,7 @@ export default function Mines({ balance, setBalance }: { balance: number; setBal
                   color: bet === v ? '#7C3AED' : '#9ea0a3',
                   cursor: phase === 'playing' ? 'not-allowed' : 'pointer',
                 }}>
-                ${v}
+                {fmt(v)}
               </button>
             ))}
           </div>

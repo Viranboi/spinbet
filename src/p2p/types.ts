@@ -89,14 +89,18 @@ export interface LedgerEntry {
   type:
     | "welcome_bonus"
     | "crypto_deposit"
+    | "momo_deposit"
     | "p2p_deposit"
     | "p2p_refund"
     | "casino_bet"
+    | "sports_bet"
     | "casino_win"
+    | "referral_commission"
     | "adjustment"
     | "admin_topup"
     | "admin_debit"
-    | "exchanger_transfer";
+    | "exchanger_transfer"
+    | "withdraw";
   amount: number;
   balanceAfter: number;
   ref: string;

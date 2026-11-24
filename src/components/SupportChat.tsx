@@ -1,6 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
 /* eslint-disable react-hooks/exhaustive-deps */
 import { useAuth } from "../auth/AuthContext";
+import { db } from "../firebase";
+import "./SupportChat.scss";
+import { doc, getDoc } from "firebase/firestore";
 import {
   getThread,
   markRead,
@@ -9,7 +12,6 @@ import {
   subscribeThreads,
   totalUnreadForUser,
 } from "../p2p/support";
-import { isBlocked } from "../p2p/restrictions";
 
 export const OPEN_SUPPORT_EVENT = "open-support";
 
@@ -22,6 +24,7 @@ const QUICK = ["Deposit help 💳", "Withdraw status 🏦", "My bonus 🎁", "Ac
 export default function SupportChat() {
   const { user } = useAuth();
   const [open, setOpen] = useState(false);
+  const [banned, setBanned] = useState(false);
   const [unread, setUnread] = useState(0);
   const [, force] = useState(0);
   const [draft, setDraft] = useState("");
@@ -33,6 +36,22 @@ export default function SupportChat() {
     window.addEventListener(OPEN_SUPPORT_EVENT, onOpen);
     return () => window.removeEventListener(OPEN_SUPPORT_EVENT, onOpen);
   }, []);
+
+  useEffect(() => {
+    if (!user?.uid) { setBanned(false); return; }
+    let alive = true;
+    const check = async () => {
+      try {
+        const snap = await getDoc(doc(db, "users", user.uid));
+        if (alive) setBanned(!!snap.exists() && snap.data()?.suspended === true);
+      } catch {
+        if (alive) setBanned(false);
+      }
+    };
+    check();
+    const iv = setInterval(check, 5000);
+    return () => { alive = false; clearInterval(iv); };
+  }, [user?.uid]);
 
   useEffect(() => {
     if (!user) return;
@@ -78,7 +97,7 @@ export default function SupportChat() {
     }
   }
 
-  if (!user || isBlocked(user.uid)) return null;
+  if (!user || banned) return null;
 
   const thread = getThread(user.uid);
   const messages = thread?.messages || [];

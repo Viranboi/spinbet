@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import GameLayout, { Panel, BetInput, ActionButton } from './GameLayout';
+import { useCurrency } from '../../currency';
 
 const COLOR = '#2563EB';
 const FACES = ['⚀','⚁','⚂','⚃','⚄','⚅'];
 
 export default function Dice({ balance, setBalance }: { balance: number; setBalance: (b: number | ((prev: number) => number)) => void }) {
+  const { fmt } = useCurrency();
   const [bet, setBet] = useState(10);
   const [target, setTarget] = useState(4);
   const [mode, setMode] = useState<'over' | 'under'>('over');
@@ -96,11 +98,11 @@ export default function Dice({ balance, setBalance }: { balance: number; setBala
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 11, color: '#6b7280' }}>Payout</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#F59E0B' }}>${(bet * multiplier).toFixed(2)}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#F59E0B' }}>{fmt(bet * multiplier)}</div>
             </div>
             <div style={{ textAlign: 'center' }}>
               <div style={{ fontSize: 11, color: '#6b7280' }}>Profit</div>
-              <div style={{ fontSize: 15, fontWeight: 700, color: '#7C3AED' }}>${(bet * multiplier - bet).toFixed(2)}</div>
+              <div style={{ fontSize: 15, fontWeight: 700, color: '#7C3AED' }}>{fmt(bet * multiplier - bet)}</div>
             </div>
           </div>
 
@@ -115,7 +117,7 @@ export default function Dice({ balance, setBalance }: { balance: number; setBala
               color: result.win ? '#065F46' : '#991B1B',
               fontWeight: 600, fontSize: 14,
             }}>
-              {result.win ? `Won $${result.profit.toFixed(2)}!` : 'Better luck next time!'}
+              {result.win ? `Won ${fmt(result.profit)}!` : 'Better luck next time!'}
             </div>
           )}
         </Panel>

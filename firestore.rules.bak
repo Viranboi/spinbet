@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Server user registry + admin console for blackviran@gmail.com.
+    // Deploy with: firebase deploy --only firestore:rules
+    function isAdmin() {
+      return request.auth != null && (
+        request.auth.token.email == "blackviran@gmail.com" ||
+        request.auth.token.email == "freelancerviran@gmail.com" ||
+        request.auth.token.admin == true
+      );
+    }
+    match /users/{uid} {
+      allow get: if request.auth != null;
+      allow list: if request.auth != null;
+      allow create: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow update: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow delete: if false;
+    }
+    // Admin -> user notifications. Admin writes, users read own + broadcast.
+    // Deploy with: firebase deploy --only firestore:rules
+    match /notifications/{id} {
+      allow create: if isAdmin();
+      allow get, list: if request.auth != null;
+      allow update: if request.auth != null && (
+        isAdmin() ||
+        resource.data.uid == request.auth.uid ||
+        resource.data.uid == "all"
+      );
+      allow delete: if isAdmin();
+    }
+    // Support chat: user owns their thread, admin sees all. Named "Support" on purpose.
+    match /support_threads/{uid} {
+      allow get, list: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow update: if request.auth != null && (request.auth.uid == uid || isAdmin());
+      allow delete: if isAdmin();
+    }
+    // pixcrate.store catalog: public reads for the storefront, admin-only writes.
+    match /pixcrate_products/{id} {
+      allow get, list: if true;
+      allow create, update, delete: if isAdmin();
+    }
+    // pixcrate.store vendor applications: anyone can apply, only admin reviews.
+    match /pixcrate_applications/{id} {
+      allow create: if true;
+      allow get, list, update, delete: if isAdmin();
+    }
+    // pixcrate.store refund requests: anyone can request, only admin reviews.
+    match /pixcrate_refunds/{id} {
+      allow create: if true;
+      allow get, list, update, delete: if isAdmin();
+    }
+    // pixcrate.store reviews: public reads + writes, admin moderates.
+    // (Admin can also post reviews under any buyer name from the panel.)
+    match /pixcrate_reviews/{id} {
+      allow get, list: if true;
+      allow create: if request.resource.data.keys().hasOnly(
+          ["productSlug", "userName", "rating", "text", "createdAt"])
+        && request.resource.data.productSlug is string
+        && request.resource.data.userName is string
+        && request.resource.data.userName.size() >= 2
+        && request.resource.data.userName.size() <= 40
+        && request.resource.data.rating is number
+        && request.resource.data.rating >= 1
+        && request.resource.data.rating <= 5
+        && request.resource.data.text is string
+        && request.resource.data.text.size() >= 3
+        && request.resource.data.text.size() <= 1000;
+      allow update, delete: if isAdmin();
+    }
+    // pixcrate.store product stats: public counters, admin sets sales.
+    match /pixcrate_stats/{id} {
+      allow get, list: if true;
+      allow create: if request.resource.data.keys().hasOnly(["views", "clicks", "sales"]);
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(["views", "clicks", "sales"]);
+      allow delete: if isAdmin();
+    }
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

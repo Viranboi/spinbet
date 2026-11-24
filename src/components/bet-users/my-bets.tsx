@@ -1,9 +1,11 @@
 import React from "react";
 // import { useCrashContext } from "../Main/context";
 import Context from "../../context";
+import { useCurrency } from "../../currency";
 
 const MyBets = () => {
     const state = React.useContext(Context)
+    const { num, symbol } = useCurrency();
     // const [state] = useCrashContext();
 
     return (
@@ -11,9 +13,9 @@ const MyBets = () => {
             <div className="legend">
                 <div className="date">Date</div>
                 <div className="bet-100">
-                     <span className="bet">Bet $</span>
+                     <span className="bet">Bet {symbol}</span>
                     <span>X</span>
-                     <span className="cash-out"> Cash out $ </span>
+                     <span className="cash-out"> Cash out {symbol} </span>
                 </div>
                 <div className="tools"></div>
             </div>
@@ -25,14 +27,14 @@ const MyBets = () => {
                                 <div className="username">{new Date(user.date).getHours() + ":" + new Date(user.date).getMinutes()}</div>
                             </div>
                             <div className="bet">
-                                {Number(user.betAmount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                                {num(Number(user.betAmount))}
                             </div>
                             {user.cashouted &&
                                 <div className="multiplier-block">
                                     <div className="bubble">{Number(user.cashoutAt).toFixed(2)}</div>
                                 </div>
                             }
-                            <div className="cash-out">{user.cashouted ? Number(user.betAmount * user.cashoutAt).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : ""}</div>
+                            <div className="cash-out">{user.cashouted ? num(Number(user.betAmount * user.cashoutAt)) : ""}</div>
                             <div className="tools">
                                 <div className="fairness-i"></div>
                                 <div className="share-i"></div>

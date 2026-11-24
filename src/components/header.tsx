@@ -3,9 +3,12 @@ import React from "react";
 import "../index.scss";
 import Context from "../context";
 import aviatorLogo from "../assets/images/aviator-logo.svg";
+import { useCurrency } from "../currency";
+import CurrencySelect from "./CurrencySelect";
 
 export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }) {
   const { state, responsibleGaming, updateResponsibleGaming } = React.useContext(Context)
+  const { num, symbol } = useCurrency();
 
   const [howto, setHowto] = React.useState<'howto' | 'short' | 'more' | ''>("howto");
   const [showResponsible, setShowResponsible] = React.useState(false);
@@ -27,7 +30,7 @@ export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }
   return (
     <>
       {/* Row 1: Lobby + Deposit - HIGH BLACK */}
-      <div style={{
+      <div className="avi-topbar" style={{
         position: "fixed",
         top: 0,
         left: 0,
@@ -86,7 +89,7 @@ export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }
       </div>
 
       {/* Row 2: Aviator + Balance + Icons - SOFT DARK */}
-      <div className="header flex-none items-center" style={{ top: "40px" }}>
+      <div className="header avi-subbar flex-none items-center" style={{ top: "40px" }}>
         <div className="header-container header-soft-dark" style={{ padding: "0 12px" }}>
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <img src={aviatorLogo} alt="Aviator" style={{ height: "28px" }} />
@@ -95,9 +98,10 @@ export default function Header({ onCasinoClick }: { onCasinoClick?: () => void }
           <div className="second-block" style={{ gap: "10px" }}>
             <div className="d-flex">
               <div className="balance">
-                <span className="amount">{Number(state.userInfo.balance).toLocaleString()}</span>{' '}
-                <span className="currency">$</span>
+                <span className="amount">{num(Number(state.userInfo.balance))}</span>{' '}
+                <span className="currency">{symbol}</span>
               </div>
+              <CurrencySelect style={{ marginLeft: 6 }} />
             </div>
             <div className="header-hamburger" style={{
               width: "32px",

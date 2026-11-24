@@ -7,6 +7,8 @@ import { useAuth } from "../auth/AuthContext";
 import { useWallet } from "../p2p/hooks";
 import { credit } from "../p2p/wallet";
 import { ALL_METHODS } from "../components/p2p/OtherPaymentMethods";
+import { db } from "../firebase";
+import { doc, setDoc } from "firebase/firestore";
 import "./DepositPage.scss";
 
 /* ------------------------------------------------------------------ */
@@ -15,7 +17,7 @@ import "./DepositPage.scss";
 /* ------------------------------------------------------------------ */
 
 export const RWF_PER_USD = 1400;
-export const MIN_RWF = 20 * RWF_PER_USD; // 28,000 RWF ≈ $20
+export const MIN_RWF = 6500; // 6,500 RWF ≈ $4.64
 const MIN_CRYPTO_USD = 1;
 
 type MethodId =
@@ -168,6 +170,7 @@ export default function DepositPage() {
             )}
           </section>
         </div>
+        {user && <ManualDepositRequest user={user} />}
         <p className="w1-disclaimer">18+ Play responsibly. Deposits are instant once the provider confirms the payment.</p>
       </div>
     </div>
@@ -215,19 +218,41 @@ function MomoPanel() {
     } catch { /* ignore */ }
   }
 
+  const CREDITED_KEY = "spinbet_credited_momo";
+  function alreadyCredited(txId: string): boolean {
+    try {
+      const raw = localStorage.getItem(CREDITED_KEY);
+      const arr: string[] = raw ? JSON.parse(raw) : [];
+      return Array.isArray(arr) && arr.includes(txId);
+    } catch { return false; }
+  }
+  function markCredited(txId: string) {
+    try {
+      const raw = localStorage.getItem(CREDITED_KEY);
+      const arr: string[] = raw ? JSON.parse(raw) : [];
+      if (!arr.includes(txId)) { arr.unshift(txId); if (arr.length > 200) arr.length = 200; }
+      localStorage.setItem(CREDITED_KEY, JSON.stringify(arr));
+    } catch { /* ignore */ }
+  }
+
   function handleResult(txId: string, data: any, amountRwf: number, uid: string) {
     const st = String(data?.status || "unknown").toLowerCase();
     const reason = data?.reason || data?.message || "";
-    if (st === "success") {
+    if (st === "success" || st === "completed" || st === "paid") {
       stopPolling();
       clearPending(txId);
       setChecking(null);
-      credit(uid, Math.round(amountRwf), "momo_deposit", `pt-${txId}`, "MTN MoMo deposit (PataLink)");
-      toast.success(`MoMo deposit confirmed — ${Math.round(amountRwf).toLocaleString()} added to your balance!`);
+      if (alreadyCredited(txId)) return;
+      markCredited(txId);
+      const amtUsd = Math.round(amountRwf / RWF_PER_USD);
+      credit(uid, amtUsd, "momo_deposit", `pt-${txId}`, "MTN MoMo deposit (PataLink)");
+      setDoc(doc(db, "topups", `momo-${txId}`), { status: "completed" }, { merge: true }).catch(() => {});
+      toast.success(`MoMo deposit confirmed — $${amtUsd.toLocaleString()} added to your balance!`);
     } else if (st === "failed" || st === "rejected") {
       stopPolling();
       clearPending(txId);
       setChecking(null);
+      setDoc(doc(db, "topups", `momo-${txId}`), { status: "failed" }, { merge: true }).catch(() => {});
       toast.error(`MoMo payment ${st}. ${reason || "Declined by provider — no funds were taken."}`);
     } else {
       setChecking(txId);
@@ -296,7 +321,26 @@ function MomoPanel() {
     const txId = data && data.transactionId;
     if (!txId) { toast.error("No transactionId returned. Try again."); return; }
     const uid = user?.uid || "guest";
+    const amtUsd = Math.round(a / RWF_PER_USD);
     try { localStorage.setItem(MOMO_PENDING_KEY, JSON.stringify({ txId, amountRwf: a, uid, ts: Date.now() })); } catch { /* ignore */ }
+    try {
+      await setDoc(doc(db, "topups", `momo-${txId}`), {
+        id: `momo-${txId}`,
+        userId: uid,
+        uid,
+        userName: user?.displayName || "",
+        email: user?.email || "",
+        phone: user?.phone || "",
+        amount: amtUsd,
+        method: "MTN MoMo (PataLink)",
+        reference: txId,
+        status: "pending",
+        ts: Date.now(),
+        createdAt: Date.now(),
+      }, { merge: true });
+    } catch (e: any) {
+      toast.error(`Could not log deposit: ${e?.message || e}`);
+    }
     toast.info(`Approve the MoMo prompt on your phone. Polling ${txId}…`);
     startPolling(txId, a, uid);
   }
@@ -381,7 +425,7 @@ function MomoPanel() {
           <button className="w1-submit" disabled>Loading payment keys…</button>
         )}
       </div>
-      {!valid && <div className="w1-err">Minimum MoMo deposit is {MIN_RWF.toLocaleString()} RWF (≈ $20).</div>}
+      {!valid && <div className="w1-err">Minimum MoMo deposit is {MIN_RWF.toLocaleString()} RWF (≈ $5).</div>}
 
       <ol className="w1-steps">
         <li><b>1</b> Enter the amount and press the green button.</li>
@@ -428,11 +472,13 @@ function CryptoPanel({ methodId, onPickMethod }: { methodId: MethodId; onPickMet
           window.clearInterval(pollRef.current);
           try { localStorage.removeItem(CRYPTO_PENDING_KEY); } catch {}
           credit(pending.uid, pending.amount, "crypto_deposit", `np-${pending.id}`, "Crypto deposit (NOWPayments)");
+          setDoc(doc(db, "topups", `crypto-${pending.id}`), { status: "completed" }, { merge: true }).catch(() => {});
           toast.success(`Deposit confirmed — $${pending.amount} added to your balance!`);
           setChecking(null);
         } else if (["failed", "expired", "refunded"].includes(data.status)) {
           window.clearInterval(pollRef.current);
           try { localStorage.removeItem(CRYPTO_PENDING_KEY); } catch {}
+          setDoc(doc(db, "topups", `crypto-${pending.id}`), { status: "failed" }, { merge: true }).catch(() => {});
           toast.error(`Payment ${data.status}. No funds were taken.`);
           setChecking(null);
         }
@@ -459,9 +505,24 @@ function CryptoPanel({ methodId, onPickMethod }: { methodId: MethodId; onPickMet
       });
       const data = await r.json();
       if (!r.ok || !data?.invoice_url) throw new Error(data?.error || "Could not create payment");
+      const cUid = user?.uid || "guest";
       try {
-        localStorage.setItem(CRYPTO_PENDING_KEY, JSON.stringify({ id: data.id, amount, uid: user?.uid || "guest", ts: Date.now() }));
+        localStorage.setItem(CRYPTO_PENDING_KEY, JSON.stringify({ id: data.id, amount, uid: cUid, ts: Date.now() }));
       } catch { /* ignore */ }
+      await setDoc(doc(db, "topups", `crypto-${data.id}`), {
+        id: `crypto-${data.id}`,
+        userId: cUid,
+        uid: cUid,
+        userName: user?.displayName || "",
+        email: user?.email || "",
+        phone: user?.phone || "",
+        amount,
+        method: "Crypto (NOWPayments)",
+        reference: data.id,
+        status: "pending",
+        ts: Date.now(),
+        createdAt: Date.now(),
+      }, { merge: true });
       window.location.href = data.invoice_url;
     } catch (e: any) {
       toast.error(e?.message || "Payment failed to start");
@@ -600,6 +661,66 @@ function MoreMethods({ query, showAll, setShowAll }: { query: string; showAll: b
           {showAll ? `Show less (${visible.length} / ${filtered.length})` : `Show all ${filtered.length} methods`}
         </button>
       )}
+    </div>
+  );
+}
+
+/* ---------------- Manual deposit request (admin approval) ---------------- */
+function ManualDepositRequest({ user }: { user: { uid: string; email: string; displayName: string; phone: string } }) {
+  const [amount, setAmount] = React.useState<string>("");
+  const [method, setMethod] = React.useState<string>("MTN MoMo");
+  const [reference, setReference] = React.useState<string>("");
+  const [busy, setBusy] = React.useState(false);
+
+  async function submit() {
+    const num = Number(amount);
+    if (!Number.isFinite(num) || num <= 0) return (window as any).toast?.error?.("Enter a valid amount") || alert("Enter a valid amount");
+    if (!reference.trim()) return alert("Enter transaction reference");
+    setBusy(true);
+    try {
+      const id = `topup-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      await setDoc(doc(db, "topups", id), {
+        id,
+        userId: user.uid,
+        uid: user.uid,
+        userName: user.displayName || "",
+        email: user.email || "",
+        phone: user.phone || "",
+        amount: num,
+        method,
+        reference: reference.trim(),
+        status: "pending",
+        ts: Date.now(),
+        createdAt: Date.now(),
+      });
+      setAmount("");
+      setReference("");
+      alert("Deposit request submitted. Admin will review and credit your balance.");
+    } catch (e: any) {
+      alert(e?.message || "Failed to submit deposit request");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <div className="w1-form" style={{ marginTop: 24 }}>
+      <h3>Paid but not credited? Submit for review</h3>
+      <p className="w1-note">If you sent money directly, submit the details and an admin will approve and credit your balance.</p>
+      <label className="w1-label">Amount</label>
+      <input type="number" min={1} value={amount} onChange={(e) => setAmount(e.target.value)} />
+      <label className="w1-label">Method</label>
+      <select value={method} onChange={(e) => setMethod(e.target.value)}>
+        <option>MTN MoMo</option>
+        <option>Airtel Money</option>
+        <option>Bank transfer</option>
+        <option>Other</option>
+      </select>
+      <label className="w1-label">Transaction reference</label>
+      <input value={reference} onChange={(e) => setReference(e.target.value)} placeholder="e.g. tx id / phone" />
+      <button className="w1-submit" onClick={submit} disabled={busy}>
+        {busy ? "Submitting…" : "Submit deposit request"}
+      </button>
     </div>
   );
 }

@@ -47,6 +47,106 @@ function loadPlatformUsers(): PlatformUser[] {
   }
 }
 
+function AdminPayout() {
+  const { user } = useAuth();
+  const [phone, setPhone] = useState("");
+  const [amount, setAmount] = useState("");
+  const [network, setNetwork] = useState("MTN");
+  const [busy, setBusy] = useState(false);
+  const [status, setStatus] = useState("");
+
+  async function handleWithdraw(e: React.FormEvent) {
+    e.preventDefault();
+    const uid = user?.uid;
+    if (!uid) return toast.error("Not logged in");
+    const amt = Math.round(Number(amount) || 0);
+    if (!phone || !/^0[0-9]{9}$/.test(phone))
+      return toast.error("Enter a valid MTN number (078/079… 10 digits)");
+    if (!amt || amt < 100) return toast.error("Amount must be at least 100 RWF");
+    const bal = getBalance(uid);
+    if (bal < amt) return toast.error(`Insufficient balance: ${bal.toLocaleString()} 🪙`);
+
+    setBusy(true);
+    try {
+      const r = await fetch("/api/patalink-payout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone, amount: amt, network }),
+      });
+      const data = await r.json();
+      if (!r.ok || !data.id) throw new Error(data.error || "Payout creation failed");
+
+      // Reserve funds from admin balance immediately
+      debit(uid, amt, "withdrawal_payout", `payout-${data.id}`, `Payout to ${phone} (${network})`);
+      setStatus(`Payout #${data.id} created — ${data.status || "pending"}. Checking…`);
+
+      // Poll terminal status (short, serverless-safe)
+      let attempts = 0;
+      while (attempts++ < 6) {
+        await new Promise((res) => setTimeout(res, 2500));
+        const sr = await fetch(`/api/patalink-payout-status?id=${encodeURIComponent(data.id)}`);
+        const sd = await sr.json();
+        const st = String(sd.status || "").toLowerCase();
+        if (st === "paid" || st === "success" || st === "completed") {
+          setStatus(`Payout #${data.id} completed ✅`);
+          toast.success("Withdrawal completed successfully");
+          return;
+        }
+        if (st === "rejected" || st === "failed") {
+          credit(uid, amt, "withdrawal_refund", `payout-${data.id}`, `Failed payout refund to ${phone}`);
+          setStatus(`Payout #${data.id} failed — ${amt.toLocaleString()} 🪙 refunded`);
+          toast.error("Payout failed — amount refunded to your balance");
+          return;
+        }
+      }
+      setStatus(`Payout #${data.id} still processing — check again later`);
+    } catch (err: any) {
+      toast.error(err?.message || "Withdrawal failed");
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  const bal = getBalance(user?.uid || "");
+  return (
+    <div className="card" style={{ marginBottom: 20, maxWidth: 520 }}>
+      <h2>💸 Admin Withdrawal / Payout</h2>
+      <p className="note">Withdraw from your admin balance to any MoMo number via PataLink.</p>
+      <form onSubmit={handleWithdraw} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+        <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+          <input
+            type="text"
+            placeholder="0781234567"
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            style={{ flex: 1, minWidth: 150, padding: "8px", borderRadius: 6, border: "1px solid #e5e7eb" }}
+          />
+          <select
+            value={network}
+            onChange={(e) => setNetwork(e.target.value)}
+            style={{ padding: "8px", borderRadius: 6, border: "1px solid #e5e7eb", minWidth: 150 }}
+          >
+            <option value="MTN">MTN MoMo</option>
+            <option value="Airtel">Airtel Money</option>
+          </select>
+          <input
+            type="number"
+            placeholder="Amount RWF"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            style={{ flex: 1, minWidth: 120, padding: "8px", borderRadius: 6, border: "1px solid #e5e7eb" }}
+          />
+        </div>
+        <button type="submit" disabled={busy} className="btn-gold" style={{ padding: "10px" }}>
+          {busy ? "Sending…" : "Withdraw"}
+        </button>
+      </form>
+      {status && <p className="note" style={{ marginTop: 8 }}>{status}</p>}
+      <p className="note">Your admin balance: {bal.toLocaleString()} 🪙</p>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const { user, login, logout } = useAuth();
   const [email, setEmail] = useState("");
@@ -674,11 +774,10 @@ function UserFunding() {
     try {
       await setBlocked(u.uid, !locked, !locked ? "Locked by admin" : "");
       if (!locked) {
-        // Tell the user why, with verification steps — fire-and-forget.
         sendNotification(
           u.uid,
-          "Account banned 🚫",
-          "Your account has been permanently banned. Access has been revoked.",
+          "Account locked 🔒",
+          "Your account has been locked by admin. You cannot play games while locked.",
           "warning",
           "admin"
         ).catch(() => {});
@@ -700,7 +799,7 @@ function UserFunding() {
       await setDoc(doc(db, "users", u.uid), { suspended: next, updatedAt: Date.now() }, { merge: true });
       if (next) {
         try { await setBlocked(u.uid, true, "Banned by admin"); } catch {}
-        sendNotification(u.uid, "Account banned 🚫", "Your account has been banned by the admin. Contact support for more info.", "warning", "admin").catch(() => {});
+        sendNotification(u.uid, "Account banned 🚫", "Your account has been permanently banned. Access has been revoked.", "warning", "admin").catch(() => {});
       } else {
         try { await setBlocked(u.uid, false, ""); } catch {}
       }
@@ -729,6 +828,7 @@ function UserFunding() {
 
   return (
     <>
+      <AdminPayout />
       <h3 className="section-title">
         💰 Users &amp; Balances ({filtered.length} / local {users.length} + remote {remote.length})
         <input
@@ -765,8 +865,8 @@ function UserFunding() {
                   <td>{u.email}</td>
                   <td className="mono">{u.phone || "—"}</td>
                   <td className="mono">{u.uid}</td>
-                  <td className="bal" style={isBlocked(u.uid) ? { opacity: 0.55 } : undefined}>
-                    {isBlocked(u.uid) ? "🔒 " : ""}{(remoteBal.has(u.uid) ? remoteBal.get(u.uid)! : getBalance(u.uid)).toLocaleString()} 🪙
+                  <td className="bal" style={isBlocked(u.uid) && !u.suspended ? { opacity: 0.55 } : undefined}>
+                    {u.suspended ? "🚫 " : isBlocked(u.uid) ? "🔒 " : ""}{(remoteBal.has(u.uid) ? remoteBal.get(u.uid)! : getBalance(u.uid)).toLocaleString()} 🪙
                   </td>
                   <td>
                     <div className="ctrl-row">

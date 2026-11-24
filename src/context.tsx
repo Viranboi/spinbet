@@ -1,6 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect } from "react";
-import { UnityContext } from "react-unity-webgl";
 import { toast } from "react-toastify";
 import { generateFakePlayers, generateWatcherCount, flightSecondsFor } from "./gameEngine";
 import { fetchRoundState } from "./upcomingOdds";
@@ -13,6 +12,8 @@ import {
   subscribeBalance,
 } from "./p2p/wallet";
 import { isBlocked } from "./p2p/restrictions";
+import { pushBalance, pushDelta } from "./p2p/remote";
+import { useCurrency } from "./currency";
 
 function getCurrentUid(): string | null {
   try {
@@ -158,7 +159,7 @@ interface ContextDataType {
   sdeState: boolean;
   ssingle: boolean;
   sdefaultBetAmount: number;
-  myUnityContext: UnityContext;
+  myUnityContext: any;
 }
 
 interface ContextType extends GameBetLimit, UserStatusType, GameStatusType {
@@ -170,7 +171,7 @@ interface ContextType extends GameBetLimit, UserStatusType, GameStatusType {
   previousHand: BettedUserType[];
   history: number[];
   rechargeState: boolean;
-  myUnityContext: UnityContext;
+  myUnityContext: any;
   currentTarget: number;
   watcherCount: number;
   totalBets: number;
@@ -187,12 +188,7 @@ interface ContextType extends GameBetLimit, UserStatusType, GameStatusType {
   updateResponsibleGaming(attrs: Partial<ResponsibleGamingState>);
 }
 
-const unityContext = new UnityContext({
-  loaderUrl: "unity/AirCrash.loader.js",
-  dataUrl: "unity/AirCrash.data.unityweb",
-  frameworkUrl: "unity/AirCrash.framework.js.unityweb",
-  codeUrl: "unity/AirCrash.wasm.unityweb",
-});
+const unityContext: any = null;
 
 const init_state: ContextDataType = {
   myBets: [],
@@ -252,7 +248,22 @@ let fDecreaseAmount = 0;
 let sDecreaseAmount = 0;
 
 export const Provider = ({ children }: any) => {
-  const [state, setState] = React.useState<ContextDataType>({ ...init_state });
+  const { fmt, currency, usd } = useCurrency();
+  // Ref so the bet effect below doesn't re-run when the display currency changes.
+  const fmtRef = React.useRef(fmt);
+  fmtRef.current = fmt;
+  // RWF gets a 1,000 Frw minimum bet; other currencies keep $1.
+  const minBet = currency === "RWF" ? usd(1000) : 1;
+  const maxBet = 90000;
+  const [state, setState] = React.useState<ContextDataType>(() => {
+    const s = { ...init_state };
+    const defaultBet = currency === "RWF" ? usd(1000) : 500;
+    s.userInfo.f.betAmount = defaultBet;
+    s.userInfo.s.betAmount = defaultBet;
+    s.fdefaultBetAmount = defaultBet;
+    s.sdefaultBetAmount = defaultBet;
+    return s;
+  });
   const [gameState, setGameState] = React.useState<GameStatusType>({
     currentNum: 0,
     currentSecondNum: 0,
@@ -261,10 +272,10 @@ export const Provider = ({ children }: any) => {
     speed: 1,
   });
 
-  const [unity, setUnity] = React.useState({
-    unityState: false,
-    unityLoading: false,
-    currentProgress: 0,
+  const [unity] = React.useState({
+    unityState: true,
+    unityLoading: true,
+    currentProgress: 100,
   });
 
   const [bettedUsers, setBettedUsers] = React.useState<BettedUserType[]>([]);
@@ -276,9 +287,9 @@ export const Provider = ({ children }: any) => {
     sbetState: false,
     sbetted: false,
   });
-  const [rechargeState] = React.useState(false);
+  const [rechargeState, setRechargeState] = React.useState(false);
   const [currentTarget, setCurrentTarget] = React.useState(0);
-  const [betLimit] = React.useState<GameBetLimit>({ maxBet: 90000, minBet: 10 });
+  // betLimit derived from currency (see minBet/maxBet above).
   const [watcherCount, setWatcherCount] = React.useState(0);
   const [totalBets, setTotalBets] = React.useState(0);
   const [totalCashout, setTotalCashout] = React.useState(0);
@@ -303,19 +314,23 @@ export const Provider = ({ children }: any) => {
   betStateRef.current = userBetState;
   demoRef.current = isDemoMode;
 
-  function persistBalanceDelta(uid: string, oldBal: number, newBal: number) {
+  async function persistBalanceDelta(uid: string, oldBal: number, newBal: number) {
     if (!uid || demoRef.current) return;
-    const o = Math.round(oldBal * 100) / 100;
-    const n = Math.round(newBal * 100) / 100;
+    const o = Math.round(oldBal * 10000) / 10000;
+    const n = Math.round(newBal * 10000) / 10000;
     if (o === n) return;
+    const delta = Math.round((n - o) * 10000) / 10000;
     try {
       if (n > o) {
-        walletCredit(uid, Math.round((n - o) * 100) / 100, "casino_win", "aviator-sync", "Game win sync");
+        walletCredit(uid, delta, "casino_win", "aviator-sync", "Game win sync", false);
+        await pushDelta(uid, delta).catch(() => {});
       } else {
         try {
-          walletDebit(uid, Math.round((o - n) * 100) / 100, "casino_bet", "aviator-sync", "Game bet sync");
+          walletDebit(uid, Math.round((o - n) * 10000) / 10000, "casino_bet", "aviator-sync", "Game bet sync", false);
+          await pushDelta(uid, -Math.round((o - n) * 10000) / 10000).catch(() => {});
         } catch {
-          persistSetBalance(uid, n, "sync", "Balance sync");
+          persistSetBalance(uid, n, "sync", "Balance sync", false);
+          await pushBalance(uid, n);
         }
       }
     } catch {
@@ -354,17 +369,35 @@ export const Provider = ({ children }: any) => {
     };
   }, []);
 
+  // Push current balance on page hide/close so wins are not lost.
+  React.useEffect(() => {
+    const pushNow = () => {
+      const uid = getCurrentUid();
+      if (!uid || demoRef.current) return;
+      try { pushBalance(uid, stateRef.current.userInfo.balance); } catch {}
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "hidden") pushNow();
+    };
+    window.addEventListener("beforeunload", pushNow);
+    document.addEventListener("visibilitychange", onVisibility);
+    return () => {
+      window.removeEventListener("beforeunload", pushNow);
+      document.removeEventListener("visibilitychange", onVisibility);
+    };
+  }, []);
+
   // Pull external wallet changes (deposit, admin top-up, other games) into Aviator/Mines view.
   React.useEffect(() => {
     return subscribeBalance(() => {
-      const uid = uidRef.current;
+      const uid = getCurrentUid();
       if (!uid || demoRef.current) return;
       const walletBal = getBalance(uid);
-      setState((prev) =>
-        Math.round(prev.userInfo.balance * 100) / 100 === Math.round(walletBal * 100) / 100
-          ? prev
-          : { ...prev, userInfo: { ...prev.userInfo, balance: walletBal } }
-      );
+       setState((prev) =>
+         Math.round(prev.userInfo.balance * 10000) / 10000 === Math.round(walletBal * 10000) / 10000
+           ? prev
+           : { ...prev, userInfo: { ...prev.userInfo, balance: walletBal } }
+       );
     });
   }, []);
 
@@ -377,7 +410,7 @@ export const Provider = ({ children }: any) => {
       s.userInfo.userName = "Demo Player";
       setState(s);
     } else {
-      const uid = uidRef.current;
+      const uid = getCurrentUid();
       if (uid) {
         const bal = ensureWallet(uid);
         setState((prev) => ({ ...prev, userInfo: { ...prev.userInfo, balance: bal } }));
@@ -396,11 +429,11 @@ export const Provider = ({ children }: any) => {
   const update = (attrs: Partial<ContextDataType>) => {
     // Persist any balance change coming from Mines or other context consumers.
     if (attrs.userInfo && typeof attrs.userInfo.balance === "number") {
-      const uid = uidRef.current;
+      const uid = getCurrentUid();
       const newBal = attrs.userInfo.balance;
       if (uid && !demoRef.current) {
         const oldBal = stateRef.current.userInfo.balance;
-        if (Math.round(oldBal * 100) / 100 !== Math.round(newBal * 100) / 100) {
+        if (Math.round(oldBal * 10000) / 10000 !== Math.round(newBal * 10000) / 10000) {
           persistBalanceDelta(uid, oldBal, newBal);
         }
       }
@@ -414,26 +447,7 @@ export const Provider = ({ children }: any) => {
 
   const getMyBets = () => {};
 
-  React.useEffect(function () {
-    unityContext.on("GameController", function (message) {
-      if (message === "Ready") {
-        setUnity({
-          currentProgress: 100,
-          unityLoading: true,
-          unityState: true,
-        });
-      }
-    });
-    unityContext.on("progress", (progression) => {
-      const currentProgress = progression * 100;
-      if (progression === 1) {
-        setUnity({ currentProgress, unityLoading: true, unityState: true });
-      } else {
-        setUnity({ currentProgress, unityLoading: false, unityState: false });
-      }
-    });
-    return () => unityContext.removeAllEventListeners();
-  }, []);
+  // Unity removed: no-op loader.
 
   useEffect(() => {
     cashOutHandler = (at: number, index: "f" | "s") => {
@@ -446,7 +460,7 @@ export const Provider = ({ children }: any) => {
       const payout = bet.betAmount * at;
       const oldBal = s.userInfo.balance;
       s.userInfo = { ...s.userInfo, [index]: bet };
-      s.userInfo.balance = Math.round((oldBal + payout) * 100) / 100;
+      s.userInfo.balance = Math.round((oldBal + payout) * 10000) / 10000;
       bet.cashouted = true;
       bet.cashAmount = payout;
       bet.betted = false;
@@ -454,7 +468,7 @@ export const Provider = ({ children }: any) => {
       b[`${index}betted`] = false;
       b[`${index}betState`] = false;
 
-      const uid = uidRef.current;
+      const uid = getCurrentUid();
       if (uid) persistBalanceDelta(uid, oldBal, s.userInfo.balance);
 
       setState(s);
@@ -469,15 +483,6 @@ export const Provider = ({ children }: any) => {
     gameActiveRef.current = true;
     let cancelled = false;
 
-    const waitUntilLocal = async (ts: number): Promise<boolean> => {
-      for (;;) {
-        const remain = ts - Date.now();
-        if (remain <= 0) return true;
-        if (!gameActiveRef.current || cancelled) return false;
-        await delay(Math.min(remain, 200));
-      }
-    };
-
     const startRound = async () => {
       while (gameActiveRef.current && !cancelled) {
         const st = await fetchRoundState();
@@ -485,15 +490,12 @@ export const Provider = ({ children }: any) => {
 
         if (st.history && st.history.length) setHistory(st.history);
 
-        if (st.msIntoPhase >= st.betMs) {
-          const nextBoundaryLocal = Date.now() + (st.roundMs - st.msIntoPhase);
-          if (!(await waitUntilLocal(nextBoundaryLocal))) break;
-          continue;
-        }
-
         const crashPoint = st.current;
-        const betEndLocal = Date.now() + (st.betMs - st.msIntoPhase);
-        const roundEndLocal = betEndLocal + st.playMs + st.endMs;
+        // Variable-length rounds: BET pause → fly at uniform speed → END pause.
+        // The server is only the crash-point source; flight time is
+        // (crash-1)/0.5s so every round climbs at the same speed.
+        const BET_LOCAL_MS = st.betMs || 4000;
+        const END_LOCAL_MS = st.endMs || 4000;
         const roundId = `R${Date.now()}-${Math.floor(Math.random() * 9999)}`;
 
         setCurrentRoundId(roundId);
@@ -547,15 +549,14 @@ export const Provider = ({ children }: any) => {
           GameState: "BET",
           currentNum: 0,
           currentSecondNum: 0,
-          time: Math.max(0, st.msIntoPhase),
+          time: 0,
           speed: 1,
         });
 
-        if (!(await waitUntilLocal(betEndLocal))) break;
+        await delay(BET_LOCAL_MS);
+        if (!gameActiveRef.current || cancelled) break;
 
-        // Constant speed: flight lasts exactly as long as the shared growth
-        // curve needs to reach this round's crash point (like real Spribe).
-        // Pace is identical every round; only duration varies.
+        // Spribe-like pacing: duration varies with crash point.
         const flightMs = Math.max(0, flightSecondsFor(crashPoint) * 1000);
 
         setGameState({
@@ -585,7 +586,8 @@ export const Provider = ({ children }: any) => {
 
         processGameEnd();
 
-        if (!(await waitUntilLocal(roundEndLocal))) break;
+        await delay(END_LOCAL_MS);
+        if (!gameActiveRef.current || cancelled) break;
       }
     };
 
@@ -692,7 +694,7 @@ export const Provider = ({ children }: any) => {
     }
 
     // Locked accounts cannot place new bets — balance is frozen.
-    const lockUid = uidRef.current;
+    const lockUid = getCurrentUid();
     if (lockUid && isBlocked(lockUid)) {
       if (betStatus.fbetState || betStatus.sbetState) {
         toast.error("Account locked — please contact Support to unlock.");
@@ -716,16 +718,16 @@ export const Provider = ({ children }: any) => {
             return;
           }
         }
-        if (s.userInfo.f.betAmount < 10) {
-          toast.error("Minimum bet on Aviator is $10");
+        if (s.userInfo.f.betAmount < minBet) {
+          toast.error(`Minimum bet on Aviator is ${fmtRef.current(minBet)}`);
           betStatus.fbetState = false;
           betStatus.fbetted = false;
           setState({ ...s });
           setUserBetState({ ...betStatus });
           return;
         }
-        if (s.userInfo.balance < 10) {
-          toast.error("You need at least $10 to play Aviator");
+        if (s.userInfo.balance < minBet) {
+          toast.error(`You need at least ${fmtRef.current(minBet)} to play Aviator`);
           betStatus.fbetState = false;
           betStatus.fbetted = false;
           setState({ ...s });
@@ -734,6 +736,8 @@ export const Provider = ({ children }: any) => {
         }
         if (s.userInfo.balance - s.userInfo.f.betAmount < 0) {
           toast.error("Your balance is not enough");
+          setRechargeState(true);
+          setTimeout(() => setRechargeState(false), 2000);
           betStatus.fbetState = false;
           betStatus.fbetted = false;
           setState({ ...s });
@@ -742,8 +746,8 @@ export const Provider = ({ children }: any) => {
         }
         {
           const oldBal = s.userInfo.balance;
-          s.userInfo.balance = Math.round((oldBal - s.userInfo.f.betAmount) * 100) / 100;
-          const uid = uidRef.current;
+          s.userInfo.balance = Math.round((oldBal - s.userInfo.f.betAmount) * 10000) / 10000;
+          const uid = getCurrentUid();
           if (uid) persistBalanceDelta(uid, oldBal, s.userInfo.balance);
         }
         s.userInfo.f.betted = true;
@@ -764,16 +768,16 @@ export const Provider = ({ children }: any) => {
             return;
           }
         }
-        if (s.userInfo.s.betAmount < 10) {
-          toast.error("Minimum bet on Aviator is $10");
+        if (s.userInfo.s.betAmount < minBet) {
+          toast.error(`Minimum bet on Aviator is ${fmtRef.current(minBet)}`);
           betStatus.sbetState = false;
           betStatus.sbetted = false;
           setState({ ...s });
           setUserBetState({ ...betStatus });
           return;
         }
-        if (s.userInfo.balance < 10) {
-          toast.error("You need at least $10 to play Aviator");
+        if (s.userInfo.balance < minBet) {
+          toast.error(`You need at least ${fmtRef.current(minBet)} to play Aviator`);
           betStatus.sbetState = false;
           betStatus.sbetted = false;
           setState({ ...s });
@@ -782,6 +786,8 @@ export const Provider = ({ children }: any) => {
         }
         if (s.userInfo.balance - s.userInfo.s.betAmount < 0) {
           toast.error("Your balance is not enough");
+          setRechargeState(true);
+          setTimeout(() => setRechargeState(false), 2000);
           betStatus.sbetState = false;
           betStatus.sbetted = false;
           setState({ ...s });
@@ -790,8 +796,8 @@ export const Provider = ({ children }: any) => {
         }
         {
           const oldBal = s.userInfo.balance;
-          s.userInfo.balance = Math.round((oldBal - s.userInfo.s.betAmount) * 100) / 100;
-          const uid = uidRef.current;
+          s.userInfo.balance = Math.round((oldBal - s.userInfo.s.betAmount) * 10000) / 10000;
+          const uid = getCurrentUid();
           if (uid) persistBalanceDelta(uid, oldBal, s.userInfo.balance);
         }
         s.userInfo.s.betted = true;
@@ -801,13 +807,14 @@ export const Provider = ({ children }: any) => {
         setUserBetState({ ...betStatus });
       }
     }
-  }, [gameState.GameState, userBetState.fbetState, userBetState.sbetState]);
+  }, [gameState.GameState, userBetState.fbetState, userBetState.sbetState, minBet]);
 
   return (
     <Context.Provider
       value={{
         state: state,
-        ...betLimit,
+        minBet,
+        maxBet,
         ...userBetState,
         ...unity,
         ...gameState,

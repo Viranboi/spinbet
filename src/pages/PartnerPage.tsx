@@ -3,6 +3,7 @@ import { toast } from "react-toastify";
 import { useAuth } from "../auth/AuthContext";
 import * as ordersApi from "../p2p/orders";
 import { CURRENCY_META, FiatCurrency } from "../p2p/types";
+import { useCurrency } from "../currency";
 import "./AdminPage.scss";
 
 const ACCESS_CODE = "LETSBET-PARTNER";
@@ -55,6 +56,7 @@ export default function PartnerPage() {
 
 function PartnerRegister() {
   const { user } = useAuth();
+  const { fmt, symbol, disp, usd, rate: fxRate } = useCurrency();
   const profile = user ? ordersApi.getMyExchangerProfile(user.uid) : undefined;
   const [displayName, setDisplayName] = useState("");
   const [mtn, setMtn] = useState("");
@@ -73,8 +75,8 @@ function PartnerRegister() {
           <h2>🏢 {profile.displayName}</h2>
           <p className="ok">Your desk is live on the P2P market.</p>
           <div className="status-grid">
-            <div><span>Float available</span><b>${Math.floor(profile.availableCoins).toLocaleString()}</b></div>
-            <div><span>In escrow</span><b>${profile.lockedCoins.toLocaleString()}</b></div>
+            <div><span>Float available</span><b>{fmt(Math.floor(profile.availableCoins))}</b></div>
+            <div><span>In escrow</span><b>{fmt(profile.lockedCoins)}</b></div>
             <div><span>Status</span><b>{profile.status}</b></div>
             <div><span>Verified</span><b>{profile.verified ? "Yes" : "Pending"}</b></div>
           </div>
@@ -121,7 +123,7 @@ function PartnerRegister() {
             <h2>Become a Certified Exchanger</h2>
             <p>
               Private registration for approved partners. Your desk goes live immediately;
-              Support credits your starting float (${Number(requestedFloat || 0).toLocaleString()} requested).
+              Support credits your starting float ({fmt(Number(requestedFloat || 0))} requested).
             </p>
           </div>
           <div className="form-grid">
@@ -138,7 +140,13 @@ function PartnerRegister() {
             <label>Rate ({CURRENCY_META[currency].symbol} per coin)<input type="number" step="0.001" value={rate} onChange={(e) => setRate(e.target.value)} /></label>
             <label>Min order ({CURRENCY_META[currency].symbol})<input type="number" value={minFiat} onChange={(e) => setMinFiat(e.target.value)} /></label>
             <label>Max order ({CURRENCY_META[currency].symbol})<input type="number" value={maxFiat} onChange={(e) => setMaxFiat(e.target.value)} /></label>
-            <label>Starting float to request ($)<input type="number" value={requestedFloat} onChange={(e) => setRequestedFloat(e.target.value)} /></label>
+            <label>Starting float to request ({symbol})
+              <input
+                type="number"
+                value={fxRate === 1 || requestedFloat === "" ? requestedFloat : String(disp(Number(requestedFloat) || 0))}
+                onChange={(e) => setRequestedFloat(fxRate === 1 || e.target.value === "" ? e.target.value : String(usd(Number(e.target.value))))}
+              />
+            </label>
           </div>
           <button
             className="btn-gold"

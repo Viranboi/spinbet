@@ -8,7 +8,7 @@ import CasinoPage from "./games/CasinoPage";
 import Context from "./context";
 
 function App() {
-  const { unityLoading, currentProgress, rechargeState, isDemoMode, state } =
+  const { unityLoading, currentProgress, rechargeState, state } =
     React.useContext(Context);
   const [showCasino, setShowCasino] = React.useState(false);
 

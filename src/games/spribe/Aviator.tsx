@@ -1,15 +1,18 @@
 import { useState, useEffect, useRef } from 'react';
 import GameLayout, { Panel, BetInput, ActionButton } from './GameLayout';
+import { useCurrency } from '../../currency';
 
 const COLOR = '#7C3AED';
 
 export default function Aviator({ balance, setBalance }: { balance: number; setBalance: (b: number | ((prev: number) => number)) => void }) {
+  const { fmt } = useCurrency();
   const [bet, setBet] = useState(10);
   const [phase, setPhase] = useState<'idle' | 'flying' | 'crashed'>('idle');
   const [multiplier, setMultiplier] = useState(1.00);
   const [cashedOut, setCashedOut] = useState(false);
   const [crashPoint, setCrashPoint] = useState<number>(0);
   const [history, setHistory] = useState([2.4, 1.1, 5.6, 1.3, 8.2, 1.0, 3.1]);
+  const [countdown, setCountdown] = useState(0);
   const [message, setMessage] = useState<{ text: string; win: boolean } | null>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const frameRef = useRef<number>(0);
@@ -36,7 +39,8 @@ export default function Aviator({ balance, setBalance }: { balance: number; setB
 
     frameRef.current = requestAnimationFrame(function tick() {
       const elapsed = (Date.now() - startTimeRef.current) / 1000;
-      const m = Math.pow(Math.E, elapsed * 0.35);
+      // Slower, accelerating-ish climb like other Aviator games.
+      const m = 1 + 0.25 * elapsed;
       const capped = parseFloat(Math.min(m, crashRef.current).toFixed(2));
       setMultiplier(capped);
       drawGraph(capped, crashRef.current);
@@ -58,7 +62,7 @@ export default function Aviator({ balance, setBalance }: { balance: number; setB
     setCashedOut(true);
     const winnings = parseFloat((bet * m).toFixed(2));
     setBalance(b => parseFloat((b + winnings).toFixed(2)));
-    setMessage({ text: `Cashed out at ${m.toFixed(2)}× — Won $${winnings.toFixed(2)}!`, win: true });
+    setMessage({ text: `Cashed out at ${m.toFixed(2)}× — Won ${fmt(winnings)}!`, win: true });
     setPhase('crashed');
     setHistory(h => [parseFloat(crashPoint.toFixed(2)), ...h].slice(0, 10));
   }
@@ -71,13 +75,13 @@ export default function Aviator({ balance, setBalance }: { balance: number; setB
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
 
-    const pct = Math.min(current / Math.max(crash, 5), 1);
+    const pct = Math.min(Math.max((current - 1) / Math.max(crash - 1, 0.01), 0), 1);
     const pts = 60;
     ctx.beginPath();
     for (let i = 0; i <= pts; i++) {
       const t = (i / pts) * pct;
       const x = (i / pts) * W;
-      const y = H - (Math.pow(Math.E, t * Math.log(Math.max(crash, 5))) / Math.max(crash, 5)) * (H - 20) - 10;
+      const y = H - t * (H - 20) - 10;
       i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
     }
     const grad = ctx.createLinearGradient(0, 0, W, 0);
@@ -90,7 +94,7 @@ export default function Aviator({ balance, setBalance }: { balance: number; setB
 
     // Plane
     const px = (pct) * W;
-    const py = H - (Math.pow(Math.E, pct * Math.log(Math.max(crash, 5))) / Math.max(crash, 5)) * (H - 20) - 10;
+    const py = H - pct * (H - 20) - 10;
     ctx.font = '28px serif';
     ctx.fillText('✈️', px - 18, py + 10);
   }
@@ -101,6 +105,23 @@ export default function Aviator({ balance, setBalance }: { balance: number; setB
   }, []);
 
   useEffect(() => () => cancelAnimationFrame(frameRef.current), []);
+
+  useEffect(() => {
+    if (phase !== 'crashed') { setCountdown(0); return; }
+    setCountdown(10);
+    const t = setInterval(() => {
+      setCountdown((c) => {
+        if (c <= 1) {
+          clearInterval(t);
+          setPhase('idle');
+          setMultiplier(1.00);
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+    return () => clearInterval(t);
+  }, [phase]);
 
   const isCrashed = phase === 'crashed';
 
@@ -177,6 +198,20 @@ export default function Aviator({ balance, setBalance }: { balance: number; setB
         <canvas ref={canvasRef} width={580} height={220}
           style={{ width: '100%', height: 220, borderRadius: 12, background: '#1a1b1e' }}
         />
+        {countdown > 0 && (
+          <div style={{ marginTop: 12, textAlign: 'center' }}>
+            <div style={{ fontSize: 14, color: '#9ea0a3', marginBottom: 6 }}>
+              Next round in <b style={{ color: COLOR }}>{countdown}s</b>
+            </div>
+            <div style={{ height: 6, borderRadius: 3, background: '#2a2b2e', overflow: 'hidden' }}>
+              <div style={{
+                height: '100%', width: `${(10 - countdown) * 10}%`,
+                background: `linear-gradient(90deg, ${COLOR}, #A855F7)`,
+                transition: 'width 1s linear',
+              }} />
+            </div>
+          </div>
+        )}
       </Panel>
     </GameLayout>
   );

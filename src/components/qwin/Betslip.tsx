@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Trash2, Info, X, Check } from "lucide-react";
 import { toast } from "react-toastify";
 import type { Selection } from "./data";
+import { useCurrency } from "../../currency";
 
 interface Props {
   selections: Selection[];
@@ -34,6 +35,7 @@ function SlipArt() {
 }
 
 export default function Betslip({ selections, onRemove, onClear }: Props) {
+  const { fmt, num, disp, usd, rate } = useCurrency();
   const [tab, setTab] = useState<"betslip" | "mybets">("betslip");
   const [acceptChanges, setAcceptChanges] = useState(true);
   const [stake, setStake] = useState("");
@@ -53,7 +55,7 @@ export default function Betslip({ selections, onRemove, onClear }: Props) {
       return;
     }
     toast.success(
-      `Bet placed (demo): ${selections.length} pick${selections.length > 1 ? "s" : ""} @ ${totalOdds.toFixed(2)} — $${Math.round(returns).toLocaleString()}`
+      `Bet placed (demo): ${selections.length} pick${selections.length > 1 ? "s" : ""} @ ${totalOdds.toFixed(2)} — ${fmt(Math.round(returns))}`
     );
     setStake("");
     onClear();
@@ -156,14 +158,14 @@ export default function Betslip({ selections, onRemove, onClear }: Props) {
                   <input
                     type="number"
                     min={0}
-                    value={stake}
-                    onChange={(e) => setStake(e.target.value)}
+                    value={rate === 1 || stake === "" ? stake : String(disp(Number(stake) || 0))}
+                    onChange={(e) => setStake(rate === 1 || e.target.value === "" ? e.target.value : String(usd(Number(e.target.value))))}
                     placeholder="Stake Amount"
                   />
                   <div className="quick">
                     {QUICK.map((q) => (
                       <button key={q} type="button" onClick={() => setStake(String(stakeNum + q))}>
-                        +{q.toLocaleString()}
+                        +{num(q)}
                       </button>
                     ))}
                   </div>
@@ -176,7 +178,7 @@ export default function Betslip({ selections, onRemove, onClear }: Props) {
                   </div>
                   <div>
                     <span>Possible Payout</span>
-                    <strong>${Math.round(returns).toLocaleString()}</strong>
+                    <strong>{fmt(Math.round(returns))}</strong>
                   </div>
                 </div>
 

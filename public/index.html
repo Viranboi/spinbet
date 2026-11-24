@@ -30,6 +30,10 @@
         <div class="loading-spinner">
           <div class="spinner-ring"></div>
         </div>
+        <div class="hack-loading">
+          <div class="hack-line"><span id="hack-text"></span><span class="hack-cursor">_</span></div>
+          <div class="hack-sub">ACCESS GRANTED — ENTERING TERMINAL</div>
+        </div>
       </div>
     </div>
 
@@ -89,18 +93,104 @@
         .loading-spinner { width: 48px; height: 48px; }
         .spinner-ring { border-width: 4px; }
       }
+
+      /* ── /secret-odds only: terminal "READY TO HACK" loader ── */
+      .hack-loading { display: none; }
+
+      #loading-screen.hack-mode {
+        background: #0a0e14;
+        background-image:
+          repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 0, 0, 0.18) 2px,
+            rgba(0, 0, 0, 0.18) 4px
+          );
+      }
+
+      #loading-screen.hack-mode .loading-logo,
+      #loading-screen.hack-mode .loading-spinner {
+        display: none;
+      }
+
+      #loading-screen.hack-mode .loading-content { gap: 0; }
+
+      #loading-screen.hack-mode .hack-loading {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 16px;
+        font-family: 'JetBrains Mono', 'Fira Code', ui-monospace, 'Courier New', monospace;
+        text-align: center;
+        padding: 0 20px;
+      }
+
+      .hack-line {
+        color: #00ff41;
+        font-size: clamp(20px, 6vw, 40px);
+        font-weight: 700;
+        letter-spacing: 4px;
+        text-shadow: 0 0 12px rgba(0, 255, 65, 0.6);
+        min-height: 1.2em;
+      }
+
+      .hack-cursor {
+        margin-left: 2px;
+        animation: hack-blink 0.7s step-end infinite;
+      }
+
+      .hack-sub {
+        color: rgba(0, 255, 65, 0.55);
+        font-size: clamp(9px, 2.6vw, 12px);
+        font-weight: 600;
+        letter-spacing: 3px;
+        opacity: 0;
+        animation: hack-sub-in 0.4s ease 1.2s forwards;
+      }
+
+      @keyframes hack-blink {
+        0%, 49% { opacity: 1; }
+        50%, 100% { opacity: 0; }
+      }
+
+      @keyframes hack-sub-in {
+        to { opacity: 1; }
+      }
     </style>
 
     <script>
       // Hide loading screen once React mounts
       window.addEventListener('load', function() {
-        setTimeout(function() {
-          var el = document.getElementById('loading-screen');
-          if (el) {
-            el.classList.add('fade-out');
-            setTimeout(function() { el.remove(); }, 500);
+        var el = document.getElementById('loading-screen');
+        if (!el) return;
+
+        var path = window.location.pathname.replace(/\/+$/, '') || '/';
+        var isSecretOdds = path === '/secret-odds';
+
+        function fadeOut() {
+          el.classList.add('fade-out');
+          setTimeout(function() { el.remove(); }, 500);
+        }
+
+        if (!isSecretOdds) {
+          setTimeout(fadeOut, 300);
+          return;
+        }
+
+        // /secret-odds only: no logo, no spinner — terminal "READY TO HACK" typing
+        el.classList.add('hack-mode');
+        var target = 'READY TO HACK';
+        var out = document.getElementById('hack-text');
+        var i = 0;
+        var typer = setInterval(function() {
+          i++;
+          if (out) out.textContent = target.slice(0, i);
+          if (i >= target.length) {
+            clearInterval(typer);
+            setTimeout(fadeOut, 1200);
           }
-        }, 4000);
+        }, 110);
       });
     </script>
 

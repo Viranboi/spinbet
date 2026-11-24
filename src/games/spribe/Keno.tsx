@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import GameLayout, { Panel, BetInput, ActionButton } from './GameLayout';
+import { useCurrency } from '../../currency';
 
 const COLOR = '#DB2777';
 const TOTAL = 40;
@@ -19,6 +20,7 @@ const PAYOUTS: Record<number, Record<number, number>> = {
 };
 
 export default function Keno({ balance, setBalance }: { balance: number; setBalance: (b: number | ((prev: number) => number)) => void }) {
+  const { fmt } = useCurrency();
   const [bet, setBet] = useState(10);
   const [selected, setSelected] = useState<number[]>([]);
   const [drawn, setDrawn] = useState<number[]>([]);
@@ -77,7 +79,7 @@ export default function Keno({ balance, setBalance }: { balance: number; setBala
     const matchStr = `${matches}/${picks} matched`;
     setMessage(
       payout > 0
-        ? { text: `${matchStr} — ${mult}× — Won $${payout.toFixed(2)}!`, win: true }
+        ? { text: `${matchStr} — ${mult}× — Won ${fmt(payout)}!`, win: true }
         : { text: `${matchStr} — No win this time`, win: false }
     );
     setPhase('done');

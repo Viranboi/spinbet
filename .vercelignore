@@ -1,2 +1,8 @@
+node_modules
 build
+.git
+functions/node_modules
 new-browser
+external-games
+.env
+.env.*

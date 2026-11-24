@@ -1,0 +1,409 @@
+/* ============================================================
+   WITHDRAW — white/light mode (this page only)
+   Loaded after DepositPage.scss; scoped under .wd-page so the
+   deposit page keeps its dark cashier look untouched.
+   ============================================================ */
+
+.wd-page.dm-page {
+  background: #f4f6fb;
+  color: #101828;
+}
+
+.wd-page {
+  /* ── HEADER ── */
+  .dm-header {
+    background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid #e6e9f0;
+    padding: 13px 18px;
+    top: 56px;
+
+    .dm-back {
+      color: #344054;
+      background: #f2f4f7;
+      border-radius: 10px;
+      padding: 7px;
+      margin-right: 12px;
+      transition: background 0.15s ease, transform 0.15s ease;
+
+      &:hover {
+        background: #e4e7ec;
+        transform: translateX(-2px);
+      }
+    }
+
+    .dm-title {
+      color: #101828;
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+    }
+  }
+
+  /* ── BODY ── */
+  .dm-body {
+    flex: 1;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 22px 16px 48px;
+  }
+
+  /* ── CARD ── */
+  .dm-card {
+    background: #ffffff;
+    border: 1px solid #e8ecf4;
+    border-radius: 20px;
+    box-shadow: 0 6px 28px rgba(16, 24, 40, 0.07);
+    padding: 24px 22px;
+    gap: 18px;
+  }
+
+  /* ── BALANCE PANEL ── */
+  .wd-bal {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #fffaf0 0%, #ffffff 70%);
+    border: 1px solid #fdeab5;
+    border-radius: 16px;
+    padding: 16px 18px;
+
+    span {
+      color: #8b7333;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    b {
+      color: #101828;
+      font-size: clamp(22px, 6vw, 28px);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+
+  /* ── BLOCKED (below minimum) ── */
+  .wd-blocked {
+    text-align: center;
+    padding: 30px 18px;
+    background: #f9fafb;
+    border: 1px dashed #d0d5dd;
+    border-radius: 16px;
+
+    .wd-lock {
+      font-size: 42px;
+    }
+
+    h3 {
+      color: #101828;
+      margin: 12px 0 8px;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    p {
+      color: #667085;
+      font-size: 13px;
+      line-height: 1.65;
+      margin: 0;
+
+      b {
+        color: #101828;
+      }
+    }
+  }
+
+  /* ── STEPS ── */
+  .cd-step {
+    display: flex;
+    gap: 13px;
+    background: #ffffff;
+    border: 1px solid #e8ecf4;
+    border-radius: 16px;
+    padding: 17px 16px;
+    transition: box-shadow 0.2s ease;
+
+    &:focus-within {
+      box-shadow: 0 0 0 4px rgba(252, 213, 53, 0.25);
+      border-color: #fcd535;
+    }
+  }
+
+  .cd-num {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: #fcd535;
+    color: #101828;
+    font-weight: 800;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(252, 213, 53, 0.45);
+  }
+
+  .cd-step-body {
+    flex: 1;
+    min-width: 0;
+
+    h3 {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: #101828;
+      margin: 4px 0 10px;
+    }
+  }
+
+  .cd-note {
+    color: #667085;
+    font-size: 12.5px;
+    line-height: 1.55;
+    margin: 0 0 12px;
+  }
+
+  /* ── AMOUNT INPUT ── */
+  .cd-custom {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f7f8fa;
+    border: 1px solid #e4e7ef;
+    border-radius: 12px;
+    padding: 6px 14px;
+    color: #101828;
+    transition: border-color 0.15s ease, background 0.15s ease;
+
+    &:focus-within {
+      background: #fff;
+      border-color: #101828;
+    }
+
+    span {
+      color: #98a2b3;
+      font-weight: 800;
+      font-size: 16px;
+    }
+
+    input {
+      background: none;
+      border: none;
+      outline: none;
+      color: #101828;
+      flex: 1;
+      min-width: 0;
+      width: auto;
+      font-weight: 800;
+      font-size: 17px;
+      padding: 10px 0;
+      font-variant-numeric: tabular-nums;
+
+      &::-webkit-outer-spin-button,
+      &::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
+  }
+
+  /* ── PRESET CHIPS ── */
+  .cd-presets {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 9px;
+    align-items: center;
+    margin-top: 11px !important;
+  }
+
+  .cd-chip {
+    background: #f7f8fa;
+    border: 1px solid #e4e7ef;
+    color: #475467;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 8px 17px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+
+    &:hover {
+      border-color: #fcd535;
+      color: #101828;
+      transform: translateY(-1px);
+    }
+
+    &.on {
+      background: #101828;
+      border-color: #101828;
+      color: #ffffff;
+      box-shadow: 0 3px 10px rgba(16, 24, 40, 0.25);
+    }
+  }
+
+  /* ── PHONE INPUT ── */
+  .opm-search {
+    width: 100%;
+    box-sizing: border-box;
+    background: #f7f8fa;
+    border: 1px solid #e4e7ef;
+    border-radius: 12px;
+    color: #101828;
+    padding: 14px 15px;
+    font-size: 15px;
+    font-weight: 600;
+    outline: none;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease;
+
+    &:focus {
+      background: #fff;
+      border-color: #101828;
+      box-shadow: 0 0 0 4px rgba(16, 24, 40, 0.08);
+    }
+
+    &::placeholder {
+      color: #98a2b3;
+      font-weight: 500;
+    }
+  }
+
+  /* ── SUBMIT BUTTON ── */
+  .dm-deposit-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #ffdd55 0%, #f7b500 100%);
+    color: #101828;
+    border: none;
+    border-radius: 14px;
+    font-weight: 800;
+    font-size: 16px;
+    padding: 17px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: filter 0.15s ease, transform 0.15s ease, box-shadow 0.15s ease;
+    box-shadow: 0 6px 18px rgba(247, 181, 0, 0.35);
+
+    &:hover:not(:disabled) {
+      filter: brightness(1.05);
+      transform: translateY(-1px);
+      box-shadow: 0 9px 22px rgba(247, 181, 0, 0.42);
+    }
+
+    &:active:not(:disabled) {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+  }
+
+  /* ── HISTORY ── */
+  .wd-history {
+    h4 {
+      color: #344054;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin: 8px 0 10px;
+    }
+
+    .wd-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      background: #f9fafb;
+      border: 1px solid #eef1f6;
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #344054;
+      margin-bottom: 8px;
+
+      span:first-child {
+        font-variant-numeric: tabular-nums;
+        word-break: break-word;
+      }
+
+      .wd-status {
+        flex-shrink: 0;
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 4px 10px;
+        border-radius: 999px;
+        background: #fff7e0;
+        color: #b54708;
+        border: 1px solid #fde8b0;
+      }
+    }
+  }
+
+  /* ── LOGIN GATE ── */
+  .dm-login-gate {
+    background: #ffffff;
+    border: 1px solid #e8ecf4;
+    border-radius: 20px;
+    box-shadow: 0 6px 28px rgba(16, 24, 40, 0.07);
+
+    .dm-gate-icon {
+      font-size: 44px;
+    }
+
+    h2 {
+      color: #101828;
+      font-weight: 800;
+    }
+
+    p {
+      color: #667085;
+    }
+  }
+
+  /* ── LOAD-ERROR NOTE (admin query / history) ── */
+  .wd-load-error {
+    background: #fef3f2;
+    border: 1px solid #fecdca;
+    color: #b42318;
+    border-radius: 12px;
+    padding: 12px 14px;
+    font-size: 13px;
+    font-weight: 600;
+  }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .wd-page {
+    .dm-body {
+      padding: 16px 12px 40px;
+    }
+
+    .dm-card {
+      padding: 18px 14px;
+      border-radius: 16px;
+    }
+
+    .cd-step {
+      padding: 14px 13px;
+    }
+
+    .cd-presets {
+      gap: 7px;
+    }
+
+    .cd-chip {
+      padding: 7px 14px;
+      font-size: 12.5px;
+    }
+  }
+}

@@ -1,5 +1,6 @@
 import React from "react"
 import { BettedUserType } from "../../context";
+import { useCurrency } from "../../currency";
 
 interface AllDataProps {
     pre: boolean
@@ -12,6 +13,7 @@ interface AllDataProps {
 }
 
 const AllData = ({ pre, setPre, allData, activePlayers, totalBets, totalCashout, watcherCount }: AllDataProps) => {
+    const { num, symbol, fmt } = useCurrency();
     return (
         <>
             <div>
@@ -37,15 +39,15 @@ const AllData = ({ pre, setPre, allData, activePlayers, totalBets, totalCashout,
                 }}>
                     <span>{activePlayers.toLocaleString()} / {watcherCount.toLocaleString()} Bets</span>
                     <span style={{ color: "#8be35d", fontWeight: 600 }}>
-                        {totalCashout.toLocaleString(undefined, { maximumFractionDigits: 0 })} Total win $
+                        {num(totalCashout)} Total win {symbol}
                     </span>
                 </div>
                 <div className="spacer"></div>
                 <div className="legend">
                     <span className="user">Player</span>
-                    <span className="bet">Bet $</span>
+                    <span className="bet">Bet {symbol}</span>
                     <span>X</span>
-                    <span className="cash-out">Win $</span>
+                    <span className="cash-out">Win {symbol}</span>
                 </div>
             </div>
             <div className="cdk-virtual-scroll-viewport">
@@ -60,14 +62,14 @@ const AllData = ({ pre, setPre, allData, activePlayers, totalBets, totalCashout,
                                 <div className="username">{user.name?.length > 10 ? user.name?.slice(0, 1) + "***" + user.name?.slice(-1) : user.name}</div>
                             </div>
                             <div className="bet">
-                                {Number(user.betAmount).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                                {num(Number(user.betAmount))}
                             </div>
                             {user.cashouted &&
                                 <div className="multiplier-block">
                                     <div className="bubble">{parseFloat(Number(user.target).toFixed(2))}</div>
                                 </div>
                             }
-                            <div className="cash-out">{Number(user.cashOut) > 0 ? Number(user.cashOut).toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 }) : ""}</div>
+                            <div className="cash-out">{Number(user.cashOut) > 0 ? num(Number(user.cashOut)) : ""}</div>
                         </div>
                     ))}
                 </div>
@@ -80,9 +82,9 @@ const AllData = ({ pre, setPre, allData, activePlayers, totalBets, totalCashout,
             </div>}
             {!pre && <div className="bets-live-summary" style={{ marginTop: "2px" }}>
                 <span style={{ color: "#555" }}>Total bets</span>
-                <strong style={{ color: "#9ea0a3" }}>${totalBets.toLocaleString(undefined, { maximumFractionDigits: 0 })}</strong>
+                <strong style={{ color: "#9ea0a3" }}>{fmt(totalBets)}</strong>
                 <span className="cashout-label">Cashout</span>
-                <strong className="cashout-value">${totalCashout.toLocaleString(undefined, { maximumFractionDigits: 0 })}</strong>
+                <strong className="cashout-value">{fmt(totalCashout)}</strong>
             </div>}
         </>
     )

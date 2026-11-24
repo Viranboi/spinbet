@@ -14,8 +14,13 @@ import {
   PlinkoEngine,
 } from "../games/CasinoEngines";
 import { credit, debit as walletDebit } from "../p2p/wallet";
+import { useWallet } from "../p2p/hooks";
+import { useCurrency } from "../currency";
+import AuthModal from "../auth/AuthModal";
 import { toast } from "react-toastify";
 import "./CrashGamesPage.scss";
+
+const UNLOCK_THRESHOLD = 10_000;
 
 type FilterTab = "all" | "slots" | "favourite" | "crash" | "spinners";
 
@@ -44,12 +49,15 @@ function loadFavs(): string[] {
 export default function CrashGamesPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { balance } = useWallet();
+  const { fmt } = useCurrency();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState<FilterTab>("all");
   const [favs, setFavs] = useState<string[]>(loadFavs);
   const [launching, setLaunching] = useState<CrashGame | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
 
   const filtered = useMemo(() => {
     return GAMES.filter((g) => {
@@ -72,6 +80,7 @@ export default function CrashGamesPage() {
 
   function openGame(g: CrashGame) {
     if (g.id === "aviator") {
+      if (!user) { setAuthOpen(true); return; }
       navigate("/aviator");
       return;
     }
@@ -176,6 +185,12 @@ export default function CrashGamesPage() {
                 <h3>Login required</h3>
                 <p>Log in to play with your coin balance.</p>
               </div>
+            ) : launching.id !== "aviator" && launching.id !== "mines" && balance < UNLOCK_THRESHOLD ? (
+              <div className="cg-modal-gate">
+                <span>🔒</span>
+                <h3>VIP Game Locked</h3>
+                <p>You need at least {fmt(UNLOCK_THRESHOLD)} to play {launching.name} — you currently hold {fmt(Math.floor(balance))}. Deposit via Crypto to top up.</p>
+              </div>
             ) : (
               (() => {
                 const engineProps = {
@@ -186,7 +201,7 @@ export default function CrashGamesPage() {
                   },
                   creditWin: (amount: number, note: string) => {
                     credit(user.uid, amount, "casino_win", launching.id, note);
-                    toast.success(`+$${amount.toLocaleString()}`);
+                    toast.success(`+${fmt(amount)}`);
                   },
                 };
                 const e = engineFor(engineProps.game);
@@ -215,6 +230,7 @@ export default function CrashGamesPage() {
           </aside>
         </>
       )}
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} initialMode="register" />
     </div>
   );
 }

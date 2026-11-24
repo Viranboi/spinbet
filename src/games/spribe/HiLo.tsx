@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import GameLayout, { Panel, BetInput, ActionButton } from './GameLayout';
+import { useCurrency } from '../../currency';
 
 const COLOR = '#DC2626';
 const SUITS = ['♠','♥','♦','♣'];
@@ -54,6 +55,7 @@ function CardFace({ card, hidden, size = 'lg' }: { card: any; hidden: boolean; s
 }
 
 export default function HiLo({ balance, setBalance }: { balance: number; setBalance: (b: number | ((prev: number) => number)) => void }) {
+  const { fmt } = useCurrency();
   const [bet, setBet] = useState(10);
   const [phase, setPhase] = useState<'idle' | 'playing' | 'done'>('idle');
   const [currentCard, setCurrentCard] = useState<any>(null);
@@ -106,7 +108,7 @@ export default function HiLo({ balance, setBalance }: { balance: number; setBala
       if (newStreak >= 7) {
         const payout = parseFloat((bet * 25).toFixed(2));
         setBalance(b => parseFloat((b + payout).toFixed(2)));
-        setMessage({ text: `MAX STREAK! 25× — Won $${payout.toFixed(2)}!`, win: true });
+        setMessage({ text: `MAX STREAK! 25× — Won ${fmt(payout)}!`, win: true });
         setPhase('done');
       } else {
         setMessage({ text: `Correct! ${next.value}${next.suit}. Keep going!`, win: true });
@@ -119,7 +121,7 @@ export default function HiLo({ balance, setBalance }: { balance: number; setBala
     const payout = parseFloat((bet * currentMult).toFixed(2));
     setBalance(b => parseFloat((b + payout).toFixed(2)));
     setCashedOut(true);
-    setMessage({ text: `Cashed out ${currentMult}× — Won $${payout.toFixed(2)}!`, win: true });
+    setMessage({ text: `Cashed out ${currentMult}× — Won ${fmt(payout)}!`, win: true });
     setPhase('done');
   }
 
@@ -139,7 +141,7 @@ export default function HiLo({ balance, setBalance }: { balance: number; setBala
                 padding: '10px 14px', borderRadius: 10, fontWeight: 700, fontSize: 16,
                 background: '#D1FAE533', border: '1.5px solid #6EE7B7', color: '#059669', marginBottom: 10,
               }}>
-                Cash out: ${(bet * currentMult).toFixed(2)} ({currentMult}×)
+                Cash out: {fmt(bet * currentMult)} ({currentMult}×)
               </div>
               <ActionButton onClick={cashOut} color="#059669" variant="secondary" disabled={cashedOut}>
                 Cash Out Now

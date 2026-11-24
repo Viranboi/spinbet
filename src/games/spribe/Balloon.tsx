@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import GameLayout, { Panel, BetInput, ActionButton } from './GameLayout';
+import { useCurrency } from '../../currency';
 
 const COLOR = '#EA580C';
 
@@ -10,6 +11,7 @@ function generatePop() {
 }
 
 export default function Balloon({ balance, setBalance }: { balance: number; setBalance: (b: number | ((prev: number) => number)) => void }) {
+  const { fmt } = useCurrency();
   const [bet, setBet] = useState(10);
   const [phase, setPhase] = useState<'idle' | 'inflating' | 'popped'>('idle');
   const [multiplier, setMultiplier] = useState(1.00);
@@ -63,7 +65,7 @@ export default function Balloon({ balance, setBalance }: { balance: number; setB
     setCashoutMult(m);
     const payout = parseFloat((bet * m).toFixed(2));
     setBalance(b => parseFloat((b + payout).toFixed(2)));
-    setMessage({ text: `Cashed out ${m.toFixed(2)}× — Won $${payout.toFixed(2)}!`, win: true });
+    setMessage({ text: `Cashed out ${m.toFixed(2)}× — Won ${fmt(payout)}!`, win: true });
     setHistory(h => [parseFloat(m.toFixed(2)), ...h].slice(0, 10));
     setPhase('popped');
   }

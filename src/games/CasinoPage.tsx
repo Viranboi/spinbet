@@ -1,11 +1,13 @@
 import React, { useState } from 'react';
 import { Mines, Aviator } from './spribe';
+import { useCurrency } from '../currency';
 
 const GAMES = [
   { id: 'mines', name: 'Mines', emoji: '💣', color: '#059669', component: Mines, desc: 'Find gems, avoid bombs' },
 ];
 
 export default function CasinoPage({ onBack, balance }: { onBack: () => void; balance: number }) {
+  const { fmt } = useCurrency();
   const [selectedGame, setSelectedGame] = useState<string | null>(null);
   const [currentBalance, setCurrentBalance] = useState(balance);
 
@@ -41,7 +43,7 @@ export default function CasinoPage({ onBack, balance }: { onBack: () => void; ba
               {gameEmoji} {gameName}
             </div>
             <div style={{ marginLeft: 'auto', color: '#fff', fontWeight: 700, fontSize: 16 }}>
-              ${currentBalance.toLocaleString()}
+              {fmt(currentBalance)}
             </div>
           </div>
           <GameComponent balance={currentBalance} setBalance={setCurrentBalance} />
@@ -82,7 +84,7 @@ export default function CasinoPage({ onBack, balance }: { onBack: () => void; ba
           Crash Games
         </div>
         <div style={{ marginLeft: 'auto', color: '#fff', fontWeight: 700, fontSize: 16 }}>
-          ${currentBalance.toLocaleString()}
+          {fmt(currentBalance)}
         </div>
       </div>
 

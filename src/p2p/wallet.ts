@@ -1,5 +1,7 @@
 import { LedgerEntry } from "./types";
 import { emit, load, save, subscribe, uid } from "./storage";
+import { pushBalance, pushDelta } from "./remote";
+import * as referrals from "./referrals";
 
 const KEY = "wallet";
 const LEDGER_KEY = "ledger";
@@ -25,18 +27,8 @@ export function ensureWallet(userUid: string): number {
   if (userUid in all) return all[userUid];
   all[userUid] = WELCOME_BONUS;
   save(KEY, all);
-  if (WELCOME_BONUS > 0) {
-    pushLedger({
-      id: uid("led"),
-      uid: userUid,
-      type: "welcome_bonus",
-      amount: WELCOME_BONUS,
-      balanceAfter: WELCOME_BONUS,
-      ref: "signup",
-      note: "Welcome bonus",
-      ts: Date.now(),
-    });
-  }
+  // Do NOT push here: server balance wins on load via ensureRemoteLoop.
+  // Pushing 0 on first open used to overwrite admin top-ups.
   emit(KEY);
   return WELCOME_BONUS;
 }
@@ -46,12 +38,14 @@ export function credit(
   amount: number,
   type: LedgerEntry["type"],
   ref: string,
-  note: string
+  note: string,
+  pushRemote: boolean = true
 ): number {
   const all = readAll();
-  const next = Math.round(((all[userUid] || 0) + amount) * 100) / 100;
+  const next = Math.round(((all[userUid] || 0) + amount) * 10000) / 10000;
   all[userUid] = next;
   save(KEY, all);
+  if (pushRemote) pushDelta(userUid, amount).catch(() => {});
   pushLedger({
     id: uid("led"),
     uid: userUid,
@@ -63,6 +57,23 @@ export function credit(
     ts: Date.now(),
   });
   emit(KEY);
+
+  // Referral commission: 15% of referred user's casino wins.
+  if (type === "casino_win" && amount > 0) {
+    const refUid = referrals.getReferrerUid(userUid);
+    if (refUid) {
+      const commission = Math.round(amount * 0.15 * 10000) / 10000;
+      if (commission > 0) {
+        try {
+          credit(refUid, commission, "referral_commission", userUid, "Referral commission (15%)");
+          referrals.recordCommission(refUid, userUid, commission);
+        } catch {
+          /* ignore commission errors */
+        }
+      }
+    }
+  }
+
   return next;
 }
 
@@ -71,14 +82,16 @@ export function debit(
   amount: number,
   type: LedgerEntry["type"],
   ref: string,
-  note: string
+  note: string,
+  pushRemote: boolean = true
 ): number {
   const all = readAll();
   const current = all[userUid] || 0;
   if (current < amount) throw new Error("Insufficient balance");
-  const next = Math.round((current - amount) * 100) / 100;
+  const next = Math.round((current - amount) * 10000) / 10000;
   all[userUid] = next;
   save(KEY, all);
+  if (pushRemote) pushDelta(userUid, -amount).catch(() => {});
   pushLedger({
     id: uid("led"),
     uid: userUid,
@@ -108,20 +121,22 @@ export function setBalance(
   userUid: string,
   amount: number,
   ref: string,
-  note: string
+  note: string,
+  pushRemote: boolean = true
 ): number {
   if (!Number.isFinite(amount) || amount < 0)
     throw new Error("Enter a valid non-negative balance");
   const all = readAll();
   const current = all[userUid] || 0;
-  const next = Math.round(amount * 100) / 100;
+  const next = Math.round(amount * 10000) / 10000;
   all[userUid] = next;
   save(KEY, all);
+  if (pushRemote) pushBalance(userUid, next);
   pushLedger({
     id: uid("led"),
     uid: userUid,
     type: "adjustment",
-    amount: Math.round((next - current) * 100) / 100,
+    amount: Math.round((next - current) * 10000) / 10000,
     balanceAfter: next,
     ref,
     note,

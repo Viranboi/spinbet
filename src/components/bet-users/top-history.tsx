@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import MoonLoader from "react-spinners/MoonLoader";
 import "./bets.scss";
+import { useCurrency } from "../../currency";
 
 const fakeTopData = [
   { name: "Kamal M.", betAmount: 90000, cashoutAt: 4.12 },
@@ -22,6 +23,7 @@ interface TopHistoryProps {
 }
 
 const TopHistory = ({ openFairModal }: TopHistoryProps) => {
+  const { num, symbol } = useCurrency();
   // roundHistory available for provably fair data
   const [type, setType] = React.useState(0);
   const [topData, setTopData] = React.useState<any[]>([]);
@@ -102,11 +104,11 @@ const TopHistory = ({ openFairModal }: TopHistoryProps) => {
                     <div className="score">
                       <div className="flex">
                         <div className="">
-                            <span>Bet $:&nbsp;</span>
+                            <span>Bet {symbol}:&nbsp;</span>
                           <span></span>
                         </div>
                         <span className="amount">
-                           {item.betAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                           {num(item.betAmount)}
                         </span>
                       </div>
                       <div className="flex">
@@ -119,13 +121,10 @@ const TopHistory = ({ openFairModal }: TopHistoryProps) => {
                       </div>
                       <div className="flex">
                         <div className="">
-                            <span>Win $: &nbsp;</span>
+                            <span>Win {symbol}: &nbsp;</span>
                         </div>
                         <span className="amount">
-                           {(item.cashoutAt * item.betAmount).toLocaleString(
-                            "en-US",
-                            { minimumFractionDigits: 2, maximumFractionDigits: 2 }
-                          )}
+                           {num(item.cashoutAt * item.betAmount)}
                         </span>
                       </div>
                     </div>

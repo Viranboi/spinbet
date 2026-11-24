@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useAuth } from "./AuthContext";
 import "./AuthModal.scss";
 
@@ -14,6 +14,14 @@ export default function AuthModal({ isOpen, onClose, initialMode = "register" }:
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [referralCode, setReferralCode] = useState("");
+  useEffect(() => {
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const ref = params.get("ref");
+      if (ref) setReferralCode(ref);
+    } catch {}
+  }, []);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -28,7 +36,7 @@ export default function AuthModal({ isOpen, onClose, initialMode = "register" }:
     setLoading(true);
     try {
       if (mode === "register") {
-        await register(email, password, name, phone);
+        await register(email, password, name, phone, referralCode);
         setSuccess(true);
       } else {
         await login(email, password);
@@ -94,6 +102,10 @@ export default function AuthModal({ isOpen, onClose, initialMode = "register" }:
                   <div className="auth-field">
                     <label>Phone Number</label>
                     <input type="tel" placeholder="+250 7XX XXX XXX" value={phone} onChange={(e) => setPhone(e.target.value)} required />
+                  </div>
+                  <div className="auth-field">
+                    <label>Referral Code (optional)</label>
+                    <input type="text" placeholder="REF..." value={referralCode} onChange={(e) => setReferralCode(e.target.value)} />
                   </div>
                 </>
               )}

@@ -7,7 +7,7 @@ import Context, { BettedUserType } from "../../context";
 export default function BetsUsers() {
   const { previousHand, bettedUsers, getMyBets, totalBets, totalCashout, watcherCount } = React.useContext(Context);
 
-  const [headerType, setHeaderType] = React.useState("my");
+  const [headerType, setHeaderType] = React.useState("all");
   const [allData, setAllData] = React.useState<BettedUserType[]>([]);
   const [pre, setPre] = React.useState(false);
   const [showFairModal, setShowFairModal] = React.useState(false);

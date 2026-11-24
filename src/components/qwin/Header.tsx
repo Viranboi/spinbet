@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { ChevronDown } from "lucide-react";
 import { useAuth } from "../../auth/AuthContext";
 import { useBlocked, useWallet } from "../../p2p/hooks";
+import { useCurrency } from "../../currency";
 import AuthModal from "../../auth/AuthModal";
 import NotificationsBell from "../NotificationsBell";
 import { UserPersonIcon } from "./icons";
@@ -23,8 +24,9 @@ function UkFlag() {
 }
 
 export default function Header({ onMenu }: { onMenu?: () => void }) {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { balance } = useWallet();
+  const { fmt } = useCurrency();
   const blocked = useBlocked();
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
@@ -34,7 +36,7 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
 
   const balanceText =
     typeof balance === "number"
-      ? balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      ? fmt(balance)
       : String(balance);
 
   return (
@@ -58,19 +60,19 @@ export default function Header({ onMenu }: { onMenu?: () => void }) {
                <div className="wn-balance" aria-label="Account balances">
                   <div className="wn-bal-metric">
                     <span className="lbl">Balance</span>
-                    <strong>{blocked ? "🔒 Locked" : `$${balanceText}`}</strong>
+                    <strong>{blocked ? "🔒 Locked" : balanceText}</strong>
                   </div>
                   <div className="wn-bal-metric">
                     <span className="lbl">Free Bet</span>
-                    <strong>$0</strong>
+                    <strong>{fmt(0)}</strong>
                   </div>
                 </div>
               <Link to="/deposit" className="wn-btn accent">Deposit</Link>
               <NotificationsBell dark />
-              <button className="wn-avatar" onClick={logout} title="Logout">
+              <Link to="/profile" className="wn-avatar" title="Profile">
                 <UserPersonIcon size={22} />
                 <i className="dot" />
-              </button>
+              </Link>
             </>
           ) : (
             <>

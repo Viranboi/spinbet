@@ -3,6 +3,7 @@ import React, { useEffect } from "react";
 import { toast } from 'react-toastify';
 import Context, { callCashOut } from "../../context";
 import { playBetSound, playCashoutSound } from "../../sounds";
+import { useCurrency } from "../../currency";
 
 interface BetProps {
 	index: 'f' | 's'
@@ -10,7 +11,7 @@ interface BetProps {
 	setAdd: any
 }
 type FieldNameType = 'betAmount' | 'decrease' | 'increase' | 'singleAmount'
-type BetOptType = '500' | '2000' | '5000' | '10000'
+type BetOptType = string
 type GameType = 'manual' | 'auto'
 
 const Bet = ({ index, add, setAdd }: BetProps) => {
@@ -43,21 +44,27 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 	const [betOpt, setBetOpt] = React.useState<BetOptType>("500");
 	const [showModal, setShowModal] = React.useState(false);
 	const [myBetAmount, setMyBetAmount] = React.useState(500);
+	const { num, symbol, disp, usd, currency } = useCurrency();
+	// +/- steps worth $100 (same feel in every currency).
+	const step = currency === "RWF" ? usd(1000) : 100;
+	const QUICK_BETS = currency === "RWF"
+		? [usd(1000), usd(5000), usd(10000), usd(50000)]
+		: [500, 2000, 5000, 10000];
 	// const { index } = props;
 
 	const minus = (type: FieldNameType) => {
 		let value = state;
 		if (type === "betAmount") {
-			if (Number(betAmount) - 100 < minBet) {
+			if (Number(betAmount) - step < minBet) {
 				value.userInfo[index][type] = minBet
 			} else {
-				value.userInfo[index][type] = Number((Number(betAmount) - 100).toFixed(2))
+				value.userInfo[index][type] = Number((Number(betAmount) - step).toFixed(4))
 			}
 		} else {
 			if (value[`${index + type}`] - 0.1 < 0.1) {
 				value[`${index + type}`] = 0.1
 			} else {
-				value[`${index + type}`] = Number((Number(value[`${index + type}`]) - 0.1).toFixed(2))
+				value[`${index + type}`] = Number((Number(value[`${index + type}`]) - 0.1).toFixed(4))
 			}
 		}
 		update(value);
@@ -66,18 +73,18 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 	const plus = (type: FieldNameType) => {
 		let value = state;
 		if (type === "betAmount") {
-			if (value.userInfo[index][type] + 100 > maxBet) {
+			if (value.userInfo[index][type] + step > maxBet) {
 				value.userInfo[index][type] = maxBet;
-			} else if (value.userInfo[index][type] + 100 > state.userInfo.balance) {
-				value.userInfo[index][type] = Math.round(state.userInfo.balance * 100) / 100
+			} else if (value.userInfo[index][type] + step > state.userInfo.balance) {
+				value.userInfo[index][type] = Math.round(state.userInfo.balance * 10000) / 10000
 			} else {
-				value.userInfo[index][type] = Number((Number(betAmount) + 100).toFixed(2))
+				value.userInfo[index][type] = Number((Number(betAmount) + step).toFixed(4))
 			}
 		} else {
 			if (value[`${index + type}`] + 0.1 > state.userInfo.balance) {
-				value[`${index + type}`] = Math.round(state.userInfo.balance * 100) / 100
+				value[`${index + type}`] = Math.round(state.userInfo.balance * 10000) / 10000
 			} else {
-				value[`${index + type}`] = Number((Number(value[`${index + type}`]) + 0.1).toFixed(2))
+				value[`${index + type}`] = Number((Number(value[`${index + type}`]) + 0.1).toFixed(4))
 			}
 		}
 		update(value);
@@ -89,10 +96,10 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 			if (Number((betAmount + amount)) > maxBet) {
 				value.userInfo[index].betAmount = maxBet
 			} else {
-				value.userInfo[index].betAmount = Number((betAmount + amount).toFixed(2))
+				value.userInfo[index].betAmount = Number((betAmount + amount).toFixed(4))
 			}
 		} else {
-			value.userInfo[index].betAmount = Number(Number(amount).toFixed(2))
+			value.userInfo[index].betAmount = Number(Number(amount).toFixed(4))
 			setBetOpt(btnNum);
 		}
 		update(value);
@@ -234,12 +241,13 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 								</div>
 								<div className="input">
 									{betState || betted ?
-										<input type="number" value={Number(myBetAmount)} readOnly ></input>
+										<input type="number" value={disp(myBetAmount)} readOnly ></input>
 										:
-										<input type="number" value={Number(myBetAmount)}
+										<input type="number" value={disp(myBetAmount)}
 											onChange={e => {
-												Number(e.target.value) > maxBet ? update({ ...state, userInfo: { ...state.userInfo, [`${index}`]: { betAmount: maxBet } } }) : Number(e.target.value) < 0 ? update({ ...state, userInfo: { ...state.userInfo, [`${index}`]: { betAmount: 0 } } }) :
-													update({ ...state, userInfo: { ...state.userInfo, [`${index}`]: { betAmount: Number(e.target.value) } } });
+												const entered = usd(Number(e.target.value));
+												entered > maxBet ? update({ ...state, userInfo: { ...state.userInfo, [`${index}`]: { betAmount: maxBet } } }) : entered < 0 ? update({ ...state, userInfo: { ...state.userInfo, [`${index}`]: { betAmount: 0 } } }) :
+													update({ ...state, userInfo: { ...state.userInfo, [`${index}`]: { betAmount: entered } } });
 											}}></input>
 									}
 								</div>
@@ -250,44 +258,30 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 						</div>
 						{betState || betted ?
 							<div className="bet-opt-list">
-								<button className="bet-opt disabled">
-									<span>500</span>
-								</button>
-								<button className="bet-opt disabled">
-									<span>2,000</span>
-								</button>
-								<button className="bet-opt disabled">
-									<span>5,000</span>
-								</button>
-								<button className="bet-opt disabled">
-									<span>10,000</span>
-								</button>
+								{QUICK_BETS.map((amt, i) => (
+									<button key={i} className="bet-opt disabled">
+										<span>{num(amt)}</span>
+									</button>
+								))}
 							</div>
 							:
 						<div className="bet-opt-list">
-							<button onClick={() => manualPlus(500, "500")} className="bet-opt">
-								<span>500</span>
-							</button>
-							<button onClick={() => manualPlus(2000, "2000")} className="bet-opt">
-								<span>2,000</span>
-							</button>
-							<button onClick={() => manualPlus(5000, "5000")} className="bet-opt">
-								<span>5,000</span>
-							</button>
-							<button onClick={() => manualPlus(10000, "10000")} className="bet-opt">
-								<span>10,000</span>
-							</button>
+							{QUICK_BETS.map((amt, i) => (
+								<button key={i} onClick={() => manualPlus(amt, String(amt))} className="bet-opt">
+									<span>{num(amt)}</span>
+								</button>
+							))}
 						</div>
 						}
 					</div>
 					<div className="buttons-block">
 						{betted ? GameState === "PLAYING" ?
-						<button className="btn-waiting" onClick={() => { playCashoutSound(); callCashOut(currentTarget, index) }}>
+						<button className="btn-bet" onClick={() => { playCashoutSound(); callCashOut(currentTarget, index) }}>
 							<span>
 								<label>CASHOUT</label>
 								<label className="amount">
-									<span>{Math.round(betAmount * currentTarget)}</span>
-                                    <span className="currency"> $</span>
+									<span>{num(betAmount * currentTarget)}</span>
+                                    <span className="currency">{symbol}</span>
 								</label>
 							</span>
 						</button>
@@ -303,8 +297,8 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 							<span>
 								<label>BET</label>
 								<label className="amount">
-									<span>{Math.round(betAmount)}</span>
-                                    <span className="currency"> $</span>
+									<span>{num(betAmount)}</span>
+                                    <span className="currency">{symbol}</span>
 								</label>
 							</span>
 						</button>
@@ -411,8 +405,8 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 													<button onClick={() => minus("decrease")} className="minus"></button>
 												</div>
 											<div className="input">
-												<input type="number" onChange={(e) => update({ [`${index}decrease`]: Number(e.target.value) })} value={decrease}
-													onBlur={(e) => onChangeBlur(Number(e.target.value) || 0, "decrease")}
+												<input type="number" onChange={(e) => update({ [`${index}decrease`]: usd(Number(e.target.value)) })} value={disp(decrease)}
+													onBlur={(e) => onChangeBlur(usd(Number(e.target.value) || 0), "decrease")}
 												/>
 											</div>
 											<div className="buttons">
@@ -424,14 +418,14 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 													<button disabled className="minus"></button>
 												</div>
 												<div className="input">
-													<input type="number" readOnly value={Math.round(Number(decrease))} />
+													<input type="number" readOnly value={disp(decrease)} />
 												</div>
 												<div className="buttons">
 													<button disabled className="plus"></button>
 												</div>
 											</div>}
 									</div>
-									<span >$</span>
+									<span >{symbol}</span>
 								</div>
 								<div className="content-part">
 									<div className={`input-switch ${inState ? "" : "off"}`}
@@ -448,8 +442,8 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 												<button onClick={() => minus("increase")} className="minus"></button>
 											</div>
 											<div className="input">
-												<input type="number" onChange={(e) => update({ [`${index}increase`]: Number(e.target.value) })} value={increase}
-													onBlur={(e) => onChangeBlur(Number(e.target.value), "increase")}
+												<input type="number" onChange={(e) => update({ [`${index}increase`]: usd(Number(e.target.value)) })} value={disp(increase)}
+													onBlur={(e) => onChangeBlur(usd(Number(e.target.value)), "increase")}
 												/>
 											</div>
 											<div className="buttons">
@@ -460,14 +454,14 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 												<button disabled className="minus"></button>
 											</div>
 											<div className="input">
-												<input type="number" readOnly value={Math.round(Number(increase))} />
+												<input type="number" readOnly value={disp(increase)} />
 											</div>
 											<div className="buttons">
 												<button disabled className="plus"></button>
 											</div>
 										</div>}
 									</div>
-									<span >$</span>
+									<span >{symbol}</span>
 								</div>
 								<div className="content-part">
 									<div className={`input-switch ${single ? "" : "off"}`}
@@ -485,8 +479,8 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 													<button onClick={() => minus("singleAmount")} className="minus"></button>
 												</div>
 												<div className="input">
-													<input type="number" onChange={(e) => update({ [`${index}singleAmount`]: Number(e.target.value) })} value={singleAmount}
-														onBlur={(e) => onChangeBlur(Number(e.target.value), "singleAmount")}
+													<input type="number" onChange={(e) => update({ [`${index}singleAmount`]: usd(Number(e.target.value)) })} value={disp(singleAmount)}
+														onBlur={(e) => onChangeBlur(usd(Number(e.target.value)), "singleAmount")}
 													/>
 												</div>
 												<div className="buttons">
@@ -499,7 +493,7 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 												</div>
 												<div className="input">
 
-													<input type="number" readOnly value={Math.round(singleAmount)} />
+													<input type="number" readOnly value={disp(singleAmount)} />
 												</div>
 												<div className="buttons">
 													<button disabled className="plus"></button>
@@ -507,7 +501,7 @@ const Bet = ({ index, add, setAdd }: BetProps) => {
 											</div>
 										}
 									</div>
-									<span >$</span>
+									<span >{symbol}</span>
 								</div>
 							</div>
 							<div className="modal-footer">

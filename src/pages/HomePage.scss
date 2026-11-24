@@ -468,3 +468,33 @@ $t3: #8f80c7;
   @media (max-width: 860px) { grid-template-columns: repeat(3, 1fr); }
   @media (max-width: 560px) { grid-template-columns: repeat(2, 1fr); }
 }
+
+/* ===== PREMIUM ENHANCEMENTS ===== */
+.sb-app { font-family: "Inter", "Roboto", system-ui, sans-serif; }
+
+.sb-banner {
+  position: relative;
+  overflow: hidden;
+  transition: transform 240ms ease, box-shadow 240ms ease;
+  &:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.45); }
+  &::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(120deg, transparent 30%, rgba(255,255,255,0.08) 50%, transparent 70%);
+    transform: translateX(-100%); transition: transform 700ms ease;
+  }
+  &:hover::after { transform: translateX(100%); }
+}
+
+.ref-card {
+  transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  border: 1px solid rgba(255,255,255,0.04);
+  &:hover { transform: translateY(-6px) scale(1.02); box-shadow: 0 18px 50px rgba(124,58,237,0.25); border-color: rgba(124,58,237,0.45); }
+}
+
+.sb-section-head h3 { letter-spacing: -0.5px; }
+
+.sb-tabbar button { transition: transform 160ms ease, color 160ms ease; }
+.sb-tabbar button:active { transform: scale(0.94); }
+
+.sb-see-more { transition: transform 200ms ease; }
+.sb-see-more:hover { transform: translateX(4px); }

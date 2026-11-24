@@ -2,13 +2,16 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { useBlocked, useWallet } from "../../p2p/hooks";
+import { useCurrency } from "../../currency";
 import AuthModal from "../../auth/AuthModal";
 import NotificationsBell from "../NotificationsBell";
+import CurrencySelect from "../CurrencySelect";
 import "./Navbar.scss";
 
 export default function Navbar() {
   const { user, logout } = useAuth();
   const { balance } = useWallet();
+  const { fmt } = useCurrency();
   const blocked = useBlocked();
   const [authOpen, setAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<"login" | "register">("register");
@@ -29,15 +32,16 @@ export default function Navbar() {
               <>
                 <div className="nav-balance">
                   <span className="balance-label">Balance</span>
-                  <span className="balance-amount">{blocked ? "🔒 Locked" : `$${balance.toLocaleString()}`}</span>
+                  <span className="balance-amount">{blocked ? "🔒 Locked" : fmt(balance)}</span>
                 </div>
+                <CurrencySelect />
                 <NotificationsBell />
                 <Link to="/deposit" className="nav-deposit-btn">Deposit</Link>
                 <Link to="/withdraw" className="nav-deposit-btn" style={{ background: "#fff" }}>Withdraw</Link>
-                <button className="nav-user-btn">
+                <Link to="/profile" className="nav-user-btn">
                   <span className="user-avatar">{(user.displayName || user.email || "U")[0].toUpperCase()}</span>
                   <span className="user-name">{user.displayName || user.email?.split("@")[0] || "User"}</span>
-                </button>
+                </Link>
                 <button className="nav-logout-btn" onClick={logout} title="Logout">⏻</button>
               </>
             ) : (

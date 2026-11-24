@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/AuthContext";
+import AuthModal from "../auth/AuthModal";
 import { Menu as MenuIcon, Search } from "lucide-react";
 import Header from "../components/qwin/Header";
 import { openSupportChat } from "../components/SupportChat";
@@ -29,8 +31,24 @@ const SIDEBAR: { label: string; icon: string; cat: string }[] = [
 
 const TABS = ["All Games", "Popular", "New Games", "Provider Spotlight", "Crash", "Table Games"];
 
-const TABLE_CATS = ["Table", "Card", "Roulette", "Blackjack", "Poker", "Baccarat"];
-const CRASH_CATS = ["Crash", "Instant", "Dice"];
+// Homepage casino shelf: Aviator + Drive It + Mines plus 7 new arrivals (all with real artwork).
+const FEATURED_HOME_IDS = [
+  "aviator",
+  "aviator-pixi",
+  "telegram-crash",
+  "aviator-socket",
+  "crash-example",
+  "igaming-crash",
+  "drive-it",
+  "mines",
+  "floating-dragon",
+  "starlight-princess-1000",
+  "sugar-supreme",
+  "big-bamboo",
+  "money-train-2",
+  "mental",
+  "jammin-jars-2",
+];
 
 function GameThumb({ g, onClick }: { g: CasinoGame; onClick: () => void }) {
   return (
@@ -58,6 +76,11 @@ function GameThumb({ g, onClick }: { g: CasinoGame; onClick: () => void }) {
 
 export default function HomePage() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authMode, setAuthMode] = useState<"login" | "register">("register");
+  function openAuth(mode: "login" | "register" = "register") { setAuthMode(mode); setAuthOpen(true); }
+  function goAviator() { if (!user) { openAuth("register"); return; } navigate("/aviator"); }
   const [activeTab, setActiveTab] = useState("All Games");
   const [sideCat, setSideCat] = useState("all");
   const [query, setQuery] = useState("");
@@ -72,36 +95,22 @@ export default function HomePage() {
     return () => { on = false; };
   }, []);
 
-  function matchTab(g: CasinoGame): boolean {
-    switch (activeTab) {
-      case "Popular": return g.hot;
-      case "New Games": return g.new;
-      case "Provider Spotlight": return g.provider === "Pragmatic Play";
-      case "Crash": return CRASH_CATS.includes(g.cat);
-      case "Table Games": return TABLE_CATS.includes(g.cat);
-      default: return true;
-    }
-  }
-
-  function matchSide(g: CasinoGame): boolean {
-    if (sideCat === "all" || sideCat === "providers") return true;
-    if (sideCat === "new") return g.new;
-    if (sideCat === "crash") return false;
-    if (sideCat === "table") return TABLE_CATS.includes(g.cat);
-    return g.cat.toLowerCase() === sideCat;
-  }
-
   function matchQuery(g: CasinoGame): boolean {
     const q = query.trim().toLowerCase();
     return !q || g.name.toLowerCase().includes(q) || g.provider.toLowerCase().includes(q);
   }
 
-  const filtered = CASINO_GAMES.filter((g) => matchTab(g) && matchSide(g) && matchQuery(g));
-  const first10 = filtered.slice(0, 10);
+  const homeGames = FEATURED_HOME_IDS.map((id) => CASINO_GAMES.find((g) => g.id === id)).filter(
+    (g): g is CasinoGame => !!g && matchQuery(g)
+  );
 
   function play(g: CasinoGame) {
-    if (g.id === "aviator") { navigate("/aviator"); return; }
+    if (g.id === "aviator") { goAviator(); return; }
     if (g.id === "mines") { navigate("/mines"); return; }
+    if (["aviator-pixi","telegram-crash","aviator-socket","crash-example","igaming-crash"].includes(g.id)) {
+      navigate(`/casino?play=${g.id}`);
+      return;
+    }
     navigate("/casino");
   }
 
@@ -156,7 +165,7 @@ export default function HomePage() {
               <div className="sb-banner-kicker">SPINBET EXCLUSIVE</div>
               <h2>MORE WAYS<br />TO WIN</h2>
               <p>New drops every week with huge prizes</p>
-              <button className="sb-btn-gold" onClick={() => navigate("/aviator")}>Join Now</button>
+              <button className="sb-btn-gold" onClick={() => openAuth("register")}>Join Now</button>
               <span className="sb-banner-art">🎰</span>
             </div>
             <div className="sb-banner">
@@ -198,15 +207,13 @@ export default function HomePage() {
               <button onClick={() => navigate("/casino")}>View All</button>
             </div>
             <div className="ref-grid">
-              {first10.map((g) => <GameThumb key={g.id} g={g} onClick={() => play(g)} />)}
+              {homeGames.map((g) => <GameThumb key={g.id} g={g} onClick={() => play(g)} />)}
             </div>
-            {filtered.length === 0 && <div className="sb-empty">No games in this section.</div>}
-            {filtered.length > 10 && (
-              <button className="sb-see-more" onClick={() => navigate("/casino")}>
-                SEE MORE — {filtered.length - 10} MORE GAMES
-                <span>→</span>
-              </button>
-            )}
+            {homeGames.length === 0 && <div className="sb-empty">No games in this section.</div>}
+            <button className="sb-see-more" onClick={() => navigate("/casino")}>
+              SEE MORE — ALL 1000 CASINO GAMES
+              <span>→</span>
+            </button>
           </section>
 
           {/* ===== Top 15 sports matches ===== */}
@@ -259,7 +266,7 @@ export default function HomePage() {
               <button onClick={() => navigate("/casino")}>View All</button>
             </div>
             <div className="sb-featured">
-              <button className="sb-feat" style={{ background: "linear-gradient(135deg,#7C3AED,#DB2777)" }} onClick={() => navigate("/aviator")}>
+              <button className="sb-feat" style={{ background: "linear-gradient(135deg,#7C3AED,#DB2777)" }} onClick={goAviator}>
                 <span className="sb-feat-emoji">✈️</span>
                 <span className="sb-feat-body"><b>Aviator</b><i>Spribe • 97% RTP • Cash out before fly-away</i></span>
                 <span className="sb-feat-cta">PLAY NOW</span>
@@ -279,6 +286,8 @@ export default function HomePage() {
         <span>18+ Play responsibly. Aviator &amp; Mines — provably fair.</span>
       </footer>
 
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} initialMode={authMode} />
+
       {drawerOpen && (
         <>
           <div className="qw-overlay" onClick={() => setDrawerOpen(false)} />
@@ -295,7 +304,7 @@ export default function HomePage() {
       <nav className="qw-tabbar sb-tabbar">
         <button className="qw-tab active" type="button" onClick={() => navigate("/")}><MenuIcon size={20} /><span>Home</span></button>
         <button className="qw-tab" type="button" onClick={() => navigate("/casino")}><span>🎰</span><span>Casino</span></button>
-        <button className="qw-tab" type="button" onClick={() => navigate("/aviator")}><span>✈️</span><span>Aviator</span></button>
+        <button className="qw-tab" type="button" onClick={goAviator}><span>✈️</span><span>Aviator</span></button>
         <button className="qw-tab" type="button" onClick={() => navigate("/notifications")}><span>🔔</span><span>Alerts</span></button>
         <button className="qw-tab" type="button" onClick={() => setDrawerOpen(true)}><MenuIcon size={20} /><span>Menu</span></button>
       </nav>

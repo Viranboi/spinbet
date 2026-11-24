@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import GameLayout, { Panel, BetInput, ActionButton } from './GameLayout';
+import { useCurrency } from '../../currency';
 
 const COLOR = '#D97706';
 const ROWS = 10;
@@ -13,6 +14,7 @@ const BUCKET_COLORS = [
 ];
 
 export default function Plinko({ balance, setBalance }: { balance: number; setBalance: (b: number | ((prev: number) => number)) => void }) {
+  const { fmt } = useCurrency();
   const [bet, setBet] = useState(10);
   const [dropping, setDropping] = useState(false);
   const [lastBucket, setLastBucket] = useState<number | null>(null);
@@ -86,6 +88,7 @@ export default function Plinko({ balance, setBalance }: { balance: number; setBa
     }
   }
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => { drawBoard(); }, []);
 
   async function dropBall() {
@@ -163,7 +166,7 @@ export default function Plinko({ balance, setBalance }: { balance: number; setBa
               color: lastResult.win ? '#065F46' : '#991B1B',
               fontWeight: 600, fontSize: 14,
             }}>
-              {lastResult.mult}× — ${lastResult.payout.toFixed(2)}
+              {lastResult.mult}× — {fmt(lastResult.payout)}
             </div>
           )}
 

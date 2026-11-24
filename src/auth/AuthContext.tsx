@@ -185,20 +185,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
    // Auto-logout if an admin bans this account while session is active.
    useEffect(() => {
      if (!user?.uid) return;
-     const ref = doc(db, "users", user.uid);
+     const uid = user.uid;
+     const email = (user.email || "").toLowerCase();
+     const ref = doc(db, "users", uid);
+     const logoutBanned = () => {
+       try { signOut(auth); } catch {}
+       setUser(null);
+       localStorage.removeItem("letsbet_current_user");
+       try {
+         const users = getLocalUsers();
+         if (email && users[email]) {
+           users[email].user = { ...users[email].user, suspended: true };
+           saveLocalUsers(users);
+         }
+       } catch {}
+     };
      const unsub = onSnapshot(
        ref,
        (snap) => {
          if (snap.exists() && snap.data()?.suspended === true) {
-           try { signOut(auth); } catch {}
-           setUser(null);
-           localStorage.removeItem("letsbet_current_user");
+           logoutBanned();
          }
        },
        () => {}
      );
-     return () => unsub();
-   }, [user?.uid]);
+     // Fallback poll in case the realtime listener is delayed/blocked.
+     const iv = setInterval(async () => {
+       try {
+         const snap = await getDoc(ref);
+         if (snap.exists() && snap.data()?.suspended === true) {
+           logoutBanned();
+         }
+       } catch {}
+     }, 4000);
+     return () => { unsub(); clearInterval(iv); };
+   }, [user?.uid, user?.email]);
 
    async function register(email: string, password: string, displayName: string, phone?: string, referralCode?: string) {
     const cleanEmail = email.trim().toLowerCase();

@@ -4,6 +4,8 @@ import Navbar from "../components/layout/Navbar";
 import Footer from "../components/layout/Footer";
 import { useAuth } from "../auth/AuthContext";
 import { SportsDataService, LEAGUES, type SportMatch } from "../sports/sportsData";
+import { debit, getBalance, ensureWallet } from "../p2p/wallet";
+import { useCurrency } from "../currency";
 import "./SportsPage.scss";
 
 function fmtDate(d: string) {
@@ -47,6 +49,7 @@ function MatchCard({ m, onOdds }: { m: SportMatch; onOdds: (m: SportMatch, pick:
 
 export default function SportsPage() {
   const { user } = useAuth();
+  const { fmt, symbol, disp, usd, rate } = useCurrency();
   const [matches, setMatches] = useState<SportMatch[]>([]);
   const [loading, setLoading] = useState(true);
   const [league, setLeague] = useState("all");
@@ -82,9 +85,54 @@ export default function SportsPage() {
   const live = filtered.filter((m) => m.isLive);
   const upcoming = filtered.filter((m) => !m.isLive);
 
+  const [pendingBet, setPendingBet] = React.useState<{ m: SportMatch; pick: string; odds: number } | null>(null);
+  const [stake, setStake] = React.useState<string>("100");
+
   function onOdds(m: SportMatch, pick: string, odds: number) {
     if (!user) return toast.info("Log in to place bets — tap JOIN.");
-    toast.success(`${pick} @ ${odds.toFixed(2)} — ${m.homeTeam} vs ${m.awayTeam}`);
+    setStake("100");
+    setPendingBet({ m, pick, odds });
+  }
+
+  function confirmBet() {
+    if (!pendingBet || !user) return;
+    const amount = Number(stake);
+    if (!Number.isFinite(amount) || amount <= 0) {
+      toast.error("Enter a valid stake");
+      return;
+    }
+    try {
+      ensureWallet(user.uid);
+      if (getBalance(user.uid) < amount) {
+        toast.error("Insufficient balance");
+        return;
+      }
+      debit(user.uid, amount, "sports_bet", pendingBet.m.id, `${pendingBet.pick} @ ${pendingBet.odds.toFixed(2)} — ${pendingBet.m.homeTeam} vs ${pendingBet.m.awayTeam}`);
+      const potential = Math.round(amount * pendingBet.odds * 100) / 100;
+      // record bet
+      try {
+        const raw = localStorage.getItem("sports_bets");
+        const arr = raw ? JSON.parse(raw) : [];
+        arr.unshift({
+          id: `sb_${Date.now()}`,
+          uid: user.uid,
+          matchId: pendingBet.m.id,
+          match: `${pendingBet.m.homeTeam} vs ${pendingBet.m.awayTeam}`,
+          pick: pendingBet.pick,
+          odds: pendingBet.odds,
+          stake: amount,
+          potential,
+          ts: Date.now(),
+          status: "placed",
+        });
+        if (arr.length > 200) arr.length = 200;
+        localStorage.setItem("sports_bets", JSON.stringify(arr));
+      } catch {}
+      toast.success(`Bet placed: ${pendingBet.pick} @ ${pendingBet.odds.toFixed(2)} — potential payout ${fmt(potential)}`);
+      setPendingBet(null);
+    } catch (e: any) {
+      toast.error(e?.message || "Bet failed");
+    }
   }
 
   return (
@@ -140,6 +188,26 @@ export default function SportsPage() {
           )}
         </div>
       </main>
+      {pendingBet && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 1000 }}>
+          <div style={{ background: "#1a1d23", padding: 20, borderRadius: 8, width: 320, color: "#fff" }}>
+            <h3 style={{ marginTop: 0 }}>Place Bet</h3>
+            <p>{pendingBet.m.homeTeam} vs {pendingBet.m.awayTeam}</p>
+            <p>Pick: {pendingBet.pick} @ {pendingBet.odds.toFixed(2)}</p>
+            <label>Stake ({symbol})</label>
+            <input
+              type="number"
+              value={rate === 1 || stake === "" ? stake : String(disp(Number(stake) || 0))}
+              onChange={(e) => setStake(rate === 1 || e.target.value === "" ? e.target.value : String(usd(Number(e.target.value))))}
+              style={{ width: "100%", padding: 8, marginTop: 4, marginBottom: 12 }}
+            />
+            <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
+              <button onClick={() => setPendingBet(null)} style={{ padding: "8px 12px" }}>Cancel</button>
+              <button onClick={confirmBet} style={{ padding: "8px 12px", background: "#16a34a", color: "#fff", border: "none", borderRadius: 4 }}>Place Bet</button>
+            </div>
+          </div>
+        </div>
+      )}
       <Footer />
     </div>
   );

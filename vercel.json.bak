@@ -1,0 +1,12 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/patalink-status/:id",
+      "destination": "/api/patalink-status?id=:id"
+    }
+  ],
+  "installCommand": "npm install --legacy-peer-deps",
+  "buildCommand": "echo \"skip build\"",
+  "outputDirectory": "build",
+  "framework": "create-react-app"
+}

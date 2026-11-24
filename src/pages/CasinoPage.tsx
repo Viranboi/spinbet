@@ -1,7 +1,8 @@
 import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useAuth } from "../auth/AuthContext";
+import AuthModal from "../auth/AuthModal";
 import { CASINO_GAMES, PROVIDERS, CATEGORY_ICONS, CasinoGame } from "./casinoGames";
 import { credit, debit as walletDebit } from "../p2p/wallet";
 import { useWallet } from "../p2p/hooks";
@@ -15,6 +16,7 @@ import {
   PlinkoEngine,
   DriveItEngine,
 } from "../games/CasinoEngines";
+import { useCurrency } from "../currency";
 import "./CasinoPage.scss";
 
 const CATEGORIES = ["All", "Instant", "Crash", "Slots", "Live", "Table", "Card", "Roulette", "Blackjack", "Poker", "Baccarat", "Dice", "Jackpot", "Fishing", "Virtual"];
@@ -23,7 +25,7 @@ const UNLOCK_THRESHOLD = 10_000;
 const LOW_THRESHOLD = 10;
 
 function isLowMinGame(gameId: string) {
-  return gameId === "aviator" || gameId === "mines" || gameId === "drive-it";
+  return gameId === "aviator" || gameId === "mines" || gameId === "drive-it" || gameId === "aviator-pixi" || gameId === "telegram-crash" || gameId === "aviator-socket" || gameId === "crash-example" || gameId === "igaming-crash";
 }
 
 function loadFavs(): string[] {
@@ -36,12 +38,22 @@ function loadFavs(): string[] {
 
 export default function CasinoPage() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const { user } = useAuth();
   const [activeCat, setActiveCat] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [provider, setProvider] = useState("All");
   const [favs, setFavs] = useState<string[]>(loadFavs);
   const [launching, setLaunching] = useState<CasinoGame | null>(null);
+  const [authOpen, setAuthOpen] = useState(false);
   const [visibleCount, setVisibleCount] = useState(60);
+
+  React.useEffect(() => {
+    const playId = searchParams.get("play");
+    if (!playId) return;
+    const g = CASINO_GAMES.find((x) => x.id === playId);
+    if (g) setLaunching(g);
+  }, [searchParams]);
 
   const filtered = useMemo(
     () =>
@@ -69,6 +81,7 @@ export default function CasinoPage() {
 
   function openGame(g: CasinoGame) {
     if (g.id === "aviator") {
+      if (!user) { setAuthOpen(true); return; }
       navigate("/aviator");
       return;
     }
@@ -155,6 +168,7 @@ export default function CasinoPage() {
       {launching && (
         <GameModal game={launching} index={CASINO_GAMES.findIndex((g) => g.id === launching.id)} onClose={() => setLaunching(null)} />
       )}
+      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} initialMode="register" />
     </div>
   );
 }
@@ -164,6 +178,7 @@ export default function CasinoPage() {
 function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; onClose: () => void }) {
   const { user } = useAuth();
   const { balance } = useWallet();
+  const { fmt } = useCurrency();
   const lowGame = isLowMinGame(game.id);
   const required = lowGame ? LOW_THRESHOLD : UNLOCK_THRESHOLD;
   const locked = balance < required;
@@ -182,7 +197,7 @@ function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; 
   function creditWin(amount: number, note: string) {
     if (!user) return;
     credit(user.uid, amount, "casino_win", game.id, note);
-    toast.success(`+${amount.toLocaleString()}`);
+    toast.success(`+${fmt(amount)}`);
   }
 
   const engineProps = { game, debit, creditWin };
@@ -204,12 +219,12 @@ function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; 
         ) : locked ? (
           <div className="gm-locked">
             <span>🔒</span>
-            <h3>{lowGame ? "Minimum $10 Required" : "VIP Game Locked"}</h3>
+            <h3>{lowGame ? `Minimum ${fmt(10)} Required` : "VIP Game Locked"}</h3>
             <p>
               {lowGame ? (
-                <>You need at least <b>$10</b> to play <b>{game.name}</b> — you currently hold <b>${Math.floor(balance).toLocaleString()}</b>.</>
+                <>You need at least <b>{fmt(10)}</b> to play <b>{game.name}</b> — you currently hold <b>{fmt(Math.floor(balance))}</b>.</>
               ) : (
-                <>You need at least <b>${UNLOCK_THRESHOLD.toLocaleString()}</b> to play <b>{game.name}</b> — you currently hold <b>${Math.floor(balance).toLocaleString()}</b>.</>
+                <>You need at least <b>{fmt(UNLOCK_THRESHOLD)}</b> to play <b>{game.name}</b> — you currently hold <b>{fmt(Math.floor(balance))}</b>.</>
               )}
             </p>
             <p className="lock-hint">Deposit via Crypto to top up your balance.</p>
@@ -241,6 +256,7 @@ function GameModal({ game, index, onClose }: { game: CasinoGame; index: number; 
 function DiceGame() {
   const { user } = useAuth();
   const uid = user!.uid;
+  const { fmt, disp, usd, rate } = useCurrency();
   const [bet, setBet] = useState("100");
   const [target, setTarget] = useState(50);
   const [rolling, setRolling] = useState(false);
@@ -291,14 +307,19 @@ function DiceGame() {
         <div><span>Win chance</span><b>{chance}%</b></div>
       </div>
       <div className="dice-controls">
-        <input type="number" min={1} value={bet} onChange={(e) => setBet(e.target.value)} disabled={rolling} />
+        <input
+          type="number" min={1}
+          value={rate === 1 || bet === "" ? bet : String(disp(Number(bet) || 0))}
+          onChange={(e) => setBet(rate === 1 || e.target.value === "" ? e.target.value : String(usd(Number(e.target.value))))}
+          disabled={rolling}
+        />
         <button className="btn-gold" onClick={roll} disabled={rolling}>
           {rolling ? "Rolling…" : "Roll dice"}
         </button>
       </div>
       {result && (
         <div className={`dice-result ${result.win ? "win" : "lose"}`}>
-          {result.win ? `🎉 Won $${result.payout.toLocaleString()} (${multiplier}×)` : `😢 Rolled ${result.roll.toFixed(2)} — you lost`}
+          {result.win ? `🎉 Won ${fmt(result.payout)} (${multiplier}×)` : `😢 Rolled ${result.roll.toFixed(2)} — you lost`}
         </div>
       )}
       {history.length > 0 && (

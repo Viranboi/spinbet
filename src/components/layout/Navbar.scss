@@ -296,7 +296,7 @@ $wr-green-dark: #008a44;
     .nav-links { display: none; }
 
     .nav-right {
-      .nav-balance, .nav-deposit-btn { display: none; }
+      .nav-balance, .nav-deposit-btn, .nav-right > select { display: none; }
       .nav-hamburger { display: flex; }
 
       &.nav-links.open {

@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import { CasinoGame } from "../pages/casinoGames";
 import { playGemSound, playMineExplodeSound, playCashoutSoundMines } from "./../sounds";
+import { useCurrency } from "../currency";
 
 export type EngineKind = "slot" | "crash" | "mines" | "wheel" | "flip" | "plinko" | "dice";
 
@@ -46,11 +47,19 @@ function BetBox({
   disabled?: boolean;
   children: React.ReactNode;
 }) {
+  const { disp, usd, rate } = useCurrency();
+  const showValue = rate === 1 || bet === "" ? bet : String(disp(Number(bet) || 0));
   return (
     <div className="engine-controls">
       <div className="bet-field">
         <span>Bet</span>
-        <input type="number" min={1} value={bet} onChange={(e) => setBet(e.target.value)} disabled={disabled} />
+        <input
+          type="number"
+          min={1}
+          value={showValue}
+          onChange={(e) => setBet(rate === 1 || e.target.value === "" ? e.target.value : String(usd(Number(e.target.value))))}
+          disabled={disabled}
+        />
       </div>
       {children}
     </div>
@@ -115,6 +124,7 @@ const SLOT_THEMES: Record<string, string[]> = {
 };
 
 function SlotEngine({ game, debit, creditWin }: EngineProps) {
+  const { fmt } = useCurrency();
   const symbols = SLOT_THEMES[game.id.replace(/-/g, "")] || ["7️⃣", "💎", "🔔", "🍒", "⭐"];
   const { bet, setBet, amount } = useWager();
   const [reels, setReels] = useState([0, 1, 2].map((i) => i % symbols.length));
@@ -142,7 +152,7 @@ function SlotEngine({ game, debit, creditWin }: EngineProps) {
         if (mult > 0) {
           const win = Math.round(amount * mult * 100) / 100;
           creditWin(win, `${game.name} ${mult}x`);
-          setResult(`🎉 ${mult}× — won $${win.toLocaleString()}`);
+          setResult(`🎉 ${mult}× — won ${fmt(win)}`);
         } else {
           setResult("No match — try again");
         }
@@ -238,6 +248,7 @@ function CrashEngine({ game, debit, creditWin }: EngineProps) {
 const MINE_COUNTS = [1, 3, 5, 10, 15, 20, 24];
 
 function MinesEngine({ game, debit, creditWin }: EngineProps) {
+  const { fmt } = useCurrency();
   const { bet, setBet, amount } = useWager();
   const [mines, setMines] = useState(5);
   const [board, setBoard] = useState<boolean[]>(Array(25).fill(false));
@@ -351,7 +362,7 @@ function MinesEngine({ game, debit, creditWin }: EngineProps) {
         </div>
       )}
       {state === "lost" && <div className="engine-result lose">💥 Hit a mine — lost</div>}
-      {state === "won" && <div className="engine-result win">🎉 Cleared! Won ${Math.round(amount * currentMult(picks) * 100) / 100}</div>}
+      {state === "won" && <div className="engine-result win">🎉 Cleared! Won {fmt(Math.round(amount * currentMult(picks) * 100) / 100)}</div>}
       <BetBox bet={bet} setBet={setBet} disabled={state === "playing"}>
         {state === "playing" ? (
           <button className="btn-green" onClick={() => { if (picks > 0) finish(picks) }} disabled={picks === 0}>
@@ -381,6 +392,7 @@ const WHEEL_SEGMENTS = [
 ];
 
 function WheelEngine({ game, debit, creditWin }: EngineProps) {
+  const { fmt } = useCurrency();
   const { bet, setBet, amount } = useWager();
   const [angle, setAngle] = useState(0);
   const [spinning, setSpinning] = useState(false);
@@ -401,7 +413,7 @@ function WheelEngine({ game, debit, creditWin }: EngineProps) {
       if (seg.mult > 0) {
         const win = Math.round(amount * seg.mult * 100) / 100;
         creditWin(win, `${game.name} ${seg.label}`);
-        setResult(`🎉 ${seg.label} — won $${win.toLocaleString()}`);
+        setResult(`🎉 ${seg.label} — won ${fmt(win)}`);
       } else {
         setResult(`Landed on ${seg.label} — try again`);
       }
@@ -445,6 +457,7 @@ function FlipEngine({ game, debit, creditWin }: EngineProps) {
   };
   const three = opts.label.length === 3;
   const mult = three ? 2.85 : 1.95;
+  const { fmt } = useCurrency();
   const { bet, setBet, amount } = useWager();
   const [busy, setBusy] = useState(false);
   const [picked, setPicked] = useState<number | null>(null);
@@ -465,7 +478,7 @@ function FlipEngine({ game, debit, creditWin }: EngineProps) {
       if (o === choice) {
         const win = Math.round(amount * mult * 100) / 100;
         creditWin(win, `${game.name} win`);
-        setResult(`🎉 You won $${win.toLocaleString()} (${mult}×)`);
+        setResult(`🎉 You won ${fmt(win)} (${mult}×)`);
       } else {
         setResult(`It was ${opts.label[o]} — you lost`);
       }
@@ -502,6 +515,7 @@ function FlipEngine({ game, debit, creditWin }: EngineProps) {
 const PLINKO_SLOTS = [5.6, 2.1, 1.1, 0.5, 0.2, 0.5, 1.1, 2.1, 5.6];
 
 function PlinkoEngine({ game, debit, creditWin }: EngineProps) {
+  const { fmt } = useCurrency();
   const { bet, setBet, amount } = useWager();
   const [dropping, setDropping] = useState(false);
   const [landed, setLanded] = useState<number | null>(null);
@@ -523,7 +537,7 @@ function PlinkoEngine({ game, debit, creditWin }: EngineProps) {
       if (m >= 1) {
         const win = Math.round(amount * m * 100) / 100;
         creditWin(win, `${game.name} ${m}x`);
-        setResult(`🎉 ${m}× — won $${win.toLocaleString()}`);
+        setResult(`🎉 ${m}× — won ${fmt(win)}`);
       } else {
         setResult(`${m}× — try again`);
       }
@@ -558,8 +572,9 @@ function PlinkoEngine({ game, debit, creditWin }: EngineProps) {
 /* ---------------- DRIVE IT ENGINE (3D racing iframe) ---------------- */
 
 function DriveItEngine({ game, debit, creditWin, siteBalance }: EngineProps & { siteBalance: number }) {
+  const { fmt } = useCurrency();
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [status, setStatus] = useState("Pick $5–$5000 inside the game · finish 1st of 5 to win 7×");
+  const [status, setStatus] = useState(`Pick ${fmt(5)}–${fmt(5000)} inside the game · finish 1st of 5 to win 7×`);
   const [statusKind, setStatusKind] = useState<"win" | "lose" | "">("");
   const debitRef = useRef(debit);
   const creditRef = useRef(creditWin);
@@ -590,7 +605,7 @@ function DriveItEngine({ game, debit, creditWin, siteBalance }: EngineProps & { 
         }
         const ok = debitRef.current(amt, `${game.name} entry $${amt} bet`);
         if (ok) {
-          setStatus(`$${amt} bet accepted · win $${(amt * 7).toLocaleString()} for 1st · good luck!`);
+          setStatus(`${fmt(amt)} bet accepted · win ${fmt(amt * 7)} for 1st · good luck!`);
           setStatusKind("");
           send({ type: "DRIVEIT_BET_OK" });
         } else {
@@ -601,22 +616,22 @@ function DriveItEngine({ game, debit, creditWin, siteBalance }: EngineProps & { 
       } else if (d.type === "DRIVEIT_WIN") {
         const prize = Number(d.prize) || (Number(d.amount) || 5) * 7;
         creditRef.current(prize, `${game.name} 1st place win`);
-        setStatus(`🏆 1st place! Won $${prize.toLocaleString()}`);
+        setStatus(`🏆 1st place! Won ${fmt(prize)}`);
         setStatusKind("win");
       } else if (d.type === "DRIVEIT_LOSE") {
         const amt = Number(d.amount) || 5;
-        setStatus(`Race finished — lost $${amt}. Win 1st to get $${(amt * 7).toLocaleString()}.`);
+        setStatus(`Race finished — lost ${fmt(amt)}. Win 1st to get ${fmt(amt * 7)}.`);
         setStatusKind("lose");
       } else if (d.type === "DRIVEIT_REFUND") {
         const amt = Number(d.amount) || 5;
         creditRef.current(amt, `${game.name} cancelled race refund`);
-        setStatus(`Bet refunded · $${amt} back to balance`);
+        setStatus(`Bet refunded · ${fmt(amt)} back to balance`);
         setStatusKind("");
       }
     }
     window.addEventListener("message", onMsg);
     return () => window.removeEventListener("message", onMsg);
-  }, [game.name]);
+  }, [game.name, fmt]);
 
   return (
     <div className="engine center">
@@ -630,7 +645,7 @@ function DriveItEngine({ game, debit, creditWin, siteBalance }: EngineProps & { 
         />
       </div>
       <div className={`engine-result ${statusKind}`}>{status}</div>
-      <div className="paytable">Pick $5 / $50 / $500 / $5000 inside the game · taken from site balance · 1st place pays 7×</div>
+      <div className="paytable">Pick {fmt(5)} / {fmt(50)} / {fmt(500)} / {fmt(5000)} inside the game · taken from site balance · 1st place pays 7×</div>
     </div>
   );
 }

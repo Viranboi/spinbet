@@ -1,6 +1,23 @@
 {
+  "rewrites": [
+    {
+      "source": "/api/patalink-status/:id",
+      "destination": "/api/patalink-status?id=:id"
+    }
+  ],
   "installCommand": "npm install --legacy-peer-deps",
-  "buildCommand": "GENERATE_SOURCEMAP=false react-app-rewired build",
+  "buildCommand": "react-app-rewired build",
   "outputDirectory": "build",
-  "framework": "create-react-app"
+  "framework": null,
+  "headers": [
+    {
+      "source": "/unity/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
+    }
+  ]
 }
